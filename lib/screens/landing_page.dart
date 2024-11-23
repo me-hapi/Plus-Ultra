@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lingap/services/auth_services/google_auth.dart';
 
 class LandingPageButtons extends StatelessWidget {
   final Animation<Offset> buttonAnimation;
-
+  
   const LandingPageButtons({
     Key? key,
     required this.buttonAnimation,
@@ -30,7 +31,9 @@ class LandingPageButtons extends StatelessWidget {
           SizedBox(height: 10),
           ElevatedButton(
             key: Key('loginButton'),
-            onPressed: () {},
+            onPressed: () {
+              context.go('/signin');
+            },
             style: ElevatedButton.styleFrom(
               textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               minimumSize: Size(150, 50),
@@ -47,7 +50,11 @@ class LandingPageButtons extends StatelessWidget {
           SizedBox(height: 10),
           ElevatedButton.icon(
             key: Key('googleSignupButton'),
-            onPressed: () {},
+            onPressed: () {
+              final googleAuthService = GoogleAuthService(context);
+              googleAuthService.setupAuthListener();
+              googleAuthService.googleSignIn();
+            },
             style: ElevatedButton.styleFrom(
               textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               minimumSize: Size(150, 50),

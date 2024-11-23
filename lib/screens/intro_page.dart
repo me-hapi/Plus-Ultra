@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/screens/landing_page.dart';
 
 class IntroPage extends ConsumerStatefulWidget {
@@ -56,6 +57,7 @@ class _IntroPageState extends ConsumerState<IntroPage> with SingleTickerProvider
     _animationController.dispose();
     super.dispose();
   }
+
 
   void _nextPage() {
     if (_currentIndex < _texts.length - 1) {

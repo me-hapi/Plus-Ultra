@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -15,11 +16,30 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
     _navigateToNextScreen();
+    _checkSession();
+  }
+
+  void _checkSession() async {
+    final Session? session = Supabase.instance.client.auth.currentSession;
+
+    if (!mounted) return;
+
+    Future.microtask(() {
+      if (session != null) {
+        context.go('/bottom-nav');
+      } else {
+        context.go('/intro');
+      }
+    });
   }
 
   _navigateToNextScreen() async {
     await Future.delayed(Duration(seconds: 3), () {});
-    context.go('/intro');
+    if (!mounted) return;
+
+    Future.microtask(() {
+      context.go('/intro');
+    });
   }
 
   @override
@@ -43,10 +63,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   child: Text(
                     'Lingap',
                     style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4CC9FE)
-                    ),
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF4CC9FE)),
                   ),
                 ),
               ],

@@ -33,6 +33,17 @@ dependencies:
   go_router: ^14.2.8
   persistent_bottom_nav_bar: ^6.2.1
   flutter_riverpod: ^2.6.1
+  supabase_flutter: ^2.8.1
+  supabase_auth_ui: ^0.5.1
+  google_sign_in: ^6.2.2
+  aub_ai: ^1.0.3
+  tflite_flutter: ^0.11.0
+  dvdb: ^1.0.6
+  mediapipe_core: ^0.0.1
+  mediapipe_text: ^0.0.1
+  # stream_video: ^0.6.0
+  # stream_video_flutter: ^0.6.0
+  # stream_video_push_notification: ^0.6.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -63,6 +74,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/universal_sentence_encoder.tflite
     - assets/logo.png
     - assets/test.jpg
 
