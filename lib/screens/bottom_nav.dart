@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/features/wearable_device/bluetooth_scan.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:lingap/screens/home_page.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
@@ -17,11 +18,11 @@ class _BottomNavState extends State<BottomNav> {
 
   List<Widget> _screens() {
     return [
-      HomePage(),
+      BluetoothScanPage(),
       ChatbotPage(),
       JournalPage(),
-      PeerConnectPage(),
       ConsultationPage(),
+      PeerConnectPage(),
     ];
   }
 

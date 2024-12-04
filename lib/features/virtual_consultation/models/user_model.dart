@@ -3,4 +3,6 @@ class UserModel {
   final String name;
 
   UserModel({required this.userId, required this.name});
+
+  get id => null;
 }

@@ -16,6 +16,9 @@ class ProfessionalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Getting screen size to make font and button sizes adaptive
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -24,42 +27,55 @@ class ProfessionalCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // Picture at the center top
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(imageUrl),
+            Center(
+              child: CircleAvatar(
+                radius: screenWidth * 0.15,
+                backgroundImage: NetworkImage(imageUrl),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             // Name
             Text(
               name,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: screenWidth * 0.045, // Reduced adaptive font size to avoid overflow
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
             // Availability
             Text(
               availability,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: screenWidth * 0.03, // Adaptive font size
                 color: Colors.grey[700],
               ),
             ),
-            const SizedBox(height: 16),
             // Set Appointment Button
-            ElevatedButton(
-              onPressed: onSetAppointment,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: onSetAppointment,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    vertical: screenWidth * 0.03, // Reduced adaptive button padding
+                  ),
+                ),
+                child: Text(
+                  'Set Appointment',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.03,
+                    color: Colors.white
+                  ),
                 ),
               ),
-              child: Text('Set Appointment'),
             ),
           ],
         ),

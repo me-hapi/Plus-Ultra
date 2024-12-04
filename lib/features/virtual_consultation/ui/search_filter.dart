@@ -2,109 +2,79 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final searchProvider = StateProvider<String>((ref) => '');
-final availabilityProvider = StateProvider<String>((ref) => 'All');
-final jobProvider = StateProvider<String>((ref) => 'All');
-final sortByProvider = StateProvider<String>((ref) => 'Name');
+final sidebarVisibleProvider = StateProvider<bool>((ref) => false);
 
-class ProfessionalSearchAndFilter extends ConsumerWidget {
-  const ProfessionalSearchAndFilter({Key? key}) : super(key: key);
+class SearchAndSidebar extends ConsumerWidget {
+  const SearchAndSidebar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final searchController = TextEditingController();
-    final selectedAvailability = ref.watch(availabilityProvider);
-    final selectedJob = ref.watch(jobProvider);
-    final sortBy = ref.watch(sortByProvider);
+    final sidebarVisible = ref.watch(sidebarVisibleProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Search & Filter Professionals'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Search Bar
-            TextField(
-              key: Key('search_bar'),
-              controller: searchController,
-              decoration: InputDecoration(
-                labelText: 'Search by Name',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+    return Row(
+      children: [
+        // Sidebar
+        if (sidebarVisible)
+          Container(
+            width: 250,
+            color: Colors.grey[200],
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Filters',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 16),
+                  // Here you can add filter options, e.g., dropdowns or checkboxes
+                  // For now, placeholder text
+                  Text('Filter options go here'),
+                ],
               ),
-              onChanged: (value) {
-                ref.read(searchProvider.notifier).state = value;
-              },
             ),
-            const SizedBox(height: 16),
-            // Filters
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Availability Filter
-                DropdownButton<String>(
-                  key: Key('availability_filter'),
-                  value: selectedAvailability,
-                  items: ['All', 'Available', 'Not Available', 'Available Soon']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    ref.read(availabilityProvider.notifier).state = value!;
-                  },
-                ),
-                // Job Filter
-                DropdownButton<String>(
-                  key: Key('job_filter'),
-                  value: selectedJob,
-                  items: ['All', 'Psychologist', 'Counselor', 'Therapist']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    ref.read(jobProvider.notifier).state = value!;
-                  },
-                ),
-                // Sort By
-                DropdownButton<String>(
-                  key: Key('sort_by_filter'),
-                  value: sortBy,
-                  items: ['Name', 'Job']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text('Sort by $value'),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    ref.read(sortByProvider.notifier).state = value!;
-                  },
+                // Search Bar with Filter Button
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        key: const Key('search_bar'),
+                        controller: searchController,
+                        decoration: const InputDecoration(
+                          labelText: 'Search by Name',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                        onChanged: (value) {
+                          ref.read(searchProvider.notifier).state = value;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Filter Button
+                    IconButton(
+                      key: const Key('filter_button'),
+                      icon: const Icon(Icons.filter_list),
+                      onPressed: () {
+                        ref.read(sidebarVisibleProvider.notifier).state = !sidebarVisible;
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            // Placeholder for Professional List
-            Expanded(
-              child: Center(
-                child: Text(
-                  'Professionals will be displayed here',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

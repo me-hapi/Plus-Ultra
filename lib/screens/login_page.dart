@@ -15,6 +15,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   final TextEditingController _otpController = TextEditingController();
   bool _isOtpSent = false;
 
+  /*
   void _sendOtp(String email) async {
     try {
       await Supabase.instance.client.auth.signInWithOtp(email: email, emailRedirectTo: kIsWeb ? null : 'io.supabase.flutter://signin-callback/');
@@ -47,7 +48,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed to verify OTP}"),
+            content: Text("Failed to verify OTP"),
           ),
         );
       }
@@ -59,6 +60,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       );
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -73,35 +75,39 @@ class _SignInPageState extends ConsumerState<SignInPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (!_isOtpSent) ...[
-                SupaEmailAuth(
-                  redirectTo: 'io.supabase.cornstalk://login-callback/',
-                  onSignInComplete: (response) {
-                    _sendOtp(response.user!.email ?? '');
-                  },
-                  onSignUpComplete: (response) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Please check your email for verification."),
-                      ),
-                    );
-                    _sendOtp(response.user!.email ?? '');
-                  },
-                  metadataFields: [
-                    MetaDataField(
-                      prefixIcon: const Icon(Icons.person, color: Color(0xFF059212)),
-                      label: 'Username',
-                      key: 'username',
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Please enter something';
-                        }
-                        return null;
-                      },
+              // For now, directly navigate to the main page after sign-in is successful
+              SupaEmailAuth(
+                redirectTo: 'io.supabase.cornstalk://login-callback/',
+                onSignInComplete: (response) {
+                  // Uncomment the following line if you want to use OTP
+                  // _sendOtp(response.user!.email ?? '');
+                  context.go('/bottom-nav');
+                },
+                onSignUpComplete: (response) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please check your email for verification."),
                     ),
-                  ],
-                ),
-              ] else ...[
+                  );
+                  // Uncomment the following line if you want to use OTP
+                  // _sendOtp(response.user!.email ?? '');
+                },
+                metadataFields: [
+                  MetaDataField(
+                    prefixIcon: const Icon(Icons.person, color: Color(0xFF059212)),
+                    label: 'Username',
+                    key: 'username',
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Please enter something';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+              /*
+              if (_isOtpSent) ...[
                 TextField(
                   controller: _otpController,
                   decoration: const InputDecoration(
@@ -126,6 +132,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   child: const Text('Verify OTP'),
                 ),
               ],
+              */
             ],
           ),
         ),
