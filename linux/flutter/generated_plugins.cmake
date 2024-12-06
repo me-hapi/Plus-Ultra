@@ -3,9 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  flutter_webrtc
   gtk
   url_launcher_linux
+  videosdk_webrtc
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

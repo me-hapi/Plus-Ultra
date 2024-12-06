@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lingap/screens/bottom_nav.dart';
+import 'package:lingap/services/database/global_supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final currentQuestionIndexProvider = StateProvider<int>((ref) => 0);
 final responsesProvider = StateProvider<List<int>>((ref) => List.filled(21, 0));
 
-class DASTest extends ConsumerWidget {
+class DASTest extends ConsumerStatefulWidget {
+  @override
+  _DASTestState createState() => _DASTestState();
+}
+
+class _DASTestState extends ConsumerState<DASTest> {
+  late GlobalSupabase _supabase;
+  late SupabaseClient _client;
+  
+  @override
+  void initState() {
+    super.initState();
+    _client = Supabase.instance.client;
+    _supabase = GlobalSupabase(_client);
+  }
+
   final List<String> questions = [
     "I found it hard to wind down.",
     "I was aware of dryness of my mouth.",
@@ -29,7 +47,7 @@ class DASTest extends ConsumerWidget {
     "I felt that life was meaningless."
   ];
 
-  void _nextQuestion(WidgetRef ref, int response) {
+  void _nextQuestion(int response) {
     final currentQuestionIndex = ref.read(currentQuestionIndexProvider);
     final responses = ref.read(responsesProvider.notifier);
 
@@ -37,23 +55,25 @@ class DASTest extends ConsumerWidget {
     if (currentQuestionIndex < questions.length - 1) {
       ref.read(currentQuestionIndexProvider.notifier).state++;
     } else {
-      _showResults(ref);
+      _showResults();
     }
   }
 
-  void _showResults(WidgetRef ref) {
-    // Display results (this can be expanded for detailed feedback)
+  void _showResults() {
+    final scores = _computeScores();
+
     showDialog(
-      context: ref.context,
+      context: context,
       builder: (context) => AlertDialog(
         title: Text("Assessment Completed"),
-        content: Text("Thank you for completing the assessment."),
+        content: Text(
+            "Thank you for completing the assessment.\n\nDepression Score: ${scores['depression']}\nAnxiety Score: ${scores['anxiety']}\nStress Score: ${scores['stress']}"),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
-              ref.read(currentQuestionIndexProvider.notifier).state = 0;
-              ref.read(responsesProvider.notifier).state = List.filled(21, 0);
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => BottomNav()),
+              );
             },
             child: Text("OK"),
           ),
@@ -62,10 +82,47 @@ class DASTest extends ConsumerWidget {
     );
   }
 
+  Map<String, int> _computeScores() {
+    final responses = ref.read(responsesProvider);
+
+    // Depression: Questions 3, 5, 10, 13, 16, 17, 21
+    int depressionScore = responses[2] +
+        responses[4] +
+        responses[9] +
+        responses[12] +
+        responses[15] +
+        responses[16] +
+        responses[20];
+
+    // Anxiety: Questions 2, 4, 7, 9, 15, 19, 20
+    int anxietyScore = responses[1] +
+        responses[3] +
+        responses[6] +
+        responses[8] +
+        responses[14] +
+        responses[18] +
+        responses[19];
+
+    // Stress: Questions 1, 6, 8, 11, 12, 14, 18
+    int stressScore = responses[0] +
+        responses[5] +
+        responses[7] +
+        responses[10] +
+        responses[11] +
+        responses[13] +
+        responses[17];
+
+    _supabase.insertMhScore(uid: _client.auth.currentUser!.id, depression: depressionScore, anxiety: anxietyScore, stress: stressScore);
+    return {
+      'depression': depressionScore,
+      'anxiety': anxietyScore,
+      'stress': stressScore,
+    };
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final currentQuestionIndex = ref.watch(currentQuestionIndexProvider);
-    final responses = ref.watch(responsesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -91,7 +148,7 @@ class DASTest extends ConsumerWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: ElevatedButton(
-                    onPressed: () => _nextQuestion(ref, index),
+                    onPressed: () => _nextQuestion(index),
                     child: Text(
                       [
                         "Did not apply to me at all",

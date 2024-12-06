@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lingap/features/peer_communication/test/join_screen.dart';
-import 'package:lingap/features/peer_communication/ui/find_peers.dart';
-// import 'package:lingap/features/peer_communication/join_screen.dart';
+import 'package:lingap/features/peer_connect/ui/search_page.dart';
 
 class PeerConnectPage extends StatelessWidget {
   const PeerConnectPage({Key? key}) : super(key: key);
@@ -17,7 +15,7 @@ class PeerConnectPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => JoinScreen(),
+                builder: (context) => SearchPage(),
               ),
             );
           },

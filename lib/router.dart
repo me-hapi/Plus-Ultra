@@ -6,7 +6,6 @@ import 'package:lingap/screens/intro_page.dart';
 import 'package:lingap/screens/bottom_nav.dart';
 import 'package:lingap/screens/home_page.dart';
 import 'package:lingap/screens/login_page.dart';
-import 'package:lingap/features/peer_communication/logic/chat_logic.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(

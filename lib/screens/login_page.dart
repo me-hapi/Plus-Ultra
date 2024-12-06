@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +16,7 @@ class SignInPage extends ConsumerStatefulWidget {
 class _SignInPageState extends ConsumerState<SignInPage> {
   final TextEditingController _otpController = TextEditingController();
   bool _isOtpSent = false;
+  final GlobalSupabase supabase = GlobalSupabase(client);
 
   /*
   void _sendOtp(String email) async {
@@ -83,10 +86,18 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   // _sendOtp(response.user!.email ?? '');
                   context.go('/bottom-nav');
                 },
-                onSignUpComplete: (response) {
+                onSignUpComplete: (response) async {
+                  final user = response.user;
+                  if (user != null) {
+                    final uid = user.id;
+                    final name = user.userMetadata?['username'] ?? '';
+                    await supabase.insertProfile(uid: uid, name: name);
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Please check your email for verification."),
+                      content:
+                          Text("Please check your email for verification."),
                     ),
                   );
                   // Uncomment the following line if you want to use OTP
@@ -94,7 +105,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 },
                 metadataFields: [
                   MetaDataField(
-                    prefixIcon: const Icon(Icons.person, color: Color(0xFF059212)),
+                    prefixIcon:
+                        const Icon(Icons.person, color: Color(0xFF059212)),
                     label: 'Username',
                     key: 'username',
                     validator: (val) {
