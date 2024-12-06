@@ -41,18 +41,18 @@ class _LoadingPageState extends State<LoadingPage>
       String roomId = await api.createRoomId();
       await _supabaseDB.insertRoom(roomId, 'available', 1, uid);
 
-      // await for (String status in _supabaseDB.isFull(roomId)) {
-      //   if (status == 'unavailable') {
-      //     break;
-      //   }
-      // }
+      await for (String status in _supabaseDB.isFull(roomId)) {
+        if (status == 'unavailable') {
+          break;
+        }
+      }
 
       Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => ChatScreen(roomId: roomId)),
       );
     } else {
       String? roomId = await match.findRoom(uid);
-      await _supabaseDB.updateRoom(roomId!, 'unavailable');
+      await _supabaseDB.updateRoom(roomId!, 'unavailable', uid);
       await _supabaseDB.incrementParticipants(roomId);
 
       Navigator.of(context).push(

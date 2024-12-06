@@ -21,7 +21,7 @@ class MessageController {
           created_at: DateTime.now(),
           roomId: roomId,
           sender: uid,
-          content: encrypt.encryptMessage(content, uid.substring(0,32)));
+          content: encrypt.encryptMessage(content, roomId));
       await _supabaseDb.insertMessage(message);
     } catch (e) {
       throw Exception('Failed to send message: $e');

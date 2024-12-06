@@ -79,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       final message = messages[messages.length - 1 - index];
                       return ChatBubble(
                         message: encrypt.decryptMessage(
-                            message.content, uid.substring(0, 32)),
+                            message.content, widget.roomId),
                         isSentByMe: message.sender == uid,
                       );
                     },

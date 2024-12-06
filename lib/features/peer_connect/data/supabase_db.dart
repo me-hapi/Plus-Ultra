@@ -113,20 +113,28 @@ class SupabaseDB {
     await insertRoomParticipant(response['id'] as int, uid);
   }
 
-  Future<void> updateRoom(String roomId, String roomStatus) async {
-    final response =
-        await _client.from('room').update({'status': roomStatus}).eq('room_id', roomId);
+  Future<void> updateRoom(String roomId, String roomStatus, String uid) async {
+    final response = await _client
+        .from('room')
+        .update({'status': roomStatus})
+        .eq('room_id', roomId)
+        .select('id')
+        .single();
+
+    await insertRoomParticipant(response['id'] as int, uid);
   }
 
   Future<void> incrementParticipants(String roomId) async {
-    final selectResponse =
-        await _client.from('room').select('participants').eq('room_id', roomId).single();
+    final selectResponse = await _client
+        .from('room')
+        .select('participants')
+        .eq('room_id', roomId)
+        .single();
 
     int currentParticipants = selectResponse['participants'];
     final updateResponse = await _client.from('room').update({
       'participants': currentParticipants + 1,
     }).eq('room_id', roomId);
-
   }
 
   Future<void> insertRoomParticipant(int roomId, String userId) async {
