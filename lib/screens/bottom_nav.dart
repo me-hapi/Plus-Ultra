@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lingap/core/utils/test/das_test.dart';
+import 'package:lingap/features/virtual_consultation/professional/professional_page.dart';
 import 'package:lingap/features/virtual_consultation/user/user_page.dart';
 import 'package:lingap/features/wearable_device/bluetooth_scan.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -43,7 +44,8 @@ class _BottomNavState extends State<BottomNav> {
     return [
       BluetoothScanPage(),
       ChatbotPage(),
-      JournalPage(),
+      // JournalPage(),
+      ProfessionalPage(),
       UserPage(),
       PeerConnectPage(),
     ];

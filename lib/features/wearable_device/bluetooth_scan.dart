@@ -77,6 +77,7 @@ class _BluetoothScanPageState extends State<BluetoothScanPage> {
 
       // Discover services
       await _ble.discoverAllServices(device.id);
+      addLog('Done discovering services');
       final List<Service> services = await _ble.getDiscoveredServices(device.id);
       if (services.isEmpty) {
         addLog('No services found on device: ${device.id}');
