@@ -40,6 +40,28 @@ class _ParticipantTileState extends State<ParticipantTile> {
     });
   }
 
+  void _onStreamEnabled(Stream stream) {
+    if (stream.kind == 'video') {
+      setState(() => videoStream = stream);
+    }
+  }
+
+  void _onStreamDisabled(Stream stream) {
+    if (stream.kind == 'video') {
+      setState(() => videoStream = null);
+    }
+  }
+
+  @override
+  void dispose() {
+    // Remove event listeners using named functions
+    widget.participant.off(Events.streamEnabled, _onStreamEnabled);
+    widget.participant.off(Events.streamDisabled, _onStreamDisabled);
+
+    // Call super.dispose to clean up the widget
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
