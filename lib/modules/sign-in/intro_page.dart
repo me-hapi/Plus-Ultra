@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lingap/screens/landing_page.dart';
+import 'package:lingap/modules/sign-in/landing_page.dart';
 
 class IntroPage extends ConsumerStatefulWidget {
   const IntroPage({Key? key}) : super(key: key);

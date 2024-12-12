@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lingap/features/peer_connect/ui/search_page.dart';
+import 'package:lingap/features/peer_connect/ui/chat_home.dart';
 
 class PeerConnectPage extends StatelessWidget {
   const PeerConnectPage({Key? key}) : super(key: key);
@@ -7,26 +7,6 @@ class PeerConnectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Peer Connect'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => SearchPage(),
-              ),
-            );
-          },
-          child: const Text(
-            'Join a Meeting',
-            style: TextStyle(
-              fontSize: 18.0,
-            ),
-          ),
-        ),
-      ),
-    );
+        body: ChatHome());
   }
 }

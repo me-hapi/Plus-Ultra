@@ -10,11 +10,12 @@ dependencies:
     sdk: flutter
   go_router: ^14.2.8
   persistent_bottom_nav_bar: ^6.2.1
+  curved_navigation_bar: ^1.0.6
   flutter_riverpod: ^2.6.1
   supabase_flutter: ^2.8.1
   supabase_auth_ui: ^0.5.1
   google_sign_in: ^6.2.2
-  tflite_flutter: ^0.11.0
+  # tflite_flutter: ^0.11.0
   cupertino_icons: ^1.0.8
   videosdk: ^1.2.2
   http: ^1.2.2
@@ -24,6 +25,7 @@ dependencies:
   encrypt: ^5.0.3
   pointycastle: ^3.9.1
   table_calendar: ^3.1.2
+  fl_chart: ^0.69.2
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +36,25 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+          weight: 300
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
   assets:
     - assets/logo.png
     - assets/test.jpg
+    - assets/mood/cheerful.png
+    - assets/mood/happy.png
+    - assets/mood/neutral.png
+    - assets/mood/sad.png
+    - assets/mood/awful.png
+    - assets/vitals/smartwatch.png
+    - assets/vitals/heart.png
+    - assets/vitals/blood.png
+    - assets/vitals/sleep.png
+    - assets/vitals/mood.png

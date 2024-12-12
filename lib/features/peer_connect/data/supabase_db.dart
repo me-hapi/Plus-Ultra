@@ -62,20 +62,17 @@ class SupabaseDB {
   }
 
   Stream<String> isFull(String roomId) {
-    // Access the Supabase client
     final supabase = Supabase.instance.client;
 
-    // Create a stream that listens to changes in the 'room' table
     final roomStream = supabase
         .from('room')
         .stream(primaryKey: ['room_id']).eq('room_id', roomId);
 
-    // Transform the stream to yield the 'status' field as a String
     return roomStream.map((rooms) {
       if (rooms.isNotEmpty) {
         return rooms.first['status'] as String;
       }
-      return 'unknown'; // Default value if no room is found
+      return 'unknown';
     });
   }
 
@@ -98,7 +95,7 @@ class SupabaseDB {
     });
   }
 
-  Future<void> insertRoom(
+  Future<int> insertRoom(
       String roomId, String roomStatus, int participants, String uid) async {
     final response = await _client
         .from('room')
@@ -111,6 +108,7 @@ class SupabaseDB {
         .single();
 
     await insertRoomParticipant(response['id'] as int, uid);
+    return response['id'] as int;
   }
 
   Future<void> updateRoom(String roomId, String roomStatus, String uid) async {
@@ -143,5 +141,60 @@ class SupabaseDB {
       'uid': userId,
       'joined_at': DateTime.now().toIso8601String(),
     });
+  }
+
+  Stream<List<Map<String, dynamic>>> fetchUnknownUsers(String uid) {
+    try {
+      return _client
+          .from('profile')
+          .stream(primaryKey: ['id'])
+          .neq('id', uid)
+          .map((snapshot) {
+            return snapshot.map((user) => user).toList();
+          });
+    } catch (e) {
+      print('Error: $e');
+      return Stream.value([]);
+    }
+  }
+
+  Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) async* {
+    try {
+      // Listen to changes in the 'room_participant' table.
+      final subscription = _client
+          .from('room_participant')
+          .stream(primaryKey: ['id']).eq('uid', myUid);
+
+      await for (final data in subscription) {
+        final List<int> roomIds =
+            data.map((item) => item['room_id'] as int).toList();
+
+        if (roomIds.isEmpty) {
+          yield [];
+          continue;
+        }
+
+        final response = await _client
+            .from('room_participant')
+            .select('room(room_id), profile(id, name, status, imageUrl)')
+            .inFilter('room_id', roomIds);
+
+        final List<Map<String, dynamic>> participants = (response as List)
+            .where((item) => item['profile']['id'] != myUid)
+            .map((item) => {
+                  'uid': item['uid'],
+                  'name': item['profile']['name'],
+                  'status': item['profile']['status'],
+                  'imageUrl': item['profile']['imageUrl'],
+                  'roomId': item['room']['room_id']
+                })
+            .toList();
+
+        yield participants;
+      }
+    } catch (error) {
+      print('Error fetching participants: $error');
+      yield [];
+    }
   }
 }

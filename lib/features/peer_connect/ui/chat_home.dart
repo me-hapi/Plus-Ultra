@@ -1,0 +1,261 @@
+import 'package:flutter/material.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/peer_connect/data/supabase_db.dart';
+import 'package:lingap/features/peer_connect/services/api_service.dart';
+import 'package:lingap/features/peer_connect/ui/chat_rows.dart';
+import 'package:lingap/features/peer_connect/ui/chat_screen.dart';
+import 'package:lingap/features/peer_connect/ui/connection_row.dart';
+
+class ChatHome extends StatefulWidget {
+  @override
+  _ChatHomeState createState() => _ChatHomeState();
+}
+
+class _ChatHomeState extends State<ChatHome> {
+  final SupabaseDB _supabaseDb = SupabaseDB(client);
+  final APIService api = APIService();
+  bool isMessagesSelected = true;
+  bool _isSearching = false;
+
+  Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) {
+    return _supabaseDb.fetchConnectedUsers(myUid);
+  }
+
+  Stream<List<Map<String, dynamic>>> fetchUnknownUsers(String uid) {
+    return _supabaseDb.fetchUnknownUsers(uid);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFEBE7E4),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFEBE7E4),
+        title: _isSearching
+            ? SizedBox(
+                height: 40, // Set desired height here
+                child: TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    hintText: 'Search...',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
+              )
+            : const Text(
+                'Chat',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  color: Color(0xFF473c38),
+                ),
+              ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isSearching ? Icons.close : Icons.search,
+              color: const Color(0xFF473c38),
+            ),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+              });
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Main container for Messages and Connect
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white, // Main container background color
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              padding: EdgeInsets.all(4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Container for "Messages"
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isMessagesSelected = true;
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 6),
+                        margin: EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          color: isMessagesSelected
+                              ? Color(0xFFA0AF64)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Messages',
+                            style: TextStyle(
+                                color: isMessagesSelected
+                                    ? Colors.white
+                                    : Color(0xFF473c38),
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Container for "Connect"
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isMessagesSelected = false;
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 6),
+                        margin: EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          color: !isMessagesSelected
+                              ? Color(0xFFED7E4E)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Connect',
+                            style: TextStyle(
+                                color: !isMessagesSelected
+                                    ? Colors.white
+                                    : Color(0xFF473c38),
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          SizedBox(height: 10,),
+          // Content based on selection
+          Expanded(
+              child: isMessagesSelected
+                  ? StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: fetchConnectedUsers(uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(child: Text('No chats available'));
+                        } else {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              final user = snapshot.data![index];
+                              final name = user['name'];
+                              final avatarUrl = user['imageUrl'];
+                              final roomId = user['roomId'];
+
+                              return ChatRow(
+                                avatarUrl: 'https://via.placeholder.com/150',
+                                name: name,
+                                lastMessage: 'test',
+                                time: '2:00 PM',
+                                unreadMessages: 1,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        roomId: roomId,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        }
+                      })
+                  : StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: fetchUnknownUsers(uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(child: Text('No chats available'));
+                        } else {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              final user = snapshot.data![index];
+                              final userId = user['id'];
+                              final name = user['name'] as String? ?? 'Unknown';
+                              final imageUrl = user['imageUrl'] as String? ??
+                                  'https://via.placeholder.com/150';
+
+                              return ConnectionRow(
+                                name: name,
+                                avatarUrl: imageUrl,
+                                onTap: () async {
+                                  try {
+                                    // Show a loading indicator or handle feedback if necessary
+                                    String roomId = await api.createRoomId();
+                                    final room = await _supabaseDb.insertRoom(
+                                        roomId, 'unavailable', 2, uid);
+                                    await _supabaseDb.insertRoomParticipant(
+                                        room, userId);
+
+                                    // Navigate to the ChatScreen
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatScreen(roomId: roomId),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    // Handle errors (e.g., show a snackbar or alert dialog)
+                                    print('Error creating room: $e');
+                                  }
+                                },
+                              );
+                            },
+                          );
+                        }
+                      },
+                    ))
+        ],
+      ),
+    );
+  }
+}
