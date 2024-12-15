@@ -1,245 +1,268 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/booking_page.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends StatelessWidget {
+  final String imageUrl;
   final String name;
-  final String jobTitle;
-  final String bio;
-  final String profileImagePath;
-  final List<DateTime> unavailableHours;
-  final TimeOfDay startTime;
-  final TimeOfDay endTime;
+  final String job;
+  final String location;
+  final String distance;
 
   const ProfilePage({
     Key? key,
+    required this.imageUrl,
     required this.name,
-    required this.jobTitle,
-    required this.bio,
-    required this.profileImagePath,
-    required this.unavailableHours,
-    required this.startTime,
-    required this.endTime,
+    required this.job,
+    required this.location,
+    required this.distance,
   }) : super(key: key);
 
   @override
-  _ProfessionalPageState createState() => _ProfessionalPageState();
-}
-
-class _ProfessionalPageState extends State<ProfilePage> {
-  late DateTime _focusedDay;
-  late DateTime _selectedDay;
-  String? _selectedTimeSlot;
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _focusedDay = DateTime.now();
-    _selectedDay = DateTime.now();
-  }
-
-  List<String> _generateTimeSlots(TimeOfDay startTime, TimeOfDay endTime) {
-    List<String> timeSlots = [];
-    int startHour = startTime.hour;
-    int endHour = endTime.hour;
-
-    for (int hour = startHour; hour < endHour; hour++) {
-      String startSlot = _format12Hour(TimeOfDay(hour: hour, minute: 0));
-      String endSlot = _format12Hour(TimeOfDay(hour: hour + 1, minute: 0));
-      timeSlots.add('$startSlot - $endSlot');
-    }
-    return timeSlots;
-  }
-
-  String _format12Hour(TimeOfDay time) {
-    final int hour = time.hour;
-    final String period = hour >= 12 ? 'PM' : 'AM';
-    final int hour12 = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-    return '${hour12.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')} $period';
-  }
-
-  bool _isTimeSlotUnavailable(DateTime day, String slot) {
-    // Parse the start hour of the time slot
-    int hour = int.parse(slot.split(':')[0]);
-    return widget.unavailableHours.any((unavailableDateTime) =>
-        unavailableDateTime.year == day.year &&
-        unavailableDateTime.month == day.month &&
-        unavailableDateTime.day == day.day &&
-        unavailableDateTime.hour == hour);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    List<String> timeSlots =
-        _generateTimeSlots(widget.startTime, widget.endTime);
-
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Professional Page'),
-      ),
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (scrollNotification) {
-          if (scrollNotification is UserScrollNotification) {
-            FocusScope.of(context).unfocus(); // Unfocus input fields on scroll
-          }
-          return false;
-        },
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: SingleChildScrollView(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Center(
-                  child: Column(
+                // Top image covering full width
+                Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip
+                      .none, // Ensures content extending outside Stack is visible
+                  children: [
+                    // Image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(25.0),
+                      child: Container(
+                        width: screenWidth,
+                        height: screenWidth,
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    // Positioned Card
+                    Positioned(
+                      bottom:
+                          -screenWidth * 0.12, // Position card below the image
+                      child: Card(
+                        color: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        child: Container(
+                          width: screenWidth * 0.8, // Adjust card width
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Column(
+                            mainAxisSize:
+                                MainAxisSize.min, // Adjust to fit content
+                            children: [
+                              Text(
+                                name,
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                job,
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.location_on,
+                                      size: 18.0, color: Colors.grey[600]),
+                                  SizedBox(width: 4.0),
+                                  Text(
+                                    location,
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  SizedBox(width: 10.0),
+                                  Text(
+                                    distance,
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    //Button
+                    Positioned(
+                      top: 42,
+                      left: 16,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.grey[300]),
+                          child: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.blueGrey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: screenWidth * 0.15),
+                // Fee and Completed Sessions
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage(widget.profileImagePath),
+                      Column(
+                        children: [
+                          Text(
+                            '₱ 500',
+                            style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700),
+                          ), // Placeholder for session fee
+                          Text(
+                            'Session Fee',
+                            style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        widget.name,
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.jobTitle,
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        widget.bio,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14),
+                      Column(
+                        children: [
+                          Text(
+                            '25',
+                            style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700),
+                          ), // Placeholder for completed sessions
+                          Text(
+                            'Completed Sessions',
+                            style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
-                Text(
-                  'Set an Appointment',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                Listener(
-                  onPointerMove: (details) {
-                    if (details.delta.dy < 0) {
-                      _scrollController.jumpTo(_scrollController.offset + 15);
-                    } else if (details.delta.dy > 0) {
-                      _scrollController.jumpTo(_scrollController.offset - 15);
-                    }
-                  },
-                  child: TableCalendar(
-                    focusedDay: _focusedDay,
-                    firstDay: DateTime(2024, 1, 1),
-                    lastDay: DateTime(2030, 1, 1),
-                    selectedDayPredicate: (day) {
-                      return isSameDay(_selectedDay, day);
-                    },
-                    onDaySelected: (selectedDay, focusedDay) {
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                        _selectedTimeSlot = null; // Reset time slot on new date
-                      });
-                    },
-                    calendarStyle: CalendarStyle(
-                      todayTextStyle: TextStyle(color: Colors.white),
-                      todayDecoration: BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
+
+                Divider(thickness: 1.0),
+
+                // Personal Bio
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Personal Bio',
+                        style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold),
                       ),
-                      outsideDaysVisible: false,
-                    ),
-                    headerStyle: HeaderStyle(
-                      formatButtonVisible: false,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text('Select Time Slot:'),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
-                  itemCount: timeSlots.length,
-                  itemBuilder: (context, index) {
-                    String slot = timeSlots[index];
-                    bool isUnavailable =
-                        _isTimeSlotUnavailable(_selectedDay, slot);
-                    return GestureDetector(
-                      onTap: isUnavailable
-                          ? null
-                          : () {
-                              setState(() {
-                                _selectedTimeSlot = slot;
-                              });
-                            },
-                      child: Card(
-                        color: isUnavailable
-                            ? Colors.grey.shade300
-                            : (_selectedTimeSlot == slot
-                                ? Colors.blue
-                                : Colors.white),
-                        child: Center(
-                          child: Text(
-                            slot,
-                            style: TextStyle(
-                              color: isUnavailable
-                                  ? Colors.black
-                                  : (_selectedTimeSlot == slot
-                                      ? Colors.white
-                                      : Colors.black),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin id arcu aliquet, elementum nisi quis, condimentum nibh.', // Placeholder for bio
+                        style:
+                            TextStyle(fontFamily: 'Montserrat', fontSize: 14.0),
                       ),
-                    );
-                  },
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  maxLines: 4,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Notes',
-                    alignLabelWithHint: true,
+                    ],
                   ),
                 ),
-                SizedBox(height: 20),
-                Center(
+
+                Divider(thickness: 1.0),
+
+                // Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 64.0, vertical: 8.0),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BookingPage(
+                                imageUrl: imageUrl,
+                                name: name,
+                                job: job,
+                                location: location,
+                                distance: distance)),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.grey, // Button background color
+                      foregroundColor: Colors.white, // Text color
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      minimumSize: const Size(
+                          double.infinity, 52.0), // Set minimum height
+                    ),
+                    child: Text(
+                      'Set Appointment',
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 16.0, // Set font size
+                        fontWeight:
+                            FontWeight.bold, // Optional: Make the text bold
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      if (_selectedTimeSlot != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Appointment set for $_selectedDay at $_selectedTimeSlot'),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Please select a time slot before setting an appointment.'),
-                          ),
-                        );
-                      }
+                      // Handle appointment history
                     },
-                    child: Text('Set Appointment'),
+                    child: Text('Appointment History'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Handle specialty
+                    },
+                    child: Text('Specialty'),
                   ),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );

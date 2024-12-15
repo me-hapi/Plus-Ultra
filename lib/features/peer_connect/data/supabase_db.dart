@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:lingap/features/peer_connect/models/message_model.dart';
@@ -143,18 +142,30 @@ class SupabaseDB {
     });
   }
 
-  Stream<List<Map<String, dynamic>>> fetchUnknownUsers(String uid) {
+  Stream<List<Map<String, dynamic>>> fetchUnknownUsers(String uid) async* {
     try {
-      return _client
-          .from('profile')
-          .stream(primaryKey: ['id'])
-          .neq('id', uid)
-          .map((snapshot) {
-            return snapshot.map((user) => user).toList();
-          });
+      final connectedUsersStream = fetchConnectedUsers(uid);
+
+      final allUsersStream =
+          _client.from('profile').stream(primaryKey: ['id']).neq('id', uid);
+
+      Set<String> connectedUserIds = {};
+
+      await for (final connectedUsers in connectedUsersStream) {
+        connectedUserIds =
+            connectedUsers.map((user) => user['uid'] as String).toSet();
+
+        await for (final allUsersSnapshot in allUsersStream) {
+          final filteredUnknownUsers = allUsersSnapshot.where((user) {
+            return !connectedUserIds.contains(user['id'] as String);
+          }).toList();
+
+          yield filteredUnknownUsers;
+        }
+      }
     } catch (e) {
       print('Error: $e');
-      return Stream.value([]);
+      yield [];
     }
   }
 

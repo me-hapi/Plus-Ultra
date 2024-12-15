@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lingap/core/utils/test/das_test.dart';
-import 'package:lingap/features/virtual_consultation/professional/professional_page.dart';
 import 'package:lingap/features/virtual_consultation/user/user_page.dart';
-import 'package:lingap/features/wearable_device/bluetooth_scan.dart';
 import 'package:lingap/modules/home/home_page.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
 import 'package:lingap/features/journaling/journal_page.dart';
@@ -10,7 +8,6 @@ import 'package:lingap/features/peer_connect/peer_page.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'top_nav.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({Key? key}) : super(key: key);
@@ -48,7 +45,7 @@ class _BottomNavState extends State<BottomNav> {
       HomePage(),
       ChatbotPage(),
       JournalPage(),
-      ProfessionalPage(),
+      UserPage(),
       PeerConnectPage(),
     ];
   }
@@ -73,6 +70,7 @@ class _BottomNavState extends State<BottomNav> {
       //   ],
       // ),
       bottomNavigationBar: CurvedNavigationBar(
+        animationDuration: const Duration(milliseconds: 600),
         backgroundColor: Color(0xFFEBE7E4),
         color: Colors.white,
         buttonBackgroundColor: Color(0xFF3d4456),
