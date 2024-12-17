@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/modules/profile/ui/profile_page.dart';
 
 class GreetingCard extends StatelessWidget {
   @override
@@ -10,7 +11,7 @@ class GreetingCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
         ),
-        padding: EdgeInsets.all(8), // Optional: Add padding for better layout
+        padding: EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -20,6 +21,10 @@ class GreetingCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => ProfilePage()));
+                  },
                   child: CircleAvatar(
                     child: Icon(Icons.person, size: 24, color: Colors.white),
                     backgroundColor: Colors.grey,
@@ -29,7 +34,7 @@ class GreetingCard extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.notifications),
                   onPressed: () {
-                    // Handle notification icon click
+                    //NOTIFICATION FUNCTION
                   },
                 ),
               ],
@@ -85,7 +90,9 @@ class GreetingCard extends StatelessWidget {
             width: 40,
           ),
         ),
-        SizedBox(height: 4,),
+        SizedBox(
+          height: 4,
+        ),
         Text(
           label,
           style: TextStyle(

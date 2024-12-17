@@ -4,7 +4,7 @@ import 'package:lingap/services/auth_services/google_auth.dart';
 
 class LandingPageButtons extends StatelessWidget {
   final Animation<Offset> buttonAnimation;
-  
+
   const LandingPageButtons({
     Key? key,
     required this.buttonAnimation,
@@ -22,7 +22,8 @@ class LandingPageButtons extends StatelessWidget {
               context.go('/bottom-nav');
             },
             style: ElevatedButton.styleFrom(
-              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textStyle:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               minimumSize: Size(150, 50),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
@@ -35,7 +36,8 @@ class LandingPageButtons extends StatelessWidget {
               context.go('/signin');
             },
             style: ElevatedButton.styleFrom(
-              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textStyle:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               minimumSize: Size(150, 50),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
@@ -56,7 +58,8 @@ class LandingPageButtons extends StatelessWidget {
               googleAuthService.googleSignIn();
             },
             style: ElevatedButton.styleFrom(
-              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textStyle:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               minimumSize: Size(150, 50),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),

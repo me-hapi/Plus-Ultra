@@ -1,0 +1,2 @@
+C:/Users/louie/Desktop/Lingap Dev/lingap/android/app/.cxx/Debug/3c2d5a5f/x86/CMakeFiles/edit_cache.dir
+C:/Users/louie/Desktop/Lingap Dev/lingap/android/app/.cxx/Debug/3c2d5a5f/x86/CMakeFiles/rebuild_cache.dir

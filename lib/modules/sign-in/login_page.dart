@@ -80,7 +80,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
             children: [
               // For now, directly navigate to the main page after sign-in is successful
               SupaEmailAuth(
-                redirectTo: 'io.supabase.cornstalk://login-callback/',
+                redirectTo: 'io.supabase.lingap://login-callback/',
                 onSignInComplete: (response) {
                   // Uncomment the following line if you want to use OTP
                   // _sendOtp(response.user!.email ?? '');
