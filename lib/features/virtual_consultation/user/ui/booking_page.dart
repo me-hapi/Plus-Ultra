@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:lingap/features/virtual_consultation/user/ui/payment_page.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/booking/payment_page.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
-import 'package:lingap/features/virtual_consultation/user/ui/timedate.dart';
-import 'package:lingap/features/virtual_consultation/user/ui/user_details.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/booking/timedate.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/booking/user_details.dart';
+import 'package:lingap/features/virtual_consultation/user/user_page.dart';
+import 'package:lingap/modules/home/bottom_nav.dart';
 
 class BookingPage extends StatefulWidget {
-  final String imageUrl;
-  final String name;
-  final String job;
-  final String location;
-  final String distance;
+  final Map<String, dynamic> professionalData;
 
   const BookingPage({
     Key? key,
-    required this.imageUrl,
-    required this.name,
-    required this.job,
-    required this.location,
-    required this.distance,
+    required this.professionalData,
   }) : super(key: key);
 
   @override
@@ -27,6 +24,17 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   int index = 0;
   final ScrollController _scrollController = ScrollController();
+  SupabaseDB supabase = SupabaseDB(client);
+  // late DateTime startTime;
+  // late DateTime endTime;
+  // late List<String> availableDays;
+  // late List<String> breakTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // fetchAvailability();
+  }
 
   @override
   void dispose() {
@@ -34,22 +42,62 @@ class _BookingPageState extends State<BookingPage> {
     super.dispose();
   }
 
+  // void fetchAvailability() {
+  //   startTime = widget.professionalData['start_time'];
+  //   endTime = widget.professionalData['end_time'];
+  //   availableDays = widget.professionalData['available_days'];
+  //   breakTime = widget.professionalData['break_time'];
+  // }
+
+  final Map<String, dynamic> stepData = {
+    'user_details': {},
+    'time_date': {},
+    'payment': {},
+  };
+
   List<Widget> screens() {
     return [
-      UserDetails(),
-      DateTimeSelector(),
-      PaymentPage(),
+      UserDetails(
+        onDataChanged: (data) {
+          stepData['user_details'] = data;
+        },
+      ),
+      DateTimeSelector(
+        onDataChanged: (data) {
+          stepData['time_date'] = data;
+        },
+        // startTime: startTime,
+        // endTime: endTime,
+        // availableDays: availableDays,
+        // breakTime: breakTime,
+      ),
+      PaymentPage(
+        onDataChanged: (data) {
+          stepData['payment'] = data;
+        },
+      ),
     ];
   }
 
   void nextPage() {
+    print(stepData['user_details']);
     if (index < screens().length - 1) {
       setState(() {
         index++;
       });
       _scrollToTop();
     } else {
-      // Handle the finish action here, e.g., navigate to a confirmation page
+      supabase.insertAppointment(
+          uid: uid,
+          professionalUid: widget.professionalData['uid'],
+          status: 'reserved');
+          Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                LandingPage(),
+          ),
+        );
     }
   }
 
@@ -64,6 +112,7 @@ class _BookingPageState extends State<BookingPage> {
   @override
   Widget build(BuildContext context) {
     final steps = ["User Details", "Time and Date", "Payment"];
+    final professionalData = widget.professionalData;
 
     return Scaffold(
       backgroundColor: const Color(0xFFEBE7E4),
@@ -143,11 +192,7 @@ class _BookingPageState extends State<BookingPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: ProfessionalCard(
-                imageUrl: widget.imageUrl,
-                name: widget.name,
-                job: widget.job,
-                location: widget.location,
-                distance: widget.distance,
+                professionalData: professionalData,
               ),
             ),
             const SizedBox(height: 10),

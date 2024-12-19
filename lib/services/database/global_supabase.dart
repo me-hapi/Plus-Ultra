@@ -44,4 +44,18 @@ class GlobalSupabase {
       'display_name': false,
     });
   }
+
+  Future<bool> isProfessional(String uid) async {
+    final response = await _client
+        .from('professional')
+        .select('uid')
+        .eq('uid', uid)
+        .maybeSingle();
+
+    if (response != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

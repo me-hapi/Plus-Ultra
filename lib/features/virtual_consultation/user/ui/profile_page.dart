@@ -2,24 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/booking_page.dart';
 
 class ProfilePage extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final String job;
-  final String location;
-  final String distance;
+  final Map<String, dynamic> professionalData;
 
   const ProfilePage({
     Key? key,
-    required this.imageUrl,
-    required this.name,
-    required this.job,
-    required this.location,
-    required this.distance,
+    required this.professionalData,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+
+    final String imageUrl = professionalData['imageUrl'] ?? '';
+    final String name = professionalData['name'] ?? '';
+    final String job = professionalData['job'] ?? '';
+    final String location = professionalData['location'] ?? '';
+    final String distance = professionalData['distance'] ?? '';
+    final String sessionFee = professionalData['consultationFee'] ?? 'Free';
+    final String completedSessions =
+        professionalData['completedSessions'] ?? '25';
+    final String personalBio = professionalData['bio'] ??
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin id arcu aliquet, elementum nisi quis, condimentum nibh.';
+    final String? clinicName = professionalData['clinic_name'];
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
@@ -43,6 +48,9 @@ class ProfilePage extends StatelessWidget {
                         child: Image.network(
                           imageUrl,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, StackTrace) {
+                            return const Icon(Icons.person, size: 50);
+                          },
                         ),
                       ),
                     ),
@@ -78,29 +86,42 @@ class ProfilePage extends StatelessWidget {
                                   color: Colors.grey[700],
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.location_on,
-                                      size: 18.0, color: Colors.grey[600]),
-                                  SizedBox(width: 4.0),
-                                  Text(
-                                    location,
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      color: Colors.grey[600],
+                              clinicName != null
+                                  ? Row(
+                                      children: [
+                                        Icon(
+                                          Icons.location_on,
+                                          size: screenWidth * 0.04,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          location,
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: screenWidth * 0.035,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          distance,
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: screenWidth * 0.035,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Text(
+                                      'Teleconsultation Only',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: screenWidth * 0.035,
+                                        color: Colors.grey[700],
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 10.0),
-                                  Text(
-                                    distance,
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                         ),
@@ -139,7 +160,7 @@ class ProfilePage extends StatelessWidget {
                       Column(
                         children: [
                           Text(
-                            '₱ 500',
+                            sessionFee,
                             style: TextStyle(
                                 fontFamily: 'Montserrat',
                                 fontSize: 20,
@@ -157,7 +178,7 @@ class ProfilePage extends StatelessWidget {
                       Column(
                         children: [
                           Text(
-                            '25',
+                            completedSessions,
                             style: TextStyle(
                                 fontFamily: 'Montserrat',
                                 fontSize: 20,
@@ -194,7 +215,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                       SizedBox(height: 8.0),
                       Text(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin id arcu aliquet, elementum nisi quis, condimentum nibh.', // Placeholder for bio
+                        personalBio, // Placeholder for bio
                         style:
                             TextStyle(fontFamily: 'Montserrat', fontSize: 14.0),
                       ),
@@ -214,11 +235,7 @@ class ProfilePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => BookingPage(
-                                imageUrl: imageUrl,
-                                name: name,
-                                job: job,
-                                location: location,
-                                distance: distance)),
+                                professionalData: professionalData)),
                       );
                     },
                     style: TextButton.styleFrom(

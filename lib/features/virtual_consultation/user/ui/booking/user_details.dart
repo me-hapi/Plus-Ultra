@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class UserDetails extends StatefulWidget {
+  final void Function(Map<String, dynamic> data)? onDataChanged;
+
+  const UserDetails({Key? key, this.onDataChanged}) : super(key: key);
+
   @override
   _UserDetailsState createState() => _UserDetailsState();
 }
@@ -9,6 +13,25 @@ class _UserDetailsState extends State<UserDetails> {
   double weight = 60.0;
   double height = 170.0;
   DateTime? selectedDate;
+  String? gender;
+
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController mobileController = TextEditingController();
+  final TextEditingController commentsController = TextEditingController();
+
+  void _triggerDataChanged() {
+    widget.onDataChanged?.call({
+      'fullName': fullNameController.text,
+      'email': emailController.text,
+      'mobile': mobileController.text,
+      'gender': gender,
+      'weight': weight,
+      'height': height,
+      'birthDate': selectedDate,
+      'comments': commentsController.text,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +46,17 @@ class _UserDetailsState extends State<UserDetails> {
 
           // Full Name
           _buildLabelAndField(
-              'Full Name', _buildTextField('Enter Full Name', Icons.person)),
+              'Full Name', _buildTextField('Enter Full Name', Icons.person, fullNameController)),
           const SizedBox(height: 10),
 
           // Email
           _buildLabelAndField(
-              'Email', _buildTextField('Enter Email', Icons.email)),
+              'Email', _buildTextField('Enter Email', Icons.email, emailController)),
           const SizedBox(height: 10),
 
           // Mobile Number
           _buildLabelAndField('Mobile Number',
-              _buildTextField('Enter Mobile Number', Icons.phone)),
+              _buildTextField('Enter Mobile Number', Icons.phone, mobileController)),
           const SizedBox(height: 20),
 
           const Divider(),
@@ -68,6 +91,7 @@ class _UserDetailsState extends State<UserDetails> {
                 setState(() {
                   weight = value;
                 });
+                _triggerDataChanged();
               },
             ),
           ),
@@ -85,6 +109,7 @@ class _UserDetailsState extends State<UserDetails> {
                 setState(() {
                   height = value;
                 });
+                _triggerDataChanged();
               },
             ),
           ),
@@ -104,6 +129,7 @@ class _UserDetailsState extends State<UserDetails> {
                   setState(() {
                     selectedDate = picked;
                   });
+                  _triggerDataChanged();
                 }
               },
               child: Container(
@@ -130,6 +156,7 @@ class _UserDetailsState extends State<UserDetails> {
           _buildLabelAndField(
             'Comments',
             TextField(
+              controller: commentsController,
               maxLines: 5,
               decoration: InputDecoration(
                 hintText: 'Enter your comments',
@@ -137,6 +164,9 @@ class _UserDetailsState extends State<UserDetails> {
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
+              onChanged: (value) {
+                _triggerDataChanged();
+              },
             ),
           ),
           const SizedBox(height: 20),
@@ -145,8 +175,10 @@ class _UserDetailsState extends State<UserDetails> {
     );
   }
 
-  Widget _buildTextField(String hintText, IconData icon) {
+  Widget _buildTextField(
+      String hintText, IconData icon, TextEditingController controller) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: Icon(icon),
@@ -156,6 +188,9 @@ class _UserDetailsState extends State<UserDetails> {
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide.none),
       ),
+      onChanged: (value) {
+        _triggerDataChanged();
+      },
     );
   }
 
@@ -164,12 +199,16 @@ class _UserDetailsState extends State<UserDetails> {
       width: 105,
       child: TextButton.icon(
         onPressed: () {
-          // Add gender selection logic here
+          setState(() {
+            gender = label;
+          });
+          _triggerDataChanged();
         },
         icon: Icon(icon),
         label: Text(label),
         style: TextButton.styleFrom(
-          backgroundColor: Colors.white,
+          backgroundColor: gender == label ? Colors.blue : Colors.white,
+          foregroundColor: gender == label ? Colors.white : Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),

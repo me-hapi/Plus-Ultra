@@ -2,19 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart';
 
 class ProfessionalCard extends StatelessWidget {
-  final String name;
-  final String job;
-  final String imageUrl;
-  final String location;
-  final String distance;
+  final Map<String, dynamic> professionalData;
 
   const ProfessionalCard({
     Key? key,
-    required this.name,
-    required this.job,
-    required this.imageUrl,
-    required this.location,
-    required this.distance,
+    required this.professionalData,
   }) : super(key: key);
 
   @override
@@ -22,19 +14,21 @@ class ProfessionalCard extends StatelessWidget {
     // Getting screen size to make font sizes adaptive
     final screenWidth = MediaQuery.of(context).size.width;
 
+    final String name = professionalData['name'] ?? '';
+    final String job = professionalData['job'] ?? '';
+    final String imageUrl = professionalData['imageUrl'] ?? '';
+    final String location = professionalData['location'] ?? '';
+    final String distance = professionalData['distance'] ?? '';
+    final String? clinicName = professionalData['clinic_name'];
+
     return GestureDetector(
       onTap: () {
         // Navigate to the ProfessionalPage with data
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProfilePage(
-              imageUrl: imageUrl,
-              name: name,
-              job: job,
-              location: location,
-              distance: distance,
-            ),
+            builder: (context) =>
+                ProfilePage(professionalData: professionalData),
           ),
         );
       },
@@ -57,6 +51,9 @@ class ProfessionalCard extends StatelessWidget {
                   width: screenWidth * 0.2, // Adjust size for responsiveness
                   height: screenWidth * 0.2,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, StackTrace) {
+                    return const Icon(Icons.person, size: 50);
+                  },
                 ),
               ),
               const SizedBox(width: 8),
@@ -86,34 +83,43 @@ class ProfessionalCard extends StatelessWidget {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    // Location and Distance
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          size: screenWidth * 0.04,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          location,
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: screenWidth * 0.035,
-                            color: Colors.grey[700],
+                    // Location and Distance or Teleconsultation
+                    clinicName != null
+                        ? Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: screenWidth * 0.04,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                location,
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: screenWidth * 0.035,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                distance,
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: screenWidth * 0.035,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            'Teleconsultation Only',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: screenWidth * 0.035,
+                              color: Colors.grey[700],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          distance,
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: screenWidth * 0.035,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 
 class UserPage extends StatelessWidget {
   const UserPage({Key? key}) : super(key: key);
@@ -7,7 +8,7 @@ class UserPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: HomePage(),
+      body: LandingPage(),
     );
   }
 }

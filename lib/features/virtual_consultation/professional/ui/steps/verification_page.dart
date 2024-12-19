@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class VerificationPage extends StatefulWidget {
+  final Function(Map<String, File?>) onDataChanged;
+
+  const VerificationPage({Key? key, required this.onDataChanged})
+      : super(key: key);
+
   @override
   _VerificationPageState createState() => _VerificationPageState();
 }
@@ -44,17 +50,54 @@ class _VerificationPageState extends State<VerificationPage> {
     );
   }
 
-  // Helper to process the image
+  Future<File?> _compressImage(File imageFile) async {
+    final compressedFile = await FlutterImageCompress.compressWithFile(
+      imageFile.path,
+      minWidth: 800, // Adjust based on your needs
+      minHeight: 800, // Adjust based on your needs
+      quality:
+          85, 
+      format: CompressFormat.jpeg,
+    );
+
+    if (compressedFile == null) return null;
+
+    final compressedImageFile = File('${imageFile.path}_compressed.jpg');
+    await compressedImageFile.writeAsBytes(compressedFile);
+
+    if (compressedImageFile.lengthSync() > 1000000) {
+      return _compressImage(compressedImageFile);
+    }
+
+    return compressedImageFile;
+  }
+
   Future<void> _processImage(ImageSource source, bool isFront) async {
     final XFile? pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
-      setState(() {
-        if (isFront) {
-          _frontImage = File(pickedFile.path);
-        } else {
-          _backImage = File(pickedFile.path);
+      final imageFile = File(pickedFile.path);
+
+      final compressedImage = await _compressImage(imageFile);
+
+      if (compressedImage != null) {
+        setState(() {
+          if (isFront) {
+            _frontImage = compressedImage;
+          } else {
+            _backImage = compressedImage;
+          }
+        });
+
+        if (_frontImage != null && _backImage != null) {
+          widget.onDataChanged({
+            'frontImage': _frontImage!,
+            'backImage': _backImage!,
+          });
         }
-      });
+      } else {
+        // Handle compression error (e.g., show a message to the user)
+        print('Error compressing the image');
+      }
     }
   }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/issue_row.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
 
@@ -14,11 +16,14 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late TextEditingController searchController;
+  SupabaseDB supabaseDB = SupabaseDB(client);
+  List<Map<String, dynamic>> professionals = [];
 
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
+    getProfessionals();
   }
 
   @override
@@ -27,138 +32,39 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
+  final Map<String, String> issues = {
+    "Stress": "assets/vitals/mood.png",
+    "Anxiety": "assets/vitals/mood.png",
+    "Depression": "assets/vitals/mood.png",
+    "Relationship": "assets/vitals/mood.png",
+    "Self-Esteem": "assets/vitals/mood.png",
+    "Adjustment": "assets/vitals/mood.png",
+    "Caregiving": "assets/vitals/mood.png",
+    "Parenting": "assets/vitals/mood.png",
+    "Career": "assets/vitals/mood.png",
+    "Grief": "assets/vitals/mood.png",
+    "Identity": "assets/vitals/mood.png",
+    "Emotion": "assets/vitals/mood.png",
+    "Resilience": "assets/vitals/mood.png",
+  };
+
+  void getProfessionals() async {
+    List<Map<String, dynamic>> result = await supabaseDB.fetchProfessionals();
+    setState(() {
+      professionals = result;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final searchValue = ref.watch(searchProvider);
 
-    final professionals = [
-      {
-        'name': 'Dr. Jane Doe',
-        'availability': true,
-        'location': 'Agoo',
-        'distance': '1 km',
-        'job': 'Psychologist'
-      },
-      {
-        'name': 'Dr. John Smith',
-        'availability': false,
-        'location': 'San Fernando',
-        'distance': '5 km',
-        'job': 'Counselor'
-      },
-      {
-        'name': 'Dr. Emily White',
-        'availability': true,
-        'location': 'Baguio City',
-        'distance': '10 km',
-        'job': 'Therapist'
-      },
-      {
-        'name': 'Dr. Mark Green',
-        'availability': false,
-        'location': 'Vigan',
-        'distance': '15 km',
-        'job': 'Psychologist'
-      },
-      {
-        'name': 'Dr. Sarah Black',
-        'availability': true,
-        'location': 'Dagupan',
-        'distance': '8 km',
-        'job': 'Counselor'
-      },
-      {
-        'name': 'Dr. Robert Brown',
-        'availability': true,
-        'location': 'Alaminos',
-        'distance': '12 km',
-        'job': 'Therapist'
-      },
-      {
-        'name': 'Dr. Olivia Blue',
-        'availability': false,
-        'location': 'Candon',
-        'distance': '18 km',
-        'job': 'Psychologist'
-      },
-      {
-        'name': 'Dr. Liam Gray',
-        'availability': true,
-        'location': 'Urdaneta',
-        'distance': '7 km',
-        'job': 'Counselor'
-      },
-      {
-        'name': 'Dr. Ava Silver',
-        'availability': false,
-        'location': 'Bauang',
-        'distance': '4 km',
-        'job': 'Psychologist'
-      },
-      {
-        'name': 'Dr. Noah Gold',
-        'availability': true,
-        'location': 'San Juan',
-        'distance': '2 km',
-        'job': 'Therapist'
-      },
-      {
-        'name': 'Dr. Mia Purple',
-        'availability': true,
-        'location': 'Pangasinan',
-        'distance': '20 km',
-        'job': 'Psychologist'
-      },
-      {
-        'name': 'Dr. Ethan Coral',
-        'availability': false,
-        'location': 'La Union',
-        'distance': '9 km',
-        'job': 'Counselor'
-      },
-      {
-        'name': 'Dr. Sophia Emerald',
-        'availability': true,
-        'location': 'Bangar',
-        'distance': '3 km',
-        'job': 'Therapist'
-      },
-      {
-        'name': 'Dr. Logan Amber',
-        'availability': false,
-        'location': 'Narvacan',
-        'distance': '25 km',
-        'job': 'Psychologist'
-      },
-      {
-        'name': 'Dr. Lily Ruby',
-        'availability': true,
-        'location': 'Pozorrubio',
-        'distance': '6 km',
-        'job': 'Counselor'
-      },
-    ].where((professional) {
+    professionals.where((professional) {
       final name = professional['name'] as String;
       final matchesSearch = searchValue.isEmpty ||
           name.toLowerCase().contains(searchValue.toLowerCase());
       return matchesSearch;
     }).toList();
-
-    final Map<String, String> issues = {
-      "Stress": "assets/vitals/mood.png",
-      "Anxiety": "assets/vitals/mood.png",
-      "Depression": "assets/vitals/mood.png",
-      "Relationship": "assets/vitals/mood.png",
-      "Self-Esteem": "assets/vitals/mood.png",
-      "Adjustment": "assets/vitals/mood.png",
-      "Caregiving": "assets/vitals/mood.png",
-      "Parenting": "assets/vitals/mood.png",
-      "Career": "assets/vitals/mood.png",
-      "Grief": "assets/vitals/mood.png",
-      "Identity": "assets/vitals/mood.png",
-      "Emotion": "assets/vitals/mood.png",
-      "Resilience": "assets/vitals/mood.png",
-    };
 
     return Scaffold(
       appBar: AppBar(
@@ -230,7 +136,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 child: IssuesRow(issues: issues),
               ),
 
-              SizedBox(height: 16,),
+              SizedBox(
+                height: 16,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: const Text(
@@ -252,11 +160,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               vertical: 2.0,
                               horizontal: 0), // Reduce horizontal padding
                           child: ProfessionalCard(
-                            name: professional['name'] as String,
-                            job: professional['job'] as String,
-                            location: professional['location'] as String,
-                            distance: professional['distance'] as String,
-                            imageUrl: 'https://via.placeholder.com/150',
+                            professionalData: professional,
                           ),
                         );
                       }).toList(),
