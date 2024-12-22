@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
+import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -57,6 +58,14 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: const Text('Profile'),
         centerTitle: true,
+        automaticallyImplyLeading: false, // Hides the default back button
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => BottomNav()));
+            context.go('/bottom-nav');
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -208,11 +217,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ApplicationPage()));
+                                      // Navigator.push(
+                                      //     context,
+                                      //     MaterialPageRoute(
+                                      //         builder: (context) =>
+                                      //             ApplicationPage()));
+
+                                      context.push('/application_page');
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.blue,
@@ -236,7 +247,9 @@ class _ProfilePageState extends State<ProfilePage> {
               _isSigningOut
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _signOut,
+                      onPressed: () {
+                        context.push('/application_page');
+                      },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                       ),

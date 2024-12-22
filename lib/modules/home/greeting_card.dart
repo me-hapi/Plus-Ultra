@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/modules/profile/ui/profile_page.dart';
 
 class GreetingCard extends StatelessWidget {
@@ -22,8 +23,10 @@ class GreetingCard extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ProfilePage()));
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (context) => ProfilePage()));
+
+                    context.push('/profile');
                   },
                   child: CircleAvatar(
                     child: Icon(Icons.person, size: 24, color: Colors.white),

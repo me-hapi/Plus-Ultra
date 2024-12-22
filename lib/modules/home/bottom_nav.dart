@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/utils/test/das_test.dart';
 import 'package:lingap/features/virtual_consultation/user/user_page.dart';
 import 'package:lingap/modules/home/home_page.dart';
@@ -33,9 +34,11 @@ class _BottomNavState extends State<BottomNav> {
     bool? fetchIdStatus =
         await _supabase.fetchMhScore(_client.auth.currentUser!.id);
     if (!fetchIdStatus!) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => DASTest()),
-      );
+      // Navigator.of(context).push(
+      //   MaterialPageRoute(builder: (context) => DASTest()),
+      // );
+
+      context.push('/dastest');
     }
   }
 

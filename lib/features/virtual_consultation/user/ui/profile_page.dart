@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/booking_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final Map<String, dynamic> professionalData;
 
   const ProfilePage({
@@ -10,20 +10,28 @@ class ProfilePage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    final String imageUrl = professionalData['imageUrl'] ?? '';
-    final String name = professionalData['name'] ?? '';
-    final String job = professionalData['job'] ?? '';
-    final String location = professionalData['location'] ?? '';
-    final String distance = professionalData['distance'] ?? '';
-    final String sessionFee = professionalData['consultationFee'] ?? 'Free';
+    final String imageUrl = widget.professionalData['imageUrl'] ?? '';
+    final String name = widget.professionalData['name'] ?? '';
+    final String job = widget.professionalData['job'] ?? '';
+    final String location = widget.professionalData['location'] ?? '';
+    final String distance = widget.professionalData['distance'] ?? '';
+    final sessionFee = widget.professionalData['professional_payment']
+            ['consultation_fee'] ??
+        'Free';
     final String completedSessions =
-        professionalData['completedSessions'] ?? '25';
-    final String personalBio = professionalData['bio'] ??
+        widget.professionalData['completedSessions'] ?? '25';
+    final String personalBio = widget.professionalData['bio'] ??
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin id arcu aliquet, elementum nisi quis, condimentum nibh.';
-    final String? clinicName = professionalData['clinic_name'];
+    final String? clinicName =
+        widget.professionalData['professional_clinic']['clinic_name'];
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -160,7 +168,7 @@ class ProfilePage extends StatelessWidget {
                       Column(
                         children: [
                           Text(
-                            sessionFee,
+                            sessionFee.toString(),
                             style: TextStyle(
                                 fontFamily: 'Montserrat',
                                 fontSize: 20,
@@ -235,7 +243,7 @@ class ProfilePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => BookingPage(
-                                professionalData: professionalData)),
+                                professionalData: widget.professionalData)),
                       );
                     },
                     style: TextButton.styleFrom(

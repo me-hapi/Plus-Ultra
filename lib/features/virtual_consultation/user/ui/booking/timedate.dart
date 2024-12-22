@@ -3,18 +3,18 @@ import 'package:table_calendar/table_calendar.dart';
 
 class DateTimeSelector extends StatefulWidget {
   final void Function(Map<String, dynamic> data)? onDataChanged;
-  // final DateTime? startTime;
-  // final DateTime? endTime;
-  // final List<String>? availableDays;
-  // final List<String>? breakTime;
+  final DateTime? startTime;
+  final DateTime? endTime;
+  final List<String>? availableDays;
+  final List<String>? breakTime;
 
   const DateTimeSelector({
     Key? key,
     this.onDataChanged,
-    // this.startTime,
-    // this.endTime,
-    // this.availableDays,
-    // this.breakTime,
+    this.startTime,
+    this.endTime,
+    this.availableDays,
+    this.breakTime,
   }) : super(key: key);
 
   @override

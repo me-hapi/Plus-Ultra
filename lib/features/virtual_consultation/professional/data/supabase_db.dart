@@ -161,23 +161,39 @@ class SupabaseDB {
     required Map<String, dynamic> stepData,
   }) async {
     try {
-      // Extract availability data from stepData
-      final consultationFrequency = stepData['consultationFrequency'] ?? '';
       final availableDays = stepData['availableDays'] ?? [];
-      final startTime = stepData['startTime'] ?? '';
-      final endTime = stepData['endTime'] ?? '';
-      final breaks = stepData['breaks'] ?? [];
+      final timeSlotData = stepData['timeSlotData'] ?? {};
+
+      if (availableDays.isEmpty || timeSlotData.isEmpty) {
+        throw Exception('Available days or time slot data cannot be empty.');
+      }
+
+      final List<Map<String, dynamic>> timeSlots = [];
+      final List<List<dynamic>> breakTimes = [];
+
+      for (var day in availableDays) {
+        final dayData = timeSlotData[day];
+        if (dayData == null) continue;
+
+        timeSlots.add({
+          'day': day,
+          'start_time': dayData['start_time'],
+          'end_time': dayData['end_time'],
+        });
+
+        breakTimes.add(dayData['break_time']);
+      }
 
       // Insert data into professional_availability table
-      final availabilityResponse =
-          await _client.from('professional_availability').insert({
+      final Map<String, dynamic> dataToInsert = {
         'uid': uid,
-        'frequency': consultationFrequency,
-        'available_days': availableDays,
-        'start_time': startTime,
-        'end_time': endTime,
-        'break_time': breaks,
-      });
+        'days': availableDays,
+        'time_slot': timeSlots,
+        'break_time': breakTimes,
+      };
+
+      final availabilityResponse =
+          await _client.from('professional_availability').insert(dataToInsert);
 
       print('Availability details inserted successfully.');
     } catch (e) {

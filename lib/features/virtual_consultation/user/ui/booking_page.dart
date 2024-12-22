@@ -34,6 +34,8 @@ class _BookingPageState extends State<BookingPage> {
   void initState() {
     super.initState();
     // fetchAvailability();
+    print(widget.professionalData);
+
   }
 
   @override
@@ -66,10 +68,10 @@ class _BookingPageState extends State<BookingPage> {
         onDataChanged: (data) {
           stepData['time_date'] = data;
         },
-        // startTime: startTime,
-        // endTime: endTime,
-        // availableDays: availableDays,
-        // breakTime: breakTime,
+        startTime: widget.professionalData['start_time'],
+        endTime: widget.professionalData['end_time'],
+        availableDays: widget.professionalData['available_days'],
+        breakTime: widget.professionalData['break_time'],
       ),
       PaymentPage(
         onDataChanged: (data) {
@@ -80,7 +82,7 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   void nextPage() {
-    print(stepData['user_details']);
+    print(stepData['time_date']);
     if (index < screens().length - 1) {
       setState(() {
         index++;
