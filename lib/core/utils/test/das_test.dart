@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -71,9 +72,7 @@ class _DASTestState extends ConsumerState<DASTest> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => BottomNav()),
-              );
+              context.push('/bottom-nav', extra: 0);
             },
             child: Text("OK"),
           ),

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/const.dart';
-import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
+import 'package:lingap/features/virtual_consultation/user/logic/booking_logic.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/booking/payment_page.dart';
-import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
-import 'package:lingap/features/virtual_consultation/user/ui/booking/timedate.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/booking/datetime_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/booking/user_details.dart';
-import 'package:lingap/features/virtual_consultation/user/user_page.dart';
-import 'package:lingap/modules/home/bottom_nav.dart';
+import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
 
 class BookingPage extends StatefulWidget {
   final Map<String, dynamic> professionalData;
@@ -22,93 +20,44 @@ class BookingPage extends StatefulWidget {
 }
 
 class _BookingPageState extends State<BookingPage> {
-  int index = 0;
-  final ScrollController _scrollController = ScrollController();
-  SupabaseDB supabase = SupabaseDB(client);
-  // late DateTime startTime;
-  // late DateTime endTime;
-  // late List<String> availableDays;
-  // late List<String> breakTime;
+  late BookingLogic bookingLogic;
 
   @override
   void initState() {
     super.initState();
-    // fetchAvailability();
-    print(widget.professionalData);
-
+    bookingLogic = BookingLogic(
+      scrollController: ScrollController(),
+      professionalData: widget.professionalData,
+      supabase: SupabaseDB(client),
+    );
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    bookingLogic.scrollController.dispose();
     super.dispose();
   }
-
-  // void fetchAvailability() {
-  //   startTime = widget.professionalData['start_time'];
-  //   endTime = widget.professionalData['end_time'];
-  //   availableDays = widget.professionalData['available_days'];
-  //   breakTime = widget.professionalData['break_time'];
-  // }
-
-  final Map<String, dynamic> stepData = {
-    'user_details': {},
-    'time_date': {},
-    'payment': {},
-  };
 
   List<Widget> screens() {
     return [
       UserDetails(
         onDataChanged: (data) {
-          stepData['user_details'] = data;
+          bookingLogic.stepData['user_details'] = data;
         },
       ),
-      DateTimeSelector(
+      DateTimePage(
         onDataChanged: (data) {
-          stepData['time_date'] = data;
+          bookingLogic.stepData['time_date'] = data;
         },
-        startTime: widget.professionalData['start_time'],
-        endTime: widget.professionalData['end_time'],
-        availableDays: widget.professionalData['available_days'],
-        breakTime: widget.professionalData['break_time'],
+        timeSlot: widget.professionalData['professional_availability']
+            ['time_slot'],
+        availableDays: widget.professionalData['professional_availability']
+            ['days'],
+        breakTime: widget.professionalData['professional_availability']
+            ['break_time'],
       ),
-      PaymentPage(
-        onDataChanged: (data) {
-          stepData['payment'] = data;
-        },
-      ),
+      PaymentPage(),
     ];
-  }
-
-  void nextPage() {
-    print(stepData['time_date']);
-    if (index < screens().length - 1) {
-      setState(() {
-        index++;
-      });
-      _scrollToTop();
-    } else {
-      supabase.insertAppointment(
-          uid: uid,
-          professionalUid: widget.professionalData['uid'],
-          status: 'reserved');
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                LandingPage(),
-          ),
-        );
-    }
-  }
-
-  void _scrollToTop() {
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
   }
 
   @override
@@ -142,7 +91,7 @@ class _BookingPageState extends State<BookingPage> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        controller: _scrollController,
+        controller: bookingLogic.scrollController,
         child: Column(
           children: [
             // Pagination dots with labels
@@ -156,9 +105,10 @@ class _BookingPageState extends State<BookingPage> {
                     children: List.generate(steps.length, (stepIndex) {
                       return Row(
                         children: [
-                          _buildStep(isActive: stepIndex <= index),
+                          _buildStep(isActive: stepIndex <= bookingLogic.index),
                           if (stepIndex < steps.length - 1)
-                            _buildConnectorLine(isActive: stepIndex <= index),
+                            _buildConnectorLine(
+                                isActive: stepIndex <= bookingLogic.index),
                         ],
                       );
                     }),
@@ -170,13 +120,12 @@ class _BookingPageState extends State<BookingPage> {
                     children: steps.map((step) {
                       int stepIndex = steps.indexOf(step);
                       return SizedBox(
-                        width:
-                            80, // Matches the width of circle + line for alignment
+                        width: 80,
                         child: Text(
                           step,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: stepIndex == index
+                            color: stepIndex == bookingLogic.index
                                 ? Colors.blueGrey
                                 : Colors.grey,
                             fontSize: 10,
@@ -201,13 +150,17 @@ class _BookingPageState extends State<BookingPage> {
             // Active Screen
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: screens()[index],
+              child: screens()[bookingLogic.index],
             ),
             const SizedBox(height: 16),
             // Custom Continue Button
             Center(
               child: GestureDetector(
-                onTap: nextPage,
+                onTap: () {
+                  bookingLogic.nextPage(context, () {
+                    setState(() {});
+                  });
+                },
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.blueGrey,
@@ -216,7 +169,9 @@ class _BookingPageState extends State<BookingPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   child: Text(
-                    index < steps.length - 1 ? 'Continue' : 'Finish',
+                    bookingLogic.index < steps.length - 1
+                        ? 'Continue'
+                        : 'Finish',
                     style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),

@@ -1,21 +1,10 @@
 import 'package:flutter/material.dart';
 
 class PaymentPage extends StatelessWidget {
-  final void Function(Map<String, dynamic> data)? onDataChanged;
-
-  const PaymentPage({Key? key, this.onDataChanged}) : super(key: key);
-
-  void _triggerDataChanged() {
-    onDataChanged?.call({
-      'paymentMethod': 'QR Code',
-      'sessionFee': 500,
-    });
-  }
+  const PaymentPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _triggerDataChanged();
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(

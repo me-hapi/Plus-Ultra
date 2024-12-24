@@ -33,8 +33,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/bottom-nav',
-        builder: (context, state) => const BottomNav(),
+        builder: (context, state) {
+          final currentIndex =
+              state.extra as int? ?? 0;
+          return BottomNav(currentIndex: currentIndex);
+        },
       ),
+
       GoRoute(
         path: '/home',
         builder: (context, state) => const module_home.HomePage(),

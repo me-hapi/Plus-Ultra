@@ -11,20 +11,22 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class BottomNav extends StatefulWidget {
-  const BottomNav({Key? key}) : super(key: key);
+  final int currentIndex;
+  const BottomNav({Key? key, required this.currentIndex}) : super(key: key);
 
   @override
   _BottomNavState createState() => _BottomNavState();
 }
 
 class _BottomNavState extends State<BottomNav> {
-  int _currentIndex = 0;
+  late int _currentIndex;
   late GlobalSupabase _supabase;
   late SupabaseClient _client;
 
   @override
   void initState() {
     super.initState();
+    _currentIndex = widget.currentIndex;
     _client = Supabase.instance.client;
     _supabase = GlobalSupabase(_client);
     _checkFetchIdStatus();
@@ -34,10 +36,6 @@ class _BottomNavState extends State<BottomNav> {
     bool? fetchIdStatus =
         await _supabase.fetchMhScore(_client.auth.currentUser!.id);
     if (!fetchIdStatus!) {
-      // Navigator.of(context).push(
-      //   MaterialPageRoute(builder: (context) => DASTest()),
-      // );
-
       context.push('/dastest');
     }
   }

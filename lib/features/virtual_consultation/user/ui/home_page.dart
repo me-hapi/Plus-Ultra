@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/appointment_history.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/issue_row.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
 
@@ -69,6 +70,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFEBE7E4),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFF473c38),
+          ),
+          onPressed: () {
+            Navigator.pop(context); // Navigate back to the previous screen
+          },
+        ),
         title: const Text(
           'Find Therapist',
           style: TextStyle(
@@ -78,6 +88,21 @@ class _HomePageState extends ConsumerState<HomePage> {
             color: Color(0xFF473c38),
           ),
         ),
+        centerTitle: true, // Centers the title
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.history, // Icon for appointment history
+              color: Color(0xFF473c38),
+            ),
+            iconSize: 30.0,
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder:(context) => AppointmentHistory()));
+            },
+          ),
+        ],
+        automaticallyImplyLeading:
+            false, // Removes the back button from the AppBar
       ),
       backgroundColor: const Color(0xFFEBE7E4),
       body: SingleChildScrollView(
