@@ -69,11 +69,6 @@ class BookingLogic {
         userDetails['mobile'].trim().isNotEmpty &&
         userDetails['gender'] != null &&
         userDetails['gender'].trim().isNotEmpty &&
-        userDetails['weight'] != null &&
-        userDetails['weight'] > 0 &&
-        userDetails['height'] != null &&
-        userDetails['height'] > 0 &&
-        userDetails['birthDate'] != null &&
         userDetails['comments'] != null;
   }
 

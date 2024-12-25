@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lingap/core/utils/test/das_test.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/virtual_consultation/professional/professional_page.dart';
 import 'package:lingap/features/virtual_consultation/user/user_page.dart';
 import 'package:lingap/modules/home/home_page.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
@@ -41,15 +42,16 @@ class _BottomNavState extends State<BottomNav> {
   }
 
   List<Widget> _screens() {
-    return [
-      // BluetoothScanPage(),
-      HomePage(),
-      ChatbotPage(),
-      JournalPage(),
-      UserPage(),
-      PeerConnectPage(),
-    ];
-  }
+  return [
+    // BluetoothScanPage(),
+    HomePage(),
+    ChatbotPage(),
+    JournalPage(),
+    accountType == "Patient" ? UserPage() : ProfessionalPage(),
+    PeerConnectPage(),
+  ];
+}
+
 
   @override
   Widget build(BuildContext context) {

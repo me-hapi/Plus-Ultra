@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/virtual_consultation/professional/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/professional/ui/appointment_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,49 +12,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
+  final SupabaseDB supabase = SupabaseDB(client);
   late TabController _tabController;
-
-  // Dummy data for appointments
-  final List<Map<String, String>> pendingAppointments = [
-    {
-      'name': 'John Doe',
-      'notes': 'Feeling stressed',
-      'date': 'Dec 10, 2024',
-      'timeSlot': '10:00 AM - 11:00 AM',
-      'status': 'pending'
-    },
-    {
-      'name': 'Jane Smith',
-      'notes': 'Anxiety issues',
-      'date': 'Dec 12, 2024',
-      'timeSlot': '2:00 PM - 3:00 PM',
-      'status': 'pending'
-    },
-  ];
-
-  final List<Map<String, String>> approvedAppointments = [
-    {
-      'name': 'Alice Taylor',
-      'notes': 'General consultation',
-      'date': 'Dec 15, 2024',
-      'timeSlot': '9:00 AM - 10:00 AM',
-      'status': 'approved'
-    },
-  ];
-
-  final List<Map<String, String>> completedAppointments = [
-    {
-      'name': 'Michael Brown',
-      'notes': 'Follow-up session',
-      'date': 'Dec 8, 2024',
-      'timeSlot': '3:00 PM - 4:00 PM',
-      'status': 'completed'
-    },
-  ];
+  late Map<String, List<Map<String, dynamic>>> appointments = {
+    'pending': [],
+    'approved': [],
+    'completed': []
+  };
 
   @override
   void initState() {
     super.initState();
+    fetchAppointments();
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -60,6 +31,14 @@ class _HomePageState extends State<HomePage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void fetchAppointments() async {
+    final result = await supabase.fetchAppointments(uid);
+    print(result);
+    setState(() {
+      appointments = result;
+    });
   }
 
   @override
@@ -97,24 +76,43 @@ class _HomePageState extends State<HomePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          buildAppointmentList(pendingAppointments),
-          buildAppointmentList(approvedAppointments),
-          buildAppointmentList(completedAppointments),
+          buildAppointmentList(
+              appointments['pending']!.cast<Map<String, dynamic>>(),
+              'No pending appointments yet'),
+          buildAppointmentList(
+              appointments['approved']!.cast<Map<String, dynamic>>(),
+              'No approved appointments yet'),
+          buildAppointmentList(
+              appointments['completed']!.cast<Map<String, dynamic>>(),
+              'No completed appointments yet'),
         ],
       ),
     );
   }
 
-  Widget buildAppointmentList(List<Map<String, String>> appointments) {
+  Widget buildAppointmentList(
+      List<Map<String, dynamic>>? appointments, String emptyMessage) {
+    if (appointments == null || appointments.isEmpty) {
+      return Center(
+        child: Text(
+          emptyMessage,
+          style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+        ),
+      );
+    }
     return ListView.builder(
       itemCount: appointments.length,
       itemBuilder: (context, index) {
         final appointment = appointments[index];
         return AppointmentCard(
-          name: appointment['name']!,
-          notes: appointment['notes']!,
-          date: appointment['date']!,
-          timeSlot: appointment['timeSlot']!,
+          name: appointment['full_name']!,
+          date: appointment['appointment_date']!,
+          timeSlot: appointment['time_slot']!,
+          age: appointment['age']!,
+          gender: appointment['gender']!,
+          email: appointment['email']!,
+          number: appointment['mobile']!,
+          notes: appointment['comment']!,
           status: appointment['status']!,
           onApprove: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +127,7 @@ class _HomePageState extends State<HomePage>
           },
           onJoinCall: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Join call')),
+              const SnackBar(content: Text('Join call')),
             );
           },
         );

@@ -201,4 +201,37 @@ class SupabaseDB {
       rethrow;
     }
   }
+
+  Future<Map<String, List<Map<String, dynamic>>>> fetchAppointments(
+      String professionalId) async {
+    try {
+      final response = await _client
+          .from('appointment')
+          .select('*, profile(*)')
+          .eq('professional_id', professionalId);
+
+      final appointments = response as List<dynamic>;
+
+      // Segregate appointments by status
+      Map<String, List<Map<String, dynamic>>> segregatedAppointments = {
+        'approved': [],
+        'pending': [],
+        'completed': []
+      };
+
+      for (var appointment in appointments) {
+        final appointmentMap = appointment as Map<String, dynamic>;
+        final status = appointmentMap['status'] as String?;
+
+        if (status != null && segregatedAppointments.containsKey(status)) {
+          segregatedAppointments[status]?.add(appointmentMap);
+        }
+      }
+
+      return segregatedAppointments;
+    } catch (e) {
+      print('Error: $e');
+      return {'approved': [], 'pending': [], 'rejected': []};
+    }
+  }
 }

@@ -10,15 +10,13 @@ class UserDetails extends StatefulWidget {
 }
 
 class _UserDetailsState extends State<UserDetails> {
-  double weight = 60.0;
-  double height = 170.0;
-  DateTime? selectedDate;
   String? gender;
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
 
   void _triggerDataChanged() {
     widget.onDataChanged?.call({
@@ -26,9 +24,7 @@ class _UserDetailsState extends State<UserDetails> {
       'email': emailController.text,
       'mobile': mobileController.text,
       'gender': gender,
-      'weight': weight,
-      'height': height,
-      'birthDate': selectedDate,
+      'age': ageController.text,
       'comments': commentsController.text,
     });
   }
@@ -57,11 +53,16 @@ class _UserDetailsState extends State<UserDetails> {
           // Mobile Number
           _buildLabelAndField('Mobile Number',
               _buildTextField('Enter Mobile Number', Icons.phone, mobileController)),
+          const SizedBox(height: 10),
+
+          // Age
+          _buildLabelAndField('Age',
+              _buildTextField('Enter Age', Icons.cake, ageController)),
           const SizedBox(height: 20),
 
           const Divider(),
 
-          const Text('Medical Information',
+          const Text('Additional Information',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
 
@@ -75,78 +76,6 @@ class _UserDetailsState extends State<UserDetails> {
               _buildGenderButton('Female', Icons.female),
               _buildGenderButton('Others', Icons.transgender),
             ],
-          ),
-          const SizedBox(height: 20),
-
-          // Weight Slider
-          _buildLabelAndField(
-            'Weight (kg)',
-            Slider(
-              value: weight,
-              min: 30,
-              max: 200,
-              divisions: 170,
-              label: '${weight.toStringAsFixed(1)} kg',
-              onChanged: (value) {
-                setState(() {
-                  weight = value;
-                });
-                _triggerDataChanged();
-              },
-            ),
-          ),
-
-          // Height Slider
-          _buildLabelAndField(
-            'Height (cm)',
-            Slider(
-              value: height,
-              min: 100,
-              max: 250,
-              divisions: 150,
-              label: '${height.toStringAsFixed(1)} cm',
-              onChanged: (value) {
-                setState(() {
-                  height = value;
-                });
-                _triggerDataChanged();
-              },
-            ),
-          ),
-
-          // Birth Date Picker
-          _buildLabelAndField(
-            'Birth Date',
-            GestureDetector(
-              onTap: () async {
-                final DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (picked != null && picked != selectedDate) {
-                  setState(() {
-                    selectedDate = picked;
-                  });
-                  _triggerDataChanged();
-                }
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: Text(
-                  selectedDate == null
-                      ? 'Select Birth Date'
-                      : '${selectedDate!.toLocal()}'.split(' ')[0],
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
           ),
           const SizedBox(height: 20),
 
@@ -182,8 +111,8 @@ class _UserDetailsState extends State<UserDetails> {
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: Icon(icon),
-        filled: true, // Enable the filled background
-        fillColor: Colors.white, // Set the background color to white
+        filled: true,
+        fillColor: Colors.white,
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide.none),

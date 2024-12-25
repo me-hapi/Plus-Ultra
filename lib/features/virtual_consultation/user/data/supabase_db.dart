@@ -32,9 +32,6 @@ class SupabaseDB {
       final userDetails = stepData['user_details'] as Map<String, dynamic>;
       final timeDate = stepData['time_date'] as Map<String, dynamic>;
 
-      // Convert DateTime objects to ISO8601 strings
-      final birthDate =
-          (userDetails['birthDate'] as DateTime).toIso8601String();
       final appointmentDate =
           (timeDate['selectedDate'] as DateTime).toIso8601String();
 
@@ -48,9 +45,7 @@ class SupabaseDB {
         'email': userDetails['email'],
         'mobile': userDetails['mobile'],
         'gender': userDetails['gender'],
-        'weight': userDetails['weight'],
-        'height': userDetails['height'],
-        'birthdate': birthDate, // Use ISO8601 string
+        'age' : userDetails['age'],
         'comment': userDetails['comments'],
         // Date and timeslot
         'appointment_date': appointmentDate, // Use ISO8601 string
