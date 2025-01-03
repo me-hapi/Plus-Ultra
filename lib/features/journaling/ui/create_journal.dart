@@ -4,6 +4,7 @@ import 'package:lingap/features/journaling/logic/create_logic.dart';
 import 'package:lingap/features/journaling/logic/insert_audio.dart';
 import 'package:lingap/features/journaling/logic/insert_image.dart';
 import 'package:lingap/features/journaling/ui/audio_card.dart';
+import 'package:lingap/features/journaling/ui/journal_detail.dart';
 
 class CreateJournalPage extends StatefulWidget {
   @override
@@ -182,6 +183,24 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                       // Add save logic here
                       print('Title: $title');
                       print('Content: $content');
+
+                      _logic.saveJournal();
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => JournalDetailPage(
+                                    emotion: 'Neutral',
+                                    date: DateTime.now().toString(),
+                                    time: DateTime.now()
+                                        .toLocal()
+                                        .toIso8601String()
+                                        .split('T')[1]
+                                        .substring(
+                                            0, 5), // Converts to HH:mm format
+                                    title: title,
+                                    journalItems: _logic.journalItems,
+                                  )));
                     },
                     child: Text('Save'),
                   ),

@@ -1,17 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/journaling/data/supabse_db.dart';
+import 'package:lingap/features/journaling/model/journal_item.dart';
 import 'package:lingap/features/journaling/ui/audio_card.dart';
 
-class JournalItem {
-  final String type; // 'text', 'image', or 'audio'
-  final String? text;
-  final File? imageFile;
-  final String? audioPath;
-
-  JournalItem({required this.type, this.text, this.imageFile, this.audioPath});
-}
-
 class CreateJournalLogic {
+  final SupabaseDB supabase = SupabaseDB(client);
   final TextEditingController titleController =
       TextEditingController(text: 'Untitled');
   final List<JournalItem> journalItems = [];
@@ -37,6 +32,11 @@ class CreateJournalLogic {
 
   void removeAudio(String audioPath) {
     journalItems.removeWhere((item) => item.audioPath == audioPath);
+  }
+
+  void saveJournal() {
+    supabase.insertJournal(uid, titleController.text, journalItems);
+
   }
 
   bool shouldShowTapPrompt() {

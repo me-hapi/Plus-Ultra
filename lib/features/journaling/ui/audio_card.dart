@@ -27,7 +27,7 @@ class _AudioCardState extends State<AudioCard> {
     super.initState();
     _audioPlayer = AudioPlayer();
 
-    // Store the subscription
+    // Listen for player state changes
     _playerStateSubscription = _audioPlayer.playerStateStream.listen((state) {
       setState(() {
         if (state.processingState == ProcessingState.completed) {
@@ -45,14 +45,29 @@ class _AudioCardState extends State<AudioCard> {
   void dispose() {
     try {
       if (_audioPlayer.playing) {
-        _audioPlayer.stop(); // Stop playback if ongoing
+        _audioPlayer.stop();
       }
-      _playerStateSubscription.cancel(); // Cancel stream subscription
-      _audioPlayer.dispose(); // Release resources
+      _playerStateSubscription.cancel();
+      _audioPlayer.dispose();
     } catch (e) {
       print('Error during dispose: $e');
     }
     super.dispose();
+  }
+
+  void _handleDelete() async {
+    try {
+      if (_audioPlayer.playing) {
+        await _audioPlayer.stop();
+      }
+      await _audioPlayer.dispose();
+      widget.onDelete();
+    } catch (e) {
+      print('Error during deletion: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting audio: $e")),
+      );
+    }
   }
 
   void _togglePlayPause() async {
@@ -63,15 +78,14 @@ class _AudioCardState extends State<AudioCard> {
       }
 
       if (_isPlaying) {
-        await _audioPlayer.pause(); // Pause playback
+        await _audioPlayer.pause();
         print('Playback paused');
       } else {
         if (_audioPlayer.processingState == ProcessingState.completed) {
-          // Reset playback to the start if completed
           await _audioPlayer.seek(Duration.zero);
         }
-        await _audioPlayer.setFilePath(widget.audioPath); // Load the file
-        await _audioPlayer.play(); // Start playback
+        await _audioPlayer.setFilePath(widget.audioPath);
+        await _audioPlayer.play();
         print('Playback started');
       }
     } catch (e) {
@@ -96,7 +110,7 @@ class _AudioCardState extends State<AudioCard> {
           color: Colors.white,
         ),
       ),
-      onDismissed: (direction) => widget.onDelete(),
+      onDismissed: (direction) => _handleDelete(),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
@@ -110,37 +124,41 @@ class _AudioCardState extends State<AudioCard> {
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Center(
-                        child: Text("Audio Wave"),
-                      ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              // Flexible widget for the "Audio Wave" placeholder
+              Expanded(
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "Audio Wave",
+                      style: TextStyle(fontSize: 14),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-            IconButton(
-              icon: Icon(
-                _isPlaying ? Icons.pause_circle : Icons.play_circle,
-                size: 36,
-                color: Colors.blue,
+
+              // Spacing between elements
+              const SizedBox(width: 8),
+
+              // Play/Pause button
+              IconButton(
+                icon: Icon(
+                  _isPlaying ? Icons.pause_circle : Icons.play_circle,
+                  size: 36,
+                  color: Colors.blue,
+                ),
+                onPressed: _togglePlayPause,
               ),
-              onPressed: _togglePlayPause,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
