@@ -1,6 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:health/health.dart';
+import 'package:lingap/features/wearable_device/logic/health_connect.dart';
+import 'package:lingap/features/wearable_device/ui/health_connect.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
 
@@ -12,6 +15,7 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  // final HealthConnectService health = HealthConnectService();
   // Dummy data for the line graph
   final List<FlSpot> heartRateData = [
     FlSpot(0, 75),
@@ -107,15 +111,37 @@ class _HomePageState extends ConsumerState<HomePage> {
                         children: [
                           Image.asset(
                             'assets/vitals/smartwatch.png',
-                            height: 120, 
-                            width: 120, 
-                            fit: BoxFit
-                                .contain,
+                            height: 120,
+                            width: 120,
+                            fit: BoxFit.contain,
                           ),
                           const SizedBox(height: 10),
                           ElevatedButton(
-                            onPressed: () {
-                              print('Connect button clicked');
+                            onPressed: () async {
+
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => HealthConnectApp()));
+                              // final hasPermission =
+                              //     await health.requestPermissions();
+
+                              // if (hasPermission) {
+                              //   final heartRateData =
+                              //       await health.fetchHeartRateData(
+                              //     DateTime.now().subtract(Duration(days: 7)),
+                              //     DateTime.now(),
+                              //   );
+                              //   debugPrint(
+                              //       'Heart Rate Records: ${heartRateData.length}');
+
+                              //   final bloodPressureData =
+                              //       await health.fetchBloodPressureData(
+                              //     DateTime.now().subtract(Duration(days: 7)),
+                              //     DateTime.now(),
+                              //   );
+                              //   debugPrint(
+                              //       'Blood Pressure Records: ${bloodPressureData.length}');
+                              // } else {
+                              //   debugPrint('Permissions not granted.');
+                              // }
                             },
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
