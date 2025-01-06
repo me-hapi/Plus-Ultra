@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 String accountType = 'Patient';
 
+String testBG = 'bg1';
+
 final client = Supabase.instance.client;
 
 final uid = client.auth.currentUser!.id;

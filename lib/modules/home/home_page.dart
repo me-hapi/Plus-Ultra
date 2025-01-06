@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health/health.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
-import 'package:lingap/features/wearable_device/ui/health_connect.dart';
+import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
 
@@ -119,7 +119,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ElevatedButton(
                             onPressed: () async {
 
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => HealthConnectApp()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => HealthPage()));
                               // final hasPermission =
                               //     await health.requestPermissions();
 

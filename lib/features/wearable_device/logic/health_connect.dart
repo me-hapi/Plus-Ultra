@@ -1,24 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:health/health.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HealthConnectService {
-  final Health _health = Health();
+enum AppState { INITIAL, CONNECTING, CONNECTED, DISCONNECTED, AUTH_NOT_GRANTED }
 
-  // Request permissions to access Health data (Heart Rate and Blood Pressure)
+class HealthLogic extends StateNotifier<AppState> {
+  HealthLogic() : super(AppState.INITIAL);
+
+  Future<void> initializeHealthConnect() async {
+    Health().configure();
+    await requestPermissions();
+  }
+
+  Future<void> installHealthConnect() async {
+    await Health().installHealthConnect();
+  }
+
+  Future<void> getHealthConnectSdkStatus() async {
+    final status = await Health().getHealthConnectSdkStatus();
+    state = AppState.CONNECTING;
+    if (status != null) {
+      debugPrint('Health Connect Status: ${status.name.toUpperCase()}');
+    }
+  }
+
+  Future<bool> isHealthConnectAvailable() async {
+    try {
+      return await Health().isHealthConnectAvailable();
+    } catch (e) {
+      debugPrint('Health Connect is not available: $e');
+      return false;
+    }
+  }
+
   Future<bool> requestPermissions() async {
     try {
-      _health.configure();
-      
-      // Check if Health Connect is available
+      Health().configure();
+
       final isAvailable = await isHealthConnectAvailable();
       if (!isAvailable) {
         debugPrint('Health Connect is not available on this device.');
         return false;
-      } else {
-        debugPrint('Health Connect is available on this device.');
       }
 
-      // Define the types of health data to request permissions for
       final types = [
         HealthDataType.HEART_RATE,
         HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
@@ -27,14 +51,17 @@ class HealthConnectService {
 
       final permissions = types.map((type) => HealthDataAccess.READ).toList();
 
-      // Request permissions
       final granted =
-          await _health.requestAuthorization(types, permissions: permissions);
+          await Health().requestAuthorization(types, permissions: permissions);
+
       if (granted) {
         debugPrint('Permissions granted for Heart Rate and Blood Pressure.');
+        state = AppState.CONNECTED;
+        fetchHealthData();
         return true;
       } else {
         debugPrint('Permissions denied for Heart Rate and Blood Pressure.');
+        state = AppState.AUTH_NOT_GRANTED;
         return false;
       }
     } catch (e) {
@@ -43,48 +70,34 @@ class HealthConnectService {
     }
   }
 
-  Future<bool> isHealthConnectAvailable() async {
+  Future<void> fetchHealthData() async {
     try {
-      return await _health.isHealthConnectAvailable();
-    } catch (e) {
-      debugPrint('Health Connect is not available: $e');
-      return false;
-    }
-  }
+      final now = DateTime.now();
+      final yesterday = now.subtract(const Duration(days: 7));
 
-  // Example function to fetch heart rate data
-  Future<List<HealthDataPoint>> fetchHeartRateData(
-      DateTime startDate, DateTime endDate) async {
-    try {
-      final data = await _health.getHealthDataFromTypes(
-          types: [HealthDataType.HEART_RATE],
-          startTime: startDate,
-          endTime: endDate);
-      debugPrint('Heart Rate Data: ${data.length} records fetched.');
-      return data;
-    } catch (e) {
-      debugPrint('Error fetching heart rate data: $e');
-      return [];
-    }
-  }
+      final types = [
+        HealthDataType.HEART_RATE,
+        HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
+        HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+      ];
 
-  // Example function to fetch blood pressure data
-  Future<List<HealthDataPoint>> fetchBloodPressureData(
-      DateTime startDate, DateTime endDate) async {
-    try {
-      final data = await _health.getHealthDataFromTypes(
-        types: [
-          HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
-          HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
-        ],
-        startTime: startDate,
-        endTime: endDate,
+      List<HealthDataPoint> healthData = await Health().getHealthDataFromTypes(
+        startTime: yesterday,
+        endTime: now,
+        types: types,
       );
-      debugPrint('Blood Pressure Data: ${data.length} records fetched.');
-      return data;
+
+      if (healthData.isNotEmpty) {
+        for (var data in healthData) {
+          debugPrint('Data type: ${data.type}, Value: ${data.value}, Unit: ${data.unit}');
+        }
+      } else {
+        debugPrint('No health data found for the selected period.');
+      }
     } catch (e) {
-      debugPrint('Error fetching blood pressure data: $e');
-      return [];
+      debugPrint('Error fetching health data: $e');
     }
   }
 }
+
+final healthLogicProvider = StateNotifierProvider<HealthLogic, AppState>((ref) => HealthLogic());
