@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -28,7 +29,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (session != null) {
         context.go('/bottom-nav');
       } else {
-        context.go('/intro');
+        context.go('/get-started');
       }
     });
   }
@@ -38,7 +39,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!mounted) return;
 
     Future.microtask(() {
-      context.go('/intro');
+      context.go('/get-started');
     });
   }
 
@@ -48,7 +49,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Container(
-          color: Colors.white,
+          color: mindfulBrown['Brown10'],
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -63,9 +64,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   child: Text(
                     'Lingap',
                     style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4CC9FE)),
+                        fontFamily: 'Urbanist',
+                        fontSize: 38,
+                        fontWeight: FontWeight.w700,
+                        color: mindfulBrown['Brown80']),
                   ),
                 ),
               ],

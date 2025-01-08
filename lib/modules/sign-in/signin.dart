@@ -6,22 +6,24 @@ import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignInPage extends ConsumerStatefulWidget {
-  const SignInPage({Key? key}) : super(key: key);
+class SignPage extends ConsumerStatefulWidget {
+  const SignPage({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<SignInPage> createState() => _SignInPageState();
+  ConsumerState<SignPage> createState() => _SignInPageState();
 }
 
-class _SignInPageState extends ConsumerState<SignInPage> {
+class _SignInPageState extends ConsumerState<SignPage> {
   final TextEditingController _otpController = TextEditingController();
   bool _isOtpSent = false;
   final GlobalSupabase supabase = GlobalSupabase(client);
 
-  /*
   void _sendOtp(String email) async {
     try {
-      await Supabase.instance.client.auth.signInWithOtp(email: email, emailRedirectTo: kIsWeb ? null : 'io.supabase.flutter://signin-callback/');
+      await Supabase.instance.client.auth.signInWithOtp(
+          email: email,
+          emailRedirectTo:
+              kIsWeb ? null : 'io.supabase.flutter://signin-callback/');
       setState(() {
         _isOtpSent = true;
       });
@@ -63,7 +65,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       );
     }
   }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -78,13 +79,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // For now, directly navigate to the main page after sign-in is successful
               SupaEmailAuth(
                 redirectTo: 'io.supabase.lingap://login-callback/',
                 onSignInComplete: (response) {
-                  // Uncomment the following line if you want to use OTP
-                  // _sendOtp(response.user!.email ?? '');
-                  context.go('/bottom-nav');
+                  _sendOtp(response.user!.email!);
                 },
                 onSignUpComplete: (response) async {
                   final user = response.user;
@@ -100,8 +98,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                           Text("Please check your email for verification."),
                     ),
                   );
-                  // Uncomment the following line if you want to use OTP
-                  // _sendOtp(response.user!.email ?? '');
+                  _sendOtp(response.user!.email ?? '');
                 },
                 metadataFields: [
                   MetaDataField(
@@ -118,7 +115,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   ),
                 ],
               ),
-              /*
+
               if (_isOtpSent) ...[
                 TextField(
                   controller: _otpController,
@@ -132,7 +129,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   onPressed: () {
                     final otp = _otpController.text;
                     if (otp.isNotEmpty) {
-                      _verifyOtp(Supabase.instance.client.auth.currentUser?.email ?? '', otp);
+                      _verifyOtp(
+                          Supabase.instance.client.auth.currentUser?.email ??
+                              '',
+                          otp);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -144,7 +144,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   child: const Text('Verify OTP'),
                 ),
               ],
-              */
             ],
           ),
         ),

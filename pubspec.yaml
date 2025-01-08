@@ -54,6 +54,14 @@ flutter:
           weight: 500
         - asset: assets/fonts/Montserrat-Bold.ttf
           weight: 700
+    - family: Urbanist
+      fonts:
+        - asset: assets/fonts/Urbanist-Bold.ttf
+          weight: 300
+        - asset: assets/fonts/Urbanist-SemiBold.ttf
+          weight: 500
+        - asset: assets/fonts/Urbanist-ExtraBold.ttf
+          weight: 700
   assets:
     - assets/logo.png
     - assets/test.jpg
@@ -67,3 +75,13 @@ flutter:
     - assets/vitals/blood.png
     - assets/vitals/sleep.png
     - assets/vitals/mood.png
+
+    - assets/splashscreen/robot.png
+    - assets/splashscreen/splash1.png
+    - assets/splashscreen/splash2.png
+    - assets/splashscreen/splash3.png
+    - assets/splashscreen/splash4.png
+    - assets/splashscreen/splash5.png
+    - assets/splashscreen/splash6.png
+    - assets/splashscreen/splash7.png
+

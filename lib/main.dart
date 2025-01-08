@@ -60,8 +60,13 @@ class LingapApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Lingap',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+          displayLarge: TextStyle(fontWeight: FontWeight.w700, fontSize: 32),
+          titleLarge: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+          bodyMedium: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+        ),
       ),
       routerConfig: goRouter,
     );

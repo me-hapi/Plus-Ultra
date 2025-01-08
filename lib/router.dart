@@ -13,11 +13,13 @@ import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
 
 //GENERAL MODULE
 import 'package:lingap/modules/profile/ui/profile_page.dart' as module_profile;
-import 'package:lingap/modules/sign-in/splashscreen.dart';
-import 'package:lingap/modules/sign-in/intro_page.dart';
+import 'package:lingap/modules/splashscreen/get_started.dart';
+import 'package:lingap/modules/splashscreen/introduction.dart';
+import 'package:lingap/modules/sign-in/signin_page.dart';
+import 'package:lingap/modules/signup/signup_page.dart';
+import 'package:lingap/modules/splashscreen/splashscreen.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/modules/home/home_page.dart' as module_home;
-import 'package:lingap/modules/sign-in/login_page.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -28,14 +30,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
-        path: '/intro',
-        builder: (context, state) => const IntroPage(),
-      ),
-      GoRoute(
         path: '/bottom-nav',
         builder: (context, state) {
-          final currentIndex =
-              state.extra as int? ?? 0;
+          final currentIndex = state.extra as int? ?? 0;
           return BottomNav(currentIndex: currentIndex);
         },
       ),
@@ -44,9 +41,23 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/home',
         builder: (context, state) => const module_home.HomePage(),
       ),
+
+      GoRoute(
+        path: '/get-started',
+        builder: (context, state) => GetStartedPage(),
+      ),
+      GoRoute(
+        path: '/introduction',
+        builder: (context, state) => IntroductionPage(),
+      ),
+
       GoRoute(
         path: '/signin',
         builder: (context, state) => SignInPage(),
+      ),
+      GoRoute(
+        path: '/signup',
+        builder: (context, state) => SignUpPage(),
       ),
       GoRoute(
         path: '/profile',
