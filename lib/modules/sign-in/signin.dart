@@ -21,9 +21,7 @@ class _SignInPageState extends ConsumerState<SignPage> {
   void _sendOtp(String email) async {
     try {
       await Supabase.instance.client.auth.signInWithOtp(
-          email: email,
-          emailRedirectTo:
-              kIsWeb ? null : 'io.supabase.flutter://signin-callback/');
+          email: email);
       setState(() {
         _isOtpSent = true;
       });

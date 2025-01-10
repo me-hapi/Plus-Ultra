@@ -13,10 +13,11 @@ import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
 
 //GENERAL MODULE
 import 'package:lingap/modules/profile/ui/profile_page.dart' as module_profile;
+import 'package:lingap/modules/sign-in/otp_setup.dart';
 import 'package:lingap/modules/splashscreen/get_started.dart';
 import 'package:lingap/modules/splashscreen/introduction.dart';
 import 'package:lingap/modules/sign-in/signin_page.dart';
-import 'package:lingap/modules/signup/signup_page.dart';
+import 'package:lingap/modules/sign-in/signup_page.dart';
 import 'package:lingap/modules/splashscreen/splashscreen.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/modules/home/home_page.dart' as module_home;
@@ -59,6 +60,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         builder: (context, state) => SignUpPage(),
       ),
+      GoRoute(
+        path: '/otpsetup',
+        builder: (context, state) {
+          final email = state.extra as String?;
+          if (email == null) {
+            throw Exception('Email is required');
+          }
+          return OTPSetupPage(email: email);
+        },
+      ),
+
       GoRoute(
         path: '/profile',
         builder: (context, state) => module_profile.ProfilePage(),

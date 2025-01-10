@@ -37,7 +37,7 @@ class _BottomNavState extends State<BottomNav> {
     bool? fetchIdStatus =
         await _supabase.fetchMhScore(_client.auth.currentUser!.id);
     if (!fetchIdStatus!) {
-      context.push('/dastest');
+      
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
@@ -112,6 +113,10 @@ class _GetStartedPageState extends State<GetStartedPage> {
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
                       ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          context.push('/otpsetup', extra: 'email');
+                        },
                     ),
                   ],
                 ),
