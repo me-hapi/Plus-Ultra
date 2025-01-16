@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lingap/core/utils/test/das_result.dart';
 import 'package:lingap/core/utils/test/das_test.dart';
+import 'package:lingap/core/utils/test/test_intro.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
 
@@ -10,6 +12,8 @@ import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart'
 import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
     as professional_profile;
+import 'package:lingap/modules/pretest/assessment.dart';
+import 'package:lingap/modules/pretest/data_privacy.dart';
 
 //GENERAL MODULE
 import 'package:lingap/modules/profile/ui/profile_page.dart' as module_profile;
@@ -70,6 +74,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return OTPSetupPage(email: email);
         },
       ),
+      GoRoute(
+        path: '/data',
+        builder: (context, state) => DataPrivacyScreen(),
+      ),
+      GoRoute(
+        path: '/assessment',
+        builder: (context, state) => AssessmentScreen(),
+      ),
+
+      GoRoute(
+        path: '/test-intro',
+        builder: (context, state) => TestIntro(),
+      ),
 
       GoRoute(
         path: '/profile',
@@ -78,6 +95,24 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dastest',
         builder: (context, state) => DASTest(),
+      ),
+      GoRoute(
+        path: '/dasresult',
+        builder: (context, state) {
+          // Retrieve the extra parameters
+          final extra = state.extra as Map<String, int>;
+
+          // Handle null or missing extra parameters
+          final depression = extra['depression'] ?? 0;
+          final anxiety = extra['anxiety'] ?? 0;
+          final stress = extra['stress'] ?? 0;
+
+          return DasResultPage(
+            depressionAmount: depression,
+            anxietyAmount: anxiety,
+            stressAmount: stress,
+          );
+        },
       ),
 
       // CHATBOT FEATURE

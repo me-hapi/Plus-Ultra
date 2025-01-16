@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class VitalCard extends StatelessWidget {
   final String title;
   final String imageUrl;
   final String metric;
   final List<FlSpot> lineGraphData;
+  final Color graphColor;
 
   const VitalCard({
     required this.title,
     required this.imageUrl,
     required this.metric,
     required this.lineGraphData,
+    required this.graphColor,
     Key? key,
   }) : super(key: key);
 
@@ -35,6 +38,7 @@ class VitalCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.only(left: 12, right: 12, bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      color: Colors.white,
       elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -53,15 +57,14 @@ class VitalCard extends StatelessWidget {
                       height: 50,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(0xFFEBE7E4),
+                        color: optimisticGray['Gray20'],
                       ),
                     ),
                     // Image inside
                     CircleAvatar(
                       radius: 12,
                       backgroundColor: Colors.transparent,
-                      backgroundImage:
-                          AssetImage(imageUrl), 
+                      backgroundImage: AssetImage(imageUrl),
                     ),
                   ],
                 ),
@@ -76,9 +79,8 @@ class VitalCard extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: Color(0xFF473c38),
-                    fontFamily: 'Montserrat',
-                    fontSize: 12,
+                    color: mindfulBrown['Brown80'],
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -90,8 +92,7 @@ class VitalCard extends StatelessWidget {
                     Text(
                       metric,
                       style: TextStyle(
-                        color: Color(0xFF473c38),
-                        fontFamily: 'Montserrat',
+                        color: mindfulBrown['Brown80'],
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
@@ -103,8 +104,7 @@ class VitalCard extends StatelessWidget {
                     Text(
                       _getTitleText(title.toLowerCase()),
                       style: TextStyle(
-                        color: Color(0xFF473c38),
-                        fontFamily: 'Montserrat',
+                        color: mindfulBrown['Brown80'],
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -126,8 +126,8 @@ class VitalCard extends StatelessWidget {
                       isCurved: true,
                       gradient: LinearGradient(
                         colors: [
-                          Colors.blue.withOpacity(0.8),
-                          Colors.blue.withOpacity(0.8),
+                          graphColor,
+                          graphColor,
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -139,7 +139,7 @@ class VitalCard extends StatelessWidget {
                         show: true,
                         gradient: LinearGradient(
                           colors: [
-                            Colors.blue.withOpacity(0.3),
+                            graphColor.withOpacity(0.3),
                             Colors.transparent,
                           ],
                           begin: Alignment.topCenter,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,7 +17,7 @@ class DASTest extends ConsumerStatefulWidget {
 class _DASTestState extends ConsumerState<DASTest> {
   late GlobalSupabase _supabase;
   late SupabaseClient _client;
-  
+
   @override
   void initState() {
     super.initState();
@@ -28,7 +29,7 @@ class _DASTestState extends ConsumerState<DASTest> {
     "I found it hard to wind down.",
     "I was aware of dryness of my mouth.",
     "I couldn't seem to experience any positive feeling at all.",
-    "I experienced breathing difficulty (e.g., excessively rapid breathing, breathlessness in the absence of physical exertion).",
+    "I experienced breathing difficulty.",
     "I found it difficult to work up the initiative to do things.",
     "I tended to over-react to situations.",
     "I experienced trembling (e.g., in the hands).",
@@ -43,12 +44,13 @@ class _DASTestState extends ConsumerState<DASTest> {
     "I was unable to become enthusiastic about anything.",
     "I felt I wasn't worth much as a person.",
     "I felt that I was rather touchy.",
-    "I was aware of the action of my heart in the absence of physical exertion (e.g., sense of heart rate increase, heart missing a beat).",
+    "I was aware of the action of my heart in the absence of physical exertion.",
     "I felt scared without any good reason.",
     "I felt that life was meaningless."
   ];
 
   void _nextQuestion(int response) {
+    print(response);
     final currentQuestionIndex = ref.read(currentQuestionIndexProvider);
     final responses = ref.read(responsesProvider.notifier);
 
@@ -56,29 +58,8 @@ class _DASTestState extends ConsumerState<DASTest> {
     if (currentQuestionIndex < questions.length - 1) {
       ref.read(currentQuestionIndexProvider.notifier).state++;
     } else {
-      _showResults();
+      context.go('/dasresult', extra: _computeScores());
     }
-  }
-
-  void _showResults() {
-    final scores = _computeScores();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Assessment Completed"),
-        content: Text(
-            "Thank you for completing the assessment.\n\nDepression Score: ${scores['depression']}\nAnxiety Score: ${scores['anxiety']}\nStress Score: ${scores['stress']}"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.push('/bottom-nav', extra: 0);
-            },
-            child: Text("OK"),
-          ),
-        ],
-      ),
-    );
   }
 
   Map<String, int> _computeScores() {
@@ -111,7 +92,11 @@ class _DASTestState extends ConsumerState<DASTest> {
         responses[13] +
         responses[17];
 
-    _supabase.insertMhScore(uid: _client.auth.currentUser!.id, depression: depressionScore, anxiety: anxietyScore, stress: stressScore);
+    _supabase.insertMhScore(
+        uid: _client.auth.currentUser!.id,
+        depression: depressionScore,
+        anxiety: anxietyScore,
+        stress: stressScore);
     return {
       'depression': depressionScore,
       'anxiety': anxietyScore,
@@ -125,45 +110,86 @@ class _DASTestState extends ConsumerState<DASTest> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("DASS-21 Assessment"),
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            Container(
+              width: 280,
+              height: 8,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: mindfulBrown['Brown20'],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: (currentQuestionIndex + 1) / questions.length,
+                  backgroundColor: Colors.transparent,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(serenityGreen['Green50']!),
+                ),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
+      backgroundColor: mindfulBrown['Brown10'],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              "Question ${currentQuestionIndex + 1} of ${questions.length}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Center(
+              child: Text(
+                "Question ${currentQuestionIndex + 1} of ${questions.length}",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             SizedBox(height: 20),
-            Text(
+            Center(
+                child: Text(
               questions[currentQuestionIndex],
-              style: TextStyle(fontSize: 18),
-            ),
+              style: TextStyle(fontSize: 36),
+            )),
             Spacer(),
             Column(
               children: List.generate(4, (index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: ElevatedButton(
-                    onPressed: () => _nextQuestion(index),
-                    child: Text(
-                      [
-                        "Did not apply to me at all",
-                        "Applied to me to some degree",
-                        "Applied to me a considerable degree",
-                        "Applied to me very much or most of the time"
-                      ][index],
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: SizedBox(
+                    height: 60,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => _nextQuestion(index + 1),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: mindfulBrown['Brown80'],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        [
+                          "Did not apply to me at all",
+                          "Applied to me to some degree",
+                          "Applied to me a considerable degree",
+                          "Applied to me very much or most of the time"
+                        ][index],
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
                     ),
                   ),
                 );
               }),
             ),
             SizedBox(height: 20),
-            LinearProgressIndicator(
-              value: (currentQuestionIndex + 1) / questions.length,
-            ),
           ],
         ),
       ),

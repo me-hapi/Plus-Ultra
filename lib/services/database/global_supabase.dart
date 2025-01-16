@@ -35,11 +35,10 @@ class GlobalSupabase {
     });
   }
 
-  Future<void> insertProfile(
-      {required String uid, required String name}) async {
+  Future<void> insertProfile({required String uid}) async {
     final response = await _client.from('profile').insert({
       'id': uid,
-      'name': name,
+      'name': 'Guest',
       'status': 'unavailable',
       'display_name': false,
     });
@@ -55,6 +54,37 @@ class GlobalSupabase {
     if (response != null) {
       return true;
     } else {
+      return false;
+    }
+  }
+
+  Future<bool> insertResponses(Map<String, dynamic> responses) async {
+    try {
+      // Validate that all required keys are present in the responses
+      final requiredKeys = ['name', 'age', 'weight', 'mood', 'sleepQuality'];
+      for (String key in requiredKeys) {
+        if (!responses.containsKey(key)) {
+          throw Exception('Missing required key: $key');
+        }
+      }
+
+      // Insert the data into the 'profile' table
+      final response = await _client.from('profile').insert({
+        'name': responses['name'],
+        'age': responses['age'],
+        'weight': responses['weight'],
+        'mood': responses['mood'],
+        'sleep_quality': responses['sleepquality'],
+      });
+
+      if (response.error != null) {
+        throw Exception('Failed to insert data: ${response.error!.message}');
+      }
+
+      print('Data inserted successfully');
+      return true;
+    } catch (e) {
+      print('Error inserting data: $e');
       return false;
     }
   }

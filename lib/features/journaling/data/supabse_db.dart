@@ -19,6 +19,7 @@ class SupabaseDB {
             'title': title,
             'created_at': DateTime.now().toIso8601String(),
             'classification': 'positive',
+            'emotion': 'neutral'
           })
           .select('id')
           .single();

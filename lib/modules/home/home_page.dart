@@ -1,8 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health/health.dart';
-import 'package:lingap/features/wearable_device/logic/health_connect.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
@@ -52,7 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEBE7E4),
+      backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,135 +64,121 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
             const SizedBox(height: 15),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 6.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Wearable',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Montserrat',
-                      color: Color(0xFF473c38),
-                    ),
+                  // Column for Wearable and its Card
+                  Column(
+                    children: [
+                      Text(
+                        'Wearable',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: mindfulBrown['Brown80'],
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        height: 220, // Set a fixed height
+                        child: Card(
+                          color: serenityGreen['Green50'],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 10, bottom: 10, left: 30, right: 30),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/vitals/smartwatch.png',
+                                  height: 120,
+                                  width: 120,
+                                  fit: BoxFit.contain,
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HealthPage(),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 30.0, vertical: 0),
+                                    backgroundColor: mindfulBrown['Brown80'],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Connect',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 90),
-                  const Text(
-                    'Mood',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Montserrat',
-                      color: Color(0xFF473c38),
-                    ),
+                  // Column for Mood and its Card
+                  Column(
+                    children: [
+                      Text(
+                        'Mood',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: mindfulBrown['Brown80']!,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        height: 220,
+                        child: Card(
+                          elevation: 0,
+                          color: kindPurple['Purple40'],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(30.0),
+                            child: Icon(
+                              Icons.mood, // Use a mood icon
+                              size: 120,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 5),
-                SizedBox(
-                  height: 220, // Set a fixed height
-                  child: Card(
-                    color: Color(0xFFB2B682),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 10, bottom: 10, left: 18, right: 18),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment
-                            .center, // Center content vertically
-                        children: [
-                          Image.asset(
-                            'assets/vitals/smartwatch.png',
-                            height: 120,
-                            width: 120,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () async {
-
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => HealthPage()));
-                              // final hasPermission =
-                              //     await health.requestPermissions();
-
-                              // if (hasPermission) {
-                              //   final heartRateData =
-                              //       await health.fetchHeartRateData(
-                              //     DateTime.now().subtract(Duration(days: 7)),
-                              //     DateTime.now(),
-                              //   );
-                              //   debugPrint(
-                              //       'Heart Rate Records: ${heartRateData.length}');
-
-                              //   final bloodPressureData =
-                              //       await health.fetchBloodPressureData(
-                              //     DateTime.now().subtract(Duration(days: 7)),
-                              //     DateTime.now(),
-                              //   );
-                              //   debugPrint(
-                              //       'Blood Pressure Records: ${bloodPressureData.length}');
-                              // } else {
-                              //   debugPrint('Permissions not granted.');
-                              // }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20.0, vertical: 0),
-                            ),
-                            child: const Text(
-                              'Connect',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
-                                color: Color(0xFFB2B682),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 220,
-                  child: Card(
-                    elevation: 0,
-                    color: Color(0xFFD1C8F9),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Icon(
-                        Icons.mood, // Use a mood icon
-                        size: 120,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 5),
-              ],
             ),
             const SizedBox(height: 10),
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-              child: const Text(
+              child: Text(
                 'Vitals Overview',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Montserrat',
-                  color: Color(0xFF473c38),
+                  fontWeight: FontWeight.w700,
+                  color: mindfulBrown['Brown80']!,
                 ),
               ),
             ),
@@ -207,24 +192,28 @@ class _HomePageState extends ConsumerState<HomePage> {
                   imageUrl: "assets/vitals/heart.png",
                   metric: '80',
                   lineGraphData: heartRateData,
+                  graphColor: presentRed['Red50']!,
                 ),
                 VitalCard(
                   title: "Blood Pressure",
                   imageUrl: "assets/vitals/blood.png",
                   metric: '80',
                   lineGraphData: bloodPressureData,
+                  graphColor: empathyOrange['Orange50']!,
                 ),
                 VitalCard(
                   title: "Sleep",
                   imageUrl: "assets/vitals/sleep.png",
                   metric: '80',
                   lineGraphData: sleepData,
+                  graphColor: mindfulBrown['Brown50']!,
                 ),
                 VitalCard(
                   title: "Mood",
                   imageUrl: "assets/vitals/mood.png",
                   metric: '80',
                   lineGraphData: moodData,
+                  graphColor: reflectiveBlue['Blue50']!,
                 ),
               ],
             ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/modules/sign-in/sign_logic.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -236,14 +237,41 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: ElevatedButton(
                   onPressed: () async {
                     // Handle sign-up logic here
-                    print('Email: ${_emailController.text}');
-                    print('Password: ${_passwordController.text}');
-                    print(
-                        'Password Confirmation: ${_passwordConfirmationController.text}');
+                    // print('Email: ${_emailController.text}');
+                    // print('Password: ${_passwordController.text}');
+                    // print(
+                    //     'Password Confirmation: ${_passwordConfirmationController.text}');
 
-                    if (await signLogic.signUpWithEmail(_emailController.text,
-                        _passwordController.text, context)) {
-                      context.push('/otpsetup', extra: _emailController.text);
+                    if (_emailController.text.isNotEmpty &&
+                        _passwordController.text.isNotEmpty) {
+                      LoadingScreen.show(context); // Show the loading screen
+
+                      try {
+                        if (await signLogic.signUpWithEmail(
+                          _emailController.text,
+                          _passwordController.text,
+                          context,
+                        )) {
+                          // Navigate to the next screen after successful signup
+                          context.push('/otpsetup',
+                              extra: _emailController.text);
+                        } else {
+                          // Handle signup failure (e.g., show an error message)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Signup failed. Please try again.')),
+                          );
+                        }
+                      } finally {
+                        LoadingScreen.hide(context); // Hide the loading screen
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text('Email and password cannot be empty.')),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(

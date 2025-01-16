@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/modules/sign-in/sign_logic.dart';
+import 'package:lingap/services/auth_services/google_auth.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -186,11 +187,9 @@ class _SignInPageState extends State<SignInPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        mindfulBrown['Brown80'], // Set background color
+                    backgroundColor: mindfulBrown['Brown80'],
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(30), // Rounded corners
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: const Text(
@@ -208,14 +207,45 @@ class _SignInPageState extends State<SignInPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage('assets/placeholder1.png'),
+                GestureDetector(
+                  onTap: () {
+                    final googleAuthService = GoogleAuthService(context);
+                    googleAuthService.setupAuthListener();
+                    googleAuthService.googleSignIn();
+                  },
+                  child: CircleAvatar(
+                    radius: 30, // Circle size
+                    backgroundColor:
+                        Colors.white, // Set background color to white
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/logo/google.png',
+                        width: 30, // Adjust the logo size
+                        height: 30, // Adjust the logo size
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 20),
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage('assets/placeholder2.png'),
+                GestureDetector(
+                  onTap: () {
+                    // Handle Facebook logo tap
+                    print('Facebook logo tapped');
+                  },
+                  child: CircleAvatar(
+                    radius: 30, // Circle size
+                    backgroundColor:
+                        Colors.white, // Set background color to white
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/logo/facebook.png',
+                        width: 55, // Adjust the logo size
+                        height: 55, // Adjust the logo size
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

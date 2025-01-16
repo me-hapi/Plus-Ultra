@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/modules/sign-in/sign_logic.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 
 class OTPSetupPage extends StatefulWidget {
   final String email;
@@ -15,6 +16,7 @@ class OTPSetupPage extends StatefulWidget {
 
 class _OTPSetupPageState extends State<OTPSetupPage> {
   final SignLogic signLogic = SignLogic(client);
+  final GlobalSupabase supabase = GlobalSupabase(client);
   List<TextEditingController> _controllers =
       List.generate(6, (index) => TextEditingController());
   List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
@@ -87,9 +89,11 @@ class _OTPSetupPageState extends State<OTPSetupPage> {
                     final otpCode = _controllers
                         .map((controller) => controller.text)
                         .join();
+                    final String uid = await signLogic.verifySignupOTP(
+                        widget.email, otpCode, context);
 
-                    if (await signLogic.verifySignupOTP(
-                        widget.email, otpCode, context)) {
+                    if (uid != '') {
+                      supabase.insertProfile(uid: uid);
                       context.go('/dastest');
                     }
                   },

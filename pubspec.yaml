@@ -76,6 +76,9 @@ flutter:
     - assets/vitals/sleep.png
     - assets/vitals/mood.png
 
+    - assets/logo/google.png
+    - assets/logo/facebook.png
+
     - assets/splashscreen/robot.png
     - assets/splashscreen/splash1.png
     - assets/splashscreen/splash2.png
@@ -84,4 +87,16 @@ flutter:
     - assets/splashscreen/splash5.png
     - assets/splashscreen/splash6.png
     - assets/splashscreen/splash7.png
+    - assets/splashscreen/data_privacy.png
+    - assets/splashscreen/checked.png
+    - assets/splashscreen/unchecked.png
+
+    - assets/profile/profile1.png
+    - assets/profile/profile2.png
+    - assets/profile/profile3.png
+    - assets/profile/profile4.png
+    - assets/profile/profile5.png
+    - assets/profile/profile6.png
+    - assets/profile/profile7.png
+    - assets/profile/profile8.png
 

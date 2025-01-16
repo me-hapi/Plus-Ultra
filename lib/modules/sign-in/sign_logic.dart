@@ -31,7 +31,7 @@ class SignLogic {
   }
 
   /// Verifies the OTP entered by the user.
-  Future<bool> verifySignupOTP(
+  Future<String> verifySignupOTP(
       String email, String otpCode, BuildContext context) async {
     try {
       final response = await _supabaseClient.auth.verifyOTP(
@@ -40,16 +40,18 @@ class SignLogic {
         type: OtpType.signup,
       );
 
-      if (response.session != null) {
+      if (response.user != null) {
+        final user = response.user;
+        final uid = user!.id;
         _showSnackBar(context, "OTP verified successfully. Signup complete.");
-        return true;
+        return uid;
       } else {
         _showSnackBar(context, "OTP verification failed.");
-        return false;
+        return '';
       }
     } catch (e) {
       _showSnackBar(context, "An error occurred: $e");
-      return false;
+      return '';
     }
   }
 

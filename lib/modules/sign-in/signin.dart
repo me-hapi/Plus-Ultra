@@ -87,7 +87,7 @@ class _SignInPageState extends ConsumerState<SignPage> {
                   if (user != null) {
                     final uid = user.id;
                     final name = user.userMetadata?['username'] ?? '';
-                    await supabase.insertProfile(uid: uid, name: name);
+                    // await supabase.insertProfile(uid: uid, name: name);
                   }
 
                   ScaffoldMessenger.of(context).showSnackBar(

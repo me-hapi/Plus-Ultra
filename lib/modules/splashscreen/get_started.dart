@@ -115,7 +115,7 @@ class _GetStartedPageState extends State<GetStartedPage> {
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          context.push('/otpsetup', extra: 'email');
+                          context.push('/data');
                         },
                     ),
                   ],
