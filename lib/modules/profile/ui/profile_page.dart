@@ -1,5 +1,11 @@
+import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
@@ -7,17 +13,64 @@ import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+
+class ConvexArcPainter extends CustomPainter {
+  final ui.Image backgroundImage;
+
+  ConvexArcPainter(this.backgroundImage);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Define the convex arc shape
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(0, size.height - 30)
+      ..quadraticBezierTo(
+        size.width / 2,
+        size.height + 30,
+        size.width,
+        size.height - 30,
+      )
+      ..lineTo(size.width, 0)
+      ..close();
+
+    // Clip the canvas to the convex arc shape
+    canvas.clipPath(path);
+
+    // Draw the background image within the clipped path
+    paintImage(
+      canvas: canvas,
+      rect: Rect.fromLTWH(0, 0, size.width, size.height),
+      image: backgroundImage,
+      fit: BoxFit.cover,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  final ui.Image backgroundImage;
+
+  const ProfilePage({Key? key, required this.backgroundImage})
+      : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isNotificationOn = false;
+  bool _isDarkModeOn = false;
   bool _isSigningOut = false;
   GlobalSupabase supabase = GlobalSupabase(client);
+  bool _isProfessionalOn = false;
   bool isProfessional = false;
+  int age = 28;
+  double weight = 68.5;
 
   @override
   void initState() {
@@ -55,186 +108,368 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            context.go('/bottom-nav', extra: 0);
-          },
-        ),
-      ),
+      backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: AssetImage('assets/profile_placeholder.png'),
-              ),
-              const SizedBox(height: 20),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Full Name',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                initialValue: 'John Doe',
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                readOnly: true,
-              ),
-              const SizedBox(height: 20),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Email',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                initialValue: 'johndoe@example.com',
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                readOnly: true,
-              ),
-              const SizedBox(height: 20),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Password',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                initialValue: '********',
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                readOnly: true,
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Account Type',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          if (isProfessional) {
-                            setState(() {
-                              accountType = "Patient";
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isProfessional && accountType == "Patient"
-                                ? Colors.blue
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Stack(
+              clipBehavior: Clip
+                  .none, // Ensures children can overflow the bounds of the Stack
+              children: [
+                CustomPaint(
+                  painter: ConvexArcPainter(widget.backgroundImage!),
+                  child: Container(
+                    height: 250, // Height of the arc
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(
+                          top: 30,
+                          left: 10,
+                          child: IconButton(
+                            icon: Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
+                        ),
+                        Positioned(
+                          top: 40, // Move text higher
                           child: Text(
-                            "Patient",
-                            textAlign: TextAlign.center,
+                            'My Profile',
                             style: TextStyle(
-                              color: isProfessional && accountType == "Patient"
-                                  ? Colors.white
-                                  : Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 200, // Adjust to overlap the arc
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          AssetImage('assets/profile_placeholder.png'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 60), // Space below the avatar
+            Text(
+              'John Doe',
+              style: TextStyle(
+                fontSize: 32,
+                color: mindfulBrown['Brown80']!,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 100,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Age',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: mindfulBrown['Brown80']!,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ), // Spacing between texts
+                      Text(
+                        '$age',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: mindfulBrown['Brown80']!,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: isProfessional
-                          ? GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  accountType = "Professional";
-                                });
-                              },
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: accountType == "Professional"
-                                      ? Colors.blue
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Text(
-                                  "Professional",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: accountType == "Professional"
-                                        ? Colors.white
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    context.push('/application_page');
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Apply",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 70, // Ensures the divider is sized correctly
+                  alignment: Alignment.center, // Centers the divider vertically
+                  child: VerticalDivider(
+                    color: optimisticGray['Gray50']!,
+                    thickness: 2,
+                  ),
+                ),
+                SizedBox(
+                    width: 100,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Weight',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: mindfulBrown['Brown80']!,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${weight}kg',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: mindfulBrown['Brown80']!,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ))
+              ],
+            ),
+
+            const SizedBox(height: 30),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'General Settings',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: mindfulBrown['Brown80'],
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
-              _isSigningOut
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _signOut,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: const Text('Sign Out'),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ListTile(
+                  leading: Image.asset('assets/profileIcon/notification.png'),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  title: Text(
+                    isProfessional ? 'Professional' : 'Patient',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80'],
                     ),
-            ],
-          ),
+                  ),
+                  trailing: isProfessional
+                      ? Switch(
+                          value: _isProfessionalOn,
+                          onChanged: (value) {
+                            setState(() {
+                              _isProfessionalOn = value;
+                              if (_isProfessionalOn) {
+                                accountType = 'Professional';
+                              } else {
+                                accountType = 'Patient';
+                              }
+                            });
+                          },
+                          activeColor: Colors.green,
+                          inactiveThumbColor: Colors.grey,
+                          inactiveTrackColor: Colors.grey[300],
+                        )
+                      : ElevatedButton(
+                          onPressed: () {
+                            context.push('/application_page');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text(
+                            "Apply",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ListTile(
+                  leading: Image.asset('assets/profileIcon/notification.png'),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  title: Text(
+                    'Notification',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80'],
+                    ),
+                  ),
+                  trailing: Switch(
+                    value: _isNotificationOn,
+                    onChanged: (value) {
+                      setState(() {
+                        _isNotificationOn = value; // Toggle the switch
+                      });
+                    },
+                    activeColor: Colors.green, // Green when ON
+                    inactiveThumbColor: Colors.grey, // Gray thumb when OFF
+                    inactiveTrackColor:
+                        Colors.grey[300], // Light gray track when OFF
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ListTile(
+                  onTap: () {},
+                  leading: Image.asset('assets/profileIcon/emergency.png'),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  title: Text(
+                    'Emergency Contact',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80'],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ListTile(
+                  leading: Image.asset('assets/profileIcon/dark.png'),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  title: Text(
+                    'Dark Mode',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80'],
+                    ),
+                  ),
+                  trailing: Switch(
+                    value: _isDarkModeOn,
+                    onChanged: (value) {
+                      setState(() {
+                        _isDarkModeOn = value; // Toggle the switch
+                      });
+                    },
+                    activeColor: Colors.green, // Green when ON
+                    inactiveThumbColor: Colors.grey, // Gray thumb when OFF
+                    inactiveTrackColor:
+                        Colors.grey[300], // Light gray track when OFF
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 25),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Danger Zone',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: mindfulBrown['Brown80'],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: presentRed['Red20'],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ListTile(
+                  leading: Image.asset('assets/profileIcon/close.png'),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  title: Text(
+                    'Close Account',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80'],
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward,
+                    color: mindfulBrown['Brown80'],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 25),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Log out',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: mindfulBrown['Brown80'],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: mindfulBrown['Brown80'],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ListTile(
+                  leading: Image.asset('assets/profileIcon/logout.png'),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  title: Text(
+                    'Log out',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );

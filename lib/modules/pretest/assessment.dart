@@ -28,12 +28,19 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   final List<Map<String, dynamic>> questions = [
     {
       'question': 'What do you want us to call you?',
-      'widget': (Function(String) onUpdate) => DisplayName(
-            onNameChanged: (name) {
-              onUpdate(name); // Update the responses map
-            },
-          ),
-      'key': 'name', // Key to identify this response
+      'widget':
+          (Function(String) onNameUpdate, Function(String?) onProfileUpdate) =>
+              DisplayName(
+                onNameChanged: (name) {
+                  onNameUpdate(name); // Update the name in responses
+                },
+                onProfileChanged: (profilePicture) {
+                  onProfileUpdate(
+                      profilePicture); // Update the profile picture in responses
+                },
+              ),
+      'key': 'name', // Key for the name
+      'profilePictureKey': 'profilePicture', // Key for the profile picture
     },
     {
       'question': 'What\'s your age?',
@@ -150,12 +157,27 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             ),
             Expanded(
               child: Center(
-                  child: questions[currentIndex]['widget']((value) {
-                setState(() {
-                  // Update the response for the current question's key
-                  responses[questions[currentIndex]['key']] = value;
-                });
-              })),
+                  child: currentIndex == 0
+                      ? questions[currentIndex]['widget'](
+                          (value) {
+                            setState(() {
+                              // Update the response for the current question's key
+                              responses[questions[currentIndex]['key']] = value;
+                            });
+                          },
+                          (profilePicture) {
+                            setState(() {
+                              responses[questions[currentIndex]
+                                  ['profilePictureKey']] = profilePicture;
+                            });
+                          },
+                        )
+                      : questions[currentIndex]['widget']((value) {
+                          setState(() {
+                            // Update the response for the current question's key
+                            responses[questions[currentIndex]['key']] = value;
+                          });
+                        })),
             ),
             SizedBox(
               height: 60,

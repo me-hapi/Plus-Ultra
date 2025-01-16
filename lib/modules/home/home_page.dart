@@ -1,7 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/utils/shared/shared_pref.dart';
+import 'package:lingap/features/wearable_device/logic/health_connect.dart';
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
@@ -14,23 +17,42 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  // final HealthConnectService health = HealthConnectService();
-  // Dummy data for the line graph
-  final List<FlSpot> heartRateData = [
-    FlSpot(0, 75),
-    FlSpot(1, 80),
-    FlSpot(2, 78),
-    FlSpot(3, 82),
-    FlSpot(4, 79),
-  ];
+  bool isConnected = false;
+  final HealthLogic healthLogic = HealthLogic();
 
-  final List<FlSpot> bloodPressureData = [
-    FlSpot(0, 120),
-    FlSpot(1, 115),
-    FlSpot(2, 118),
-    FlSpot(3, 122),
-    FlSpot(4, 117),
-  ];
+  Map<String, dynamic> healthDataMap = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeConnectionStatus(); // Call the method to initialize the value
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeConnectionStatus();
+  }
+
+  Future<void> _initializeConnectionStatus() async {
+    final result =
+        await SharedPrefHelper.instance.getBool('isConnected') ?? false;
+
+    if (isConnected) {
+      await _fetchHealthData();
+    }
+    setState(() {
+      isConnected = result;
+    });
+  }
+
+  Future<void> _fetchHealthData() async {
+    Map<String, dynamic> data = await healthLogic.fetchHealthData();
+    setState(() {
+      healthDataMap = data;
+    });
+  }
+
 
   final List<FlSpot> sleepData = [
     FlSpot(0, 6.5),
@@ -50,6 +72,14 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    String bloodPressureMetric =
+        (healthDataMap['HealthDataType.BLOOD_PRESSURE_SYSTOLIC']?['latest'] ??
+                'N/A') +
+            '/' +
+            (healthDataMap['HealthDataType.BLOOD_PRESSURE_DIASTOLIC']
+                    ?['latest'] ??
+                'N/A');
+
     return Scaffold(
       backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
@@ -90,25 +120,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.only(
-                                top: 10, bottom: 10, left: 30, right: 30),
+                                top: 10, bottom: 0, left: 15, right: 15),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Image.asset(
                                   'assets/vitals/smartwatch.png',
-                                  height: 120,
-                                  width: 120,
+                                  height: 150,
+                                  width: 150,
                                   fit: BoxFit.contain,
                                 ),
-                                const SizedBox(height: 10),
                                 ElevatedButton(
-                                  onPressed: () async {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => HealthPage(),
-                                      ),
-                                    );
+                                  onPressed: () {
+                                    context.push('/health-page').then((value) {
+                                      _initializeConnectionStatus();
+                                    });
                                   },
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
@@ -118,9 +144,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
-                                  child: const Text(
-                                    'Connect',
-                                    style: TextStyle(
+                                  child: Text(
+                                    isConnected ? 'Connected' : 'Connect',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 12,
                                       color: Colors.white,
@@ -150,7 +176,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         height: 220,
                         child: Card(
                           elevation: 0,
-                          color: kindPurple['Purple40'],
+                          color: kindPurple['Purple30'],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -190,15 +216,22 @@ class _HomePageState extends ConsumerState<HomePage> {
                 VitalCard(
                   title: "Heart Rate",
                   imageUrl: "assets/vitals/heart.png",
-                  metric: '80',
-                  lineGraphData: heartRateData,
+                  metric: healthDataMap['HealthDataType.HEART_RATE']
+                          ?['latest'] ??
+                      'N/A',
+                  lineGraphData: healthDataMap['HealthDataType.HEART_RATE']
+                          ?['spots'] ??
+                      [],
                   graphColor: presentRed['Red50']!,
                 ),
                 VitalCard(
                   title: "Blood Pressure",
                   imageUrl: "assets/vitals/blood.png",
-                  metric: '80',
-                  lineGraphData: bloodPressureData,
+                  metric: bloodPressureMetric,
+                  lineGraphData:
+                      healthDataMap['HealthDataType.BLOOD_PRESSURE_SYSTOLIC']
+                              ?['spots'] ??
+                          [],
                   graphColor: empathyOrange['Orange50']!,
                 ),
                 VitalCard(

@@ -35,6 +35,7 @@ dependencies:
   record: ^5.2.0
   health: ^11.1.1
   workmanager: ^0.5.2
+  shared_preferences: ^2.3.5
 
 dev_dependencies:
   flutter_test:
@@ -99,4 +100,11 @@ flutter:
     - assets/profile/profile6.png
     - assets/profile/profile7.png
     - assets/profile/profile8.png
+    
+    - assets/profileIcon/bg.png
+    - assets/profileIcon/close.png
+    - assets/profileIcon/dark.png
+    - assets/profileIcon/emergency.png
+    - assets/profileIcon/logout.png
+    - assets/profileIcon/notification.png
 

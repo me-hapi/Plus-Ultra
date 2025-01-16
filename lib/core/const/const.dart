@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -5,7 +7,11 @@ String accountType = 'Patient';
 
 String testBG = 'bg1';
 
+bool isConnected = false;
+
 String globalName = '';
+
+File? profile ;
 
 final client = Supabase.instance.client;
 

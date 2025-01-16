@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/utils/test/das_result.dart';
@@ -12,6 +14,7 @@ import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart'
 import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
     as professional_profile;
+import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/modules/pretest/assessment.dart';
 import 'package:lingap/modules/pretest/data_privacy.dart';
 
@@ -89,9 +92,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
-        path: '/profile',
-        builder: (context, state) => module_profile.ProfilePage(),
-      ),
+          path: '/profile',
+          builder: (context, state) {
+            final extra = state.extra as ui.Image;
+
+            return module_profile.ProfilePage(
+              backgroundImage: extra,
+            );
+          }),
       GoRoute(
         path: '/dastest',
         builder: (context, state) => DASTest(),
@@ -127,7 +135,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/application_page',
         builder: (context, state) => ApplicationPage(),
       ),
-
       //User
       GoRoute(
         path: '/landing_page',
@@ -144,6 +151,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/selection_professional',
         builder: (context, state) => user_home.HomePage(),
+      ),
+
+      //WEARABLE
+      GoRoute(
+        path: '/health-page',
+        builder: (context, state) => HealthPage(),
       ),
     ],
   );

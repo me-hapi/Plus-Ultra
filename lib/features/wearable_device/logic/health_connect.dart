@@ -1,43 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:health/health.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/utils/shared/shared_pref.dart';
 
-enum AppState { INITIAL, CONNECTING, CONNECTED, DISCONNECTED, AUTH_NOT_GRANTED }
+class HealthLogic {
+  final Health health;
 
-class HealthLogic extends StateNotifier<AppState> {
-  HealthLogic() : super(AppState.INITIAL);
-
-  Future<void> initializeHealthConnect() async {
-    Health().configure();
-    await requestPermissions();
-  }
-
-  Future<void> installHealthConnect() async {
-    await Health().installHealthConnect();
-  }
-
-  Future<void> getHealthConnectSdkStatus() async {
-    final status = await Health().getHealthConnectSdkStatus();
-    state = AppState.CONNECTING;
-    if (status != null) {
-      debugPrint('Health Connect Status: ${status.name.toUpperCase()}');
-    }
-  }
-
-  Future<bool> isHealthConnectAvailable() async {
-    try {
-      return await Health().isHealthConnectAvailable();
-    } catch (e) {
-      debugPrint('Health Connect is not available: $e');
-      return false;
-    }
-  }
+  HealthLogic() : health = Health();
 
   Future<bool> requestPermissions() async {
     try {
-      Health().configure();
+      health.configure();
 
-      final isAvailable = await isHealthConnectAvailable();
+      bool isAvailable = await isHealthConnectAvailable();
       if (!isAvailable) {
         debugPrint('Health Connect is not available on this device.');
         return false;
@@ -51,17 +27,16 @@ class HealthLogic extends StateNotifier<AppState> {
 
       final permissions = types.map((type) => HealthDataAccess.READ).toList();
 
-      final granted =
-          await Health().requestAuthorization(types, permissions: permissions);
+      bool granted =
+          await health.requestAuthorization(types, permissions: permissions);
 
       if (granted) {
         debugPrint('Permissions granted for Heart Rate and Blood Pressure.');
-        state = AppState.CONNECTED;
         fetchHealthData();
+        await SharedPrefHelper.instance.setBool('isConnected', true);
         return true;
       } else {
         debugPrint('Permissions denied for Heart Rate and Blood Pressure.');
-        state = AppState.AUTH_NOT_GRANTED;
         return false;
       }
     } catch (e) {
@@ -70,34 +45,87 @@ class HealthLogic extends StateNotifier<AppState> {
     }
   }
 
-  Future<void> fetchHealthData() async {
+  Future<bool> isHealthConnectAvailable() async {
+    try {
+      return await health.isHealthConnectAvailable();
+    } catch (e) {
+      debugPrint('Health Connect is not available: $e');
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchHealthData() async {
     try {
       final now = DateTime.now();
-      final yesterday = now.subtract(const Duration(days: 7));
-
+      final weekAgo = now.subtract(const Duration(days: 7));
       final types = [
         HealthDataType.HEART_RATE,
         HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
         HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
       ];
 
-      List<HealthDataPoint> healthData = await Health().getHealthDataFromTypes(
-        startTime: yesterday,
+      List<HealthDataPoint> healthData = await health.getHealthDataFromTypes(
+        startTime: weekAgo,
         endTime: now,
         types: types,
       );
 
       if (healthData.isNotEmpty) {
         for (var data in healthData) {
-          debugPrint('Data type: ${data.type}, Value: ${data.value}, Unit: ${data.unit}');
+          debugPrint(
+              'Data type: ${data.type}, Value: ${data.value}, Unit: ${data.unit}');
         }
+
+        Map<String, List<HealthDataPoint>> categorizedData = {};
+        for (var data in healthData) {
+          if (!categorizedData.containsKey(data.type.toString())) {
+            categorizedData[data.type.toString()] = [];
+          }
+          categorizedData[data.type.toString()]!.add(data);
+        }
+
+        Map<String, dynamic> result = {};
+        categorizedData.forEach((key, value) {
+          // Sort by time
+          value.sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+          // Convert to FlSpot
+          List<FlSpot> flSpots = value.map((data) {
+            double x = data.dateFrom.millisecondsSinceEpoch.toDouble();
+            // Extract numeric value properly
+            double y = _extractNumericValue(data.value);
+            return FlSpot(x, y);
+          }).toList();
+
+          String latestMetric = value.isNotEmpty
+              ? _extractNumericValue(value.last.value).toInt().toString()
+              : 'N/A';
+
+          result[key] = {
+            'spots': flSpots,
+            'latest': latestMetric,
+          };
+        });
+
+        return result;
       } else {
-        debugPrint('No health data found for the selected period.');
+        debugPrint('No health data found.');
+        return {};
       }
     } catch (e) {
       debugPrint('Error fetching health data: $e');
+      return {};
+    }
+  }
+
+// Helper function to extract numeric value from HealthDataPoint.value
+  double _extractNumericValue(dynamic value) {
+    if (value is NumericHealthValue) {
+      return value.numericValue.toDouble();
+    } else if (value is double) {
+      return value;
+    } else {
+      return 0.0; // Default to 0.0 if extraction fails
     }
   }
 }
-
-final healthLogicProvider = StateNotifierProvider<HealthLogic, AppState>((ref) => HealthLogic());

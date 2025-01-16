@@ -5,10 +5,14 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:lingap/core/const/colors.dart';
 
 class DisplayName extends StatefulWidget {
-  final Function(String)
-      onNameChanged; // Callback to pass the name back to parent
+  final Function(String) onNameChanged;
+  final Function(String?) onProfileChanged; // New callback for profile picture
 
-  const DisplayName({Key? key, required this.onNameChanged}) : super(key: key);
+  const DisplayName({
+    Key? key,
+    required this.onNameChanged,
+    required this.onProfileChanged,
+  }) : super(key: key);
 
   @override
   _DisplayNameState createState() => _DisplayNameState();
@@ -29,6 +33,7 @@ class _DisplayNameState extends State<DisplayName> {
     setState(() {
       _selectedAsset = asset;
       _profileImage = null; // Reset picked image if an asset is selected
+      widget.onProfileChanged(_selectedAsset); // Notify parent
     });
   }
 
@@ -211,6 +216,7 @@ class _DisplayNameState extends State<DisplayName> {
       final compressedImage = await _compressImage(File(pickedFile.path));
       setState(() {
         _profileImage = compressedImage;
+        widget.onProfileChanged(_profileImage!.path);
       });
     }
   }

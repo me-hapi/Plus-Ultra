@@ -1,9 +1,39 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 
-class GreetingCard extends StatelessWidget {
+class GreetingCard extends StatefulWidget {
+  const GreetingCard({Key? key}) : super(key: key);
+
+  @override
+  _GreetingCardState createState() => _GreetingCardState();
+}
+
+class _GreetingCardState extends State<GreetingCard> {
+  ui.Image? _backgroundImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBackgroundImage();
+  }
+
+  Future<void> _loadBackgroundImage() async {
+    final image = await preloadImage('assets/profileIcon/bg.png');
+    setState(() {
+      _backgroundImage = image;
+    });
+  }
+
+  Future<ui.Image> preloadImage(String assetPath) async {
+    final data = await DefaultAssetBundle.of(context).load(assetPath);
+    final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    final frame = await codec.getNextFrame();
+    return frame.image;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Get the current date formatted as "January 15, 2025"
@@ -48,7 +78,7 @@ class GreetingCard extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    context.push('/profile');
+                    context.push('/profile', extra: _backgroundImage);
                   },
                   child: CircleAvatar(
                     child: Icon(Icons.person, size: 24, color: Colors.white),
@@ -118,10 +148,7 @@ class GreetingCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-            color: Colors.white
-          ),
+              fontSize: 10, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ],
     );

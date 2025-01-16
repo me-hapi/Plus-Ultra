@@ -45,30 +45,10 @@ class VitalCard extends StatelessWidget {
         child: Row(
           children: [
             // Left side: Circle Frame with Avatar
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Outer Circle Frame
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: optimisticGray['Gray20'],
-                      ),
-                    ),
-                    // Image inside
-                    CircleAvatar(
-                      radius: 12,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage(imageUrl),
-                    ),
-                  ],
-                ),
-              ],
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.transparent,
+              backgroundImage: AssetImage(imageUrl),
             ),
             SizedBox(width: 16),
             // Center: Title and Metric
@@ -86,7 +66,6 @@ class VitalCard extends StatelessWidget {
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     //Title
                     Text(
@@ -101,14 +80,19 @@ class VitalCard extends StatelessWidget {
                       width: 3,
                     ),
                     //Label
-                    Text(
-                      _getTitleText(title.toLowerCase()),
-                      style: TextStyle(
-                        color: mindfulBrown['Brown80'],
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Column(
+                      children: [
+                        SizedBox(height: 5,),
+                        Text(
+                          _getTitleText(title.toLowerCase()),
+                          style: TextStyle(
+                            color: optimisticGray['Gray60'],
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 )
               ],

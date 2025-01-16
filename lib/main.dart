@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lingap/core/utils/shared/shared_pref.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:workmanager/workmanager.dart';
 import 'router.dart';
@@ -27,8 +28,7 @@ void callbackDispatcher() {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Supabase
+  await SharedPrefHelper.instance.init();
   await Supabase.initialize(
     url: 'https://roklxdmfmwyniafvremi.supabase.co',
     anonKey:
