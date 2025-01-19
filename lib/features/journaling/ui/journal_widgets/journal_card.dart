@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/journaling/model/journal_item.dart';
 import 'package:lingap/features/journaling/ui/audio_card.dart';
 import 'dart:io';
@@ -20,6 +21,47 @@ class JournalCard extends StatelessWidget {
     required this.journalItems,
   }) : super(key: key);
 
+  Map<String, dynamic> getAsset(String emotion) {
+    switch (emotion.toLowerCase()) {
+      case 'cheerful':
+        return {
+          'font': serenityGreen['Green50'],
+          'bg': serenityGreen['Green10'],
+          'asset': 'assets/journal/cheerful_frame.png'
+        };
+      case 'happy':
+        return {
+          'font': zenYellow['Yellow50'],
+          'bg': zenYellow['Yellow10'],
+          'asset': 'assets/journal/happy_frame.png'
+        };
+      case 'neutral':
+        return {
+          'font': mindfulBrown['Brown60'],
+          'bg': mindfulBrown['Brown10'],
+          'asset': 'assets/journal/neutral_frame.png'
+        };
+      case 'sad':
+        return {
+          'font': empathyOrange['Orange60'],
+          'bg': empathyOrange['Orange10'],
+          'asset': 'assets/journal/sad_frame.png'
+        };
+      case 'awful':
+        return {
+          'font': kindPurple['Purple40'],
+          'bg': kindPurple['Purple10'],
+          'asset': 'assets/journal/awful_frame.png'
+        };
+      default:
+        return {
+          'font': mindfulBrown['Brown60'],
+          'bg': mindfulBrown['Brown10'],
+          'asset': 'assets/journal/neutral_frame.png'
+        };
+    }
+  }
+
   Widget _buildPreviewContent() {
     if (journalItems.isEmpty) {
       return const Text(
@@ -33,7 +75,7 @@ class JournalCard extends StatelessWidget {
       case 'text':
         return Text(
           firstItem.text ?? "",
-          style: const TextStyle(color: Colors.black54, fontSize: 16),
+          style: TextStyle(color: optimisticGray['Gray60'], fontSize: 16),
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         );
@@ -94,67 +136,46 @@ class JournalCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                // Emoji Circle
-                Container(
+                SizedBox(
                   height: 55,
-                  width: 55,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey[200],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "😊", // Placeholder emoji
-                      style: TextStyle(fontSize: 24),
-                    ),
-                  ),
+                  child: Image.asset(getAsset(emotion)['asset']),
                 ),
-
                 const Spacer(),
-
-                // Emotion Label
                 Container(
                   padding:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(12),
+                    color: getAsset(emotion)['bg'],
+                    borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(
                     emotion,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: getAsset(emotion)['font'],
                     ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
 
             // Title
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: mindfulBrown['Brown80'],
               ),
             ),
 
@@ -162,7 +183,7 @@ class JournalCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
-                height: 60, // Reduced height for preview
+                height: 40, // Reduced height for preview
                 child: _buildPreviewContent(),
               ),
             ),

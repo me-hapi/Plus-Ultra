@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/utils/shared/shared_pref.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 
 // Import the question components
@@ -98,7 +99,6 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
       });
     } else {
       if (await supabase.insertResponses(responses)) {
-        globalName = responses['name'];
         context.go('/test-intro');
       }
     }

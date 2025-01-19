@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,15 +19,18 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  final GlobalSupabase supabase = GlobalSupabase(client);
   bool isConnected = false;
   final HealthLogic healthLogic = HealthLogic();
+  Map<String, dynamic>? profile;
 
   Map<String, dynamic> healthDataMap = {};
 
   @override
   void initState() {
     super.initState();
-    _initializeConnectionStatus(); // Call the method to initialize the value
+    _fetchProfile();
+    _initializeConnectionStatus();
   }
 
   @override
@@ -53,6 +58,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
+  Future<void> _fetchProfile() async {
+    Map<String, dynamic>? result = await supabase.fetchProfile(uid);
+    setState(() {
+      profile = result;
+    });
+  }
 
   final List<FlSpot> sleepData = [
     FlSpot(0, 6.5),
@@ -90,7 +101,11 @@ class _HomePageState extends ConsumerState<HomePage> {
               width: MediaQuery.of(context).size.width,
               margin: EdgeInsets.zero,
               padding: EdgeInsets.zero,
-              child: GreetingCard(),
+              child: profile == null
+                  ? Center(child: CircularProgressIndicator())
+                  : GreetingCard(
+                      profile: profile!,
+                    ),
             ),
             const SizedBox(height: 15),
             Padding(

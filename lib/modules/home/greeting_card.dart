@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 
 class GreetingCard extends StatefulWidget {
-  const GreetingCard({Key? key}) : super(key: key);
+  final Map<String, dynamic> profile;
+
+  const GreetingCard({Key? key, required this.profile}) : super(key: key);
 
   @override
   _GreetingCardState createState() => _GreetingCardState();
@@ -38,6 +40,7 @@ class _GreetingCardState extends State<GreetingCard> {
   Widget build(BuildContext context) {
     // Get the current date formatted as "January 15, 2025"
     final currentDate = DateFormat('MMMM d, yyyy').format(DateTime.now());
+    final String username = widget.profile['name'];
 
     return Center(
       child: Container(
@@ -77,21 +80,25 @@ class _GreetingCardState extends State<GreetingCard> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    context.push('/profile', extra: _backgroundImage);
-                  },
-                  child: CircleAvatar(
-                    child: Icon(Icons.person, size: 24, color: Colors.white),
-                    backgroundColor: Colors.grey,
-                    radius: 40,
-                  ),
-                ),
+                    onTap: () {
+                      context.push('/profile', extra: {'bg': _backgroundImage, 'profile': widget.profile});
+                    },
+                    child: SizedBox(
+                      height: 80,
+                      child: Image.asset(widget.profile['imageUrl']),
+                    )
+                    // CircleAvatar(
+                    //   child: Icon(Icons.person, size: 24, color: Colors.white),
+                    //   backgroundColor: Colors.grey,
+                    //   radius: 40,
+                    // ),
+                    ),
                 SizedBox(width: 20),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hello, Shinomiya!',
+                      'Hello, $username !',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,

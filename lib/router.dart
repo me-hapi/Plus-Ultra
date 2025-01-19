@@ -6,6 +6,9 @@ import 'package:lingap/core/utils/test/das_result.dart';
 import 'package:lingap/core/utils/test/das_test.dart';
 import 'package:lingap/core/utils/test/test_intro.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
+import 'package:lingap/features/journaling/ui/journal_collection.dart';
+import 'package:lingap/features/journaling/ui/journal_insights.dart';
+import 'package:lingap/features/journaling/ui/journal_stat.dart';
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
 
 //USER TELECONSULT
@@ -94,10 +97,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/profile',
           builder: (context, state) {
-            final extra = state.extra as ui.Image;
+            final extra = state.extra as Map<String, dynamic>;
 
             return module_profile.ProfilePage(
-              backgroundImage: extra,
+              backgroundImage: extra['bg'],
+              profile: extra['profile'],
             );
           }),
       GoRoute(
@@ -157,6 +161,35 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/health-page',
         builder: (context, state) => HealthPage(),
+      ),
+
+      //JOURNALING
+      GoRoute(
+        path: '/journal-stats',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return JournalStatPage(
+              skipCount: extra['skip'],
+              negativeCount: extra['negative'],
+              positiveCount: extra['positive']);
+        },
+      ),
+
+      GoRoute(
+        path: '/journal-insight',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return JournalInsightPage(
+              currentStreak: extra['current'], recordStreak: extra['record']);
+        },
+      ),
+
+      GoRoute(
+        path: '/journal-collection',
+        builder: (context, state) {
+          final extra = state.extra as List<Map<String, dynamic>>;
+          return JournalCollection(dates: extra);
+        },
       ),
     ],
   );

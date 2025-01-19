@@ -107,4 +107,25 @@ flutter:
     - assets/profileIcon/emergency.png
     - assets/profileIcon/logout.png
     - assets/profileIcon/notification.png
+    - assets/profileIcon/user.png
+
+    - assets/journal/homebg.png
+    - assets/journal/book.png
+    - assets/journal/ekis.png
+    - assets/journal/positive.png
+    - assets/journal/negative.png
+    - assets/journal/more.png
+    - assets/journal/awful_frame.png
+    - assets/journal/sad_frame.png
+    - assets/journal/neutral_frame.png
+    - assets/journal/happy_frame.png
+    - assets/journal/cheerful_frame.png
+    - assets/journal/time.png
+    - assets/journal/mic.png
+    - assets/journal/camera.png
+    - assets/journal/record.png
+    - assets/journal/stop.png
+    - assets/journal/save.png
+    - assets/journal/play.png
+    - assets/journal/pause.png
 

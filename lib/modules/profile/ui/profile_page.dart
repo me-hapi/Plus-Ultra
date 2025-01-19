@@ -54,8 +54,10 @@ class ConvexArcPainter extends CustomPainter {
 
 class ProfilePage extends StatefulWidget {
   final ui.Image backgroundImage;
+  final Map<String, dynamic> profile;
 
-  const ProfilePage({Key? key, required this.backgroundImage})
+  const ProfilePage(
+      {Key? key, required this.backgroundImage, required this.profile})
       : super(key: key);
 
   @override
@@ -69,8 +71,6 @@ class _ProfilePageState extends State<ProfilePage> {
   GlobalSupabase supabase = GlobalSupabase(client);
   bool _isProfessionalOn = false;
   bool isProfessional = false;
-  int age = 28;
-  double weight = 68.5;
 
   @override
   void initState() {
@@ -93,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       await Supabase.instance.client.auth.signOut();
       if (mounted) {
-        context.go('/intro');
+        context.go('/signin');
       }
     } catch (e) {
       setState(() {
@@ -107,6 +107,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    String weight = widget.profile['weight'].toString();
+    String unit = widget.profile['weight_lbl'];
+    String weight_unit = '$weight $unit';
     return Scaffold(
       backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
@@ -153,19 +156,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   left: 0,
                   right: 0,
                   child: Center(
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          AssetImage('assets/profile_placeholder.png'),
-                    ),
-                  ),
+                      child: SizedBox(
+                    height: 100,
+                    child: Image.asset(widget.profile['imageUrl']),
+                  )),
                 ),
               ],
             ),
 
             const SizedBox(height: 60), // Space below the avatar
             Text(
-              'John Doe',
+             widget.profile['name'],
               style: TextStyle(
                 fontSize: 32,
                 color: mindfulBrown['Brown80']!,
@@ -191,7 +192,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ), // Spacing between texts
                       Text(
-                        '$age',
+                        widget.profile['age'].toString(),
                         style: TextStyle(
                           fontSize: 24,
                           color: mindfulBrown['Brown80']!,
@@ -223,7 +224,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         Text(
-                          '${weight}kg',
+                          weight_unit,
                           style: TextStyle(
                             fontSize: 24,
                             color: mindfulBrown['Brown80']!,
@@ -258,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: ListTile(
-                  leading: Image.asset('assets/profileIcon/notification.png'),
+                  leading: Image.asset('assets/profileIcon/user.png'),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   title: Text(
@@ -290,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             context.push('/application_page');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: reflectiveBlue['Blue50'],
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -455,6 +456,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: ListTile(
+                  onTap: _signOut,
                   leading: Image.asset('assets/profileIcon/logout.png'),
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 16, vertical: 12),

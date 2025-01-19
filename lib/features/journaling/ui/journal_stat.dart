@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lingap/features/journaling/ui/journal_insights.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class JournalStatPage extends StatelessWidget {
   final int skipCount;
@@ -26,6 +28,7 @@ class JournalStatPage extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
+      backgroundColor: mindfulBrown['Brown10'],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -38,34 +41,37 @@ class JournalStatPage extends StatelessWidget {
                   children: [
                     Text(
                       'Journal Stats',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: mindfulBrown['Brown80'],
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Your Journal Stats for ${DateTime.now().month}/${DateTime.now().year}',
-                      style: TextStyle(fontSize: 16),
+                      DateFormat('MMMM yyyy').format(DateTime.now()),
+                      style: TextStyle(
+                          color: optimisticGray['Gray60'], fontSize: 18),
                     ),
                   ],
                 ),
                 Spacer(),
                 Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: Icon(Icons.more_horiz),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => JournalInsightPage(
-                                  currentStreak: 2,
-                                  recordStreak: 12)));
-                    },
-                  ),
-                ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      shape: BoxShape.circle,
+                    ),
+                    child: GestureDetector(
+                      child: SizedBox(
+                        height: 60,
+                        child: Image.asset('assets/journal/more.png'),
+                      ),
+                      onTap: () {
+                        context.push('/journal-insight', extra: {
+                          'current': 2,
+                          'record': 12,
+                        });
+                      },
+                    )),
               ],
             ),
             SizedBox(height: 32),
@@ -76,7 +82,6 @@ class JournalStatPage extends StatelessWidget {
                   Positioned.fill(
                     child: Column(
                       children: List.generate(5, (index) {
-                        double lineHeight = (highestCount / 4) * index;
                         return Expanded(
                           child: Align(
                             alignment: Alignment.centerLeft,
@@ -105,22 +110,22 @@ class JournalStatPage extends StatelessWidget {
                       _buildBar(
                         count: skipCount,
                         label: 'Skipped',
-                        icon: Icons.close,
-                        color: Colors.brown.shade300,
+                        icon: 'assets/journal/ekis.png',
+                        color: mindfulBrown['Brown80']!,
                         highestCount: highestCount,
                       ),
                       _buildBar(
                         count: negativeCount,
                         label: 'Negative',
-                        icon: Icons.sentiment_dissatisfied,
-                        color: Colors.orange,
+                        icon: 'assets/journal/negative.png',
+                        color: empathyOrange['Orange40']!,
                         highestCount: highestCount,
                       ),
                       _buildBar(
                         count: positiveCount,
                         label: 'Positive',
-                        icon: Icons.sentiment_satisfied,
-                        color: Colors.green,
+                        icon: 'assets/journal/positive.png',
+                        color: serenityGreen['Green50']!,
                         highestCount: highestCount,
                       ),
                     ],
@@ -134,63 +139,62 @@ class JournalStatPage extends StatelessWidget {
     );
   }
 
- Widget _buildBar({
-  required int count,
-  required String label,
-  required IconData icon,
-  required Color color,
-  required int highestCount,
-}) {
-  double barHeight = highestCount > 0 ? (count / highestCount) * 550 : 0;
+  Widget _buildBar({
+    required int count,
+    required String label,
+    required String icon,
+    required Color color,
+    required int highestCount,
+  }) {
+    double barHeight = highestCount > 0 ? (count / highestCount) * 550 : 0;
 
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      Container(
-        width: 80,
-        height: barHeight.clamp(0.0, 550.0), // Ensure height stays within bounds
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Column(
-                children: [
-                  Text(
-                    count.toString(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          width: 80,
+          height:
+              barHeight.clamp(0.0, 550.0), // Ensure height stays within bounds
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      count.toString(),
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-          ],
+              Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: SizedBox(
+                    height: 30,
+                    child: Image.asset(icon),
+                  )),
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 }

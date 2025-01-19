@@ -48,9 +48,11 @@ class _InsertImageState extends State<InsertImage> {
               GestureDetector(
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                  final XFile? image =
+                      await _picker.pickImage(source: ImageSource.gallery);
                   if (image != null) {
-                    final compressedImage = await _compressImage(File(image.path));
+                    final compressedImage =
+                        await _compressImage(File(image.path));
                     if (compressedImage != null) {
                       widget.onImageInserted(compressedImage);
                     }
@@ -68,9 +70,11 @@ class _InsertImageState extends State<InsertImage> {
               GestureDetector(
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+                  final XFile? image =
+                      await _picker.pickImage(source: ImageSource.camera);
                   if (image != null) {
-                    final compressedImage = await _compressImage(File(image.path));
+                    final compressedImage =
+                        await _compressImage(File(image.path));
                     if (compressedImage != null) {
                       widget.onImageInserted(compressedImage);
                     }
@@ -94,9 +98,15 @@ class _InsertImageState extends State<InsertImage> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      shape: CircleBorder(), // Ensures the button is circular
+      backgroundColor: Colors.white, // Sets the background color to white
+      elevation: 0, // No shadow
       heroTag: 'camera_button',
       onPressed: () => _showImageSourceOptions(context),
-      child: Icon(Icons.camera_alt),
+      child: Padding(
+        padding: EdgeInsets.all(12),
+        child: Image.asset('assets/journal/camera.png'),
+      ),
     );
   }
 }

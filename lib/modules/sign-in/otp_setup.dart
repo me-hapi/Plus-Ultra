@@ -93,8 +93,8 @@ class _OTPSetupPageState extends State<OTPSetupPage> {
                         widget.email, otpCode, context);
 
                     if (uid != '') {
-                      supabase.insertProfile(uid: uid);
-                      context.go('/dastest');
+                      // supabase.insertProfile(uid: uid);
+                      context.go('/data');
                     }
                   },
                   style: ElevatedButton.styleFrom(

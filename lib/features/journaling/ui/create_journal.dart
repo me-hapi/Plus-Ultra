@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/journaling/logic/create_logic.dart';
 import 'package:lingap/features/journaling/logic/insert_audio.dart';
 import 'package:lingap/features/journaling/logic/insert_image.dart';
@@ -30,15 +31,29 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'New Journal',
+          style: TextStyle(fontSize: 22, color: mindfulBrown['Brown80']),
+        ),
+        centerTitle: true, // Centers the title
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      backgroundColor: mindfulBrown['Brown10'],
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 80), // Space for header
                   // Title Field
                   TextField(
                     controller: _logic.titleController,
@@ -49,9 +64,11 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                       filled: true,
                       fillColor: Colors.transparent,
                     ),
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: mindfulBrown['Brown80'],
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 16),
                   // Render Journal Items Dynamically
                   ..._logic.journalItems.asMap().entries.map((entry) {
                     final index = entry.key;
@@ -74,7 +91,7 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                             filled: true,
                             fillColor: Colors.transparent,
                           ),
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 20),
                           onChanged: (value) => _logic.updateText(index, value),
                         ),
                       );
@@ -127,28 +144,6 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
               ),
             ),
           ),
-          // Header and Actions
-          Positioned(
-            top: 40,
-            left: 16,
-            right: 16,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                Text(
-                  'New Journal',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(width: 48), // Placeholder for balancing layout
-              ],
-            ),
-          ),
           // Footer Actions
           Align(
             alignment: Alignment.bottomCenter,
@@ -172,38 +167,47 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                       }),
                     ],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Save journal logic
-                      final title = _logic.titleController.text;
-                      final content = _logic.journalItems
-                          .where((item) => item.type == 'text')
-                          .map((item) => item.text ?? '')
-                          .join('\n');
-                      // Add save logic here
-                      print('Title: $title');
-                      print('Content: $content');
 
-                      _logic.saveJournal();
+                  SizedBox(
+                    height: 60,
+                    child: GestureDetector(
+                      onTap: (){},
+                      child: Image.asset('assets/journal/save.png'),
+                    ),
 
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => JournalDetailPage(
-                                    emotion: 'Neutral',
-                                    date: DateTime.now().toString(),
-                                    time: DateTime.now()
-                                        .toLocal()
-                                        .toIso8601String()
-                                        .split('T')[1]
-                                        .substring(
-                                            0, 5), // Converts to HH:mm format
-                                    title: title,
-                                    journalItems: _logic.journalItems,
-                                  )));
-                    },
-                    child: Text('Save'),
                   ),
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     // Save journal logic
+                  //     final title = _logic.titleController.text;
+                  //     final content = _logic.journalItems
+                  //         .where((item) => item.type == 'text')
+                  //         .map((item) => item.text ?? '')
+                  //         .join('\n');
+                  //     // Add save logic here
+                  //     print('Title: $title');
+                  //     print('Content: $content');
+
+                  //     _logic.saveJournal();
+
+                  //     Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //             builder: (context) => JournalDetailPage(
+                  //                   emotion: 'Neutral',
+                  //                   date: DateTime.now().toString(),
+                  //                   time: DateTime.now()
+                  //                       .toLocal()
+                  //                       .toIso8601String()
+                  //                       .split('T')[1]
+                  //                       .substring(
+                  //                           0, 5), // Converts to HH:mm format
+                  //                   title: title,
+                  //                   journalItems: _logic.journalItems,
+                  //                 )));
+                  //   },
+                  //   child: Text('Save'),
+                  // ),
                 ],
               ),
             ),

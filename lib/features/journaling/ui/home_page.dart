@@ -1,10 +1,11 @@
-import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:lingap/core/const/const.dart';
-import 'package:lingap/features/journaling/data/supabse_db.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/features/journaling/logic/home_logic.dart';
 import 'package:lingap/features/journaling/ui/create_journal.dart';
 import 'package:lingap/features/journaling/ui/journal_stat.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/journaling/data/supabse_db.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,401 +13,351 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final SupabaseDB supabase = SupabaseDB(client);
-  late List<Map<String, dynamic>> classifications = [];
-  late Map<String, int> counts = {};
+  late HomeLogic homeLogic;
+  late List<Map<String, dynamic>> classifications;
+  late Map<String, int> counts;
 
   @override
   void initState() {
     super.initState();
-    getClassifications();
-  }
+    homeLogic = HomeLogic(supabase: SupabaseDB(client));
+    classifications = homeLogic.classifications;
+    counts = homeLogic.counts;
 
-  void getClassifications() async {
-    List<DateTime> dates = getDatesForCurrentAndPastTwoWeeks();
-    final result = await supabase.getClassifications(
-        uid: uid, startDate: dates[0], endDate: dates[dates.length - 1]);
-    setState(() {
-      classifications = result;
+    homeLogic.getClassifications(uid).then((_) {
+      setState(() {
+        classifications = homeLogic.classifications;
+        counts = homeLogic.counts;
+        print(counts);
+      });
     });
-
-    calculateMonthlyCounts();
-  }
-
-  void calculateMonthlyCounts() {
-  // Initialize counts
-  counts = {'positive': 0, 'negative': 0, 'skipped': 0};
-
-  if (classifications.isEmpty) return;
-
-  // Get the current date (today)
-  final now = DateTime.now().toUtc();
-
-  // Parse and sort classification dates
-  List<DateTime> classifiedDates = classifications.map((entry) {
-    DateTime parsedDate = DateTime.parse(entry['created_at']).toUtc();
-    return DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
-  }).toList()
-    ..sort();
-
-  print(
-      'Classified Dates: $classifiedDates'); // Debugging: Check parsed dates
-
-  // Filter dates for the current month and the past month
-  List<DateTime> currentMonthDates = classifiedDates
-      .where((date) => date.month == now.month && date.year == now.year)
-      .toList();
-  List<DateTime> pastMonthDates = classifiedDates.where((date) =>
-      (date.month == now.month - 1 && date.year == now.year) ||
-      (now.month == 1 && date.month == 12 && date.year == now.year - 1)).toList();
-
-  // Check for positive or negative classifications in the past month
-  bool hasPastMonthPositiveOrNegative = classifications.any((entry) {
-    DateTime createdAt = DateTime.parse(entry['created_at']).toLocal();
-    return (createdAt.month == now.month - 1 ||
-            (now.month == 1 && createdAt.month == 12 && createdAt.year == now.year - 1)) &&
-        (entry['classification'] == 'positive' ||
-            entry['classification'] == 'negative');
-  });
-
-  // Count positive and negative classifications for the current month
-  for (var entry in classifications) {
-    DateTime createdAt = DateTime.parse(entry['created_at']).toLocal();
-    if (createdAt.month == now.month && createdAt.year == now.year) {
-      String classification = entry['classification'];
-      if (classification == 'positive') {
-        counts['positive'] = counts['positive']! + 1;
-      } else if (classification == 'negative') {
-        counts['negative'] = counts['negative']! + 1;
-      }
-    }
-  }
-
-  // Count skipped days from the first day of the current month
-  if (hasPastMonthPositiveOrNegative) {
-    DateTime startOfCurrentMonth = DateTime(now.year, now.month, 1);
-    DateTime firstRelevantDay;
-
-    if (currentMonthDates.isNotEmpty) {
-      // Use the first classification day of the current month
-      firstRelevantDay = currentMonthDates.first;
-    } else {
-      // Use today if there are no classifications in the current month
-      firstRelevantDay = DateTime(now.year, now.month, now.day);
-    }
-
-    int skippedDays = firstRelevantDay.difference(startOfCurrentMonth).inDays;
-
-    print(
-        'Skipped days from start of month to $firstRelevantDay: $skippedDays days');
-
-    if (skippedDays > 0) {
-      counts['skipped'] = counts['skipped']! + skippedDays;
-    }
-  }
-
-  // Count skipped days between classifications in the current month
-  for (int i = 0; i < currentMonthDates.length - 1; i++) {
-    DateTime start = currentMonthDates[i];
-    DateTime end = currentMonthDates[i + 1];
-
-    int skippedDays =
-        end.difference(start).inDays - 1; // Subtract 1 for the start day
-    print(
-        'Gap between $start and $end: $skippedDays days'); // Debugging: Check gaps
-
-    if (skippedDays > 0) {
-      counts['skipped'] = counts['skipped']! + skippedDays;
-    }
-  }
-
-  // Count skipped days between the last classification of the current month and today
-  if (currentMonthDates.isNotEmpty) {
-    DateTime lastClassifiedDate = currentMonthDates.last;
-    DateTime lastDay = DateTime(lastClassifiedDate.year,
-        lastClassifiedDate.month, lastClassifiedDate.day);
-    DateTime currentDay = DateTime(now.year, now.month, now.day);
-
-    if (currentDay.isAfter(lastDay)) {
-      int skippedDays = currentDay.difference(lastDay).inDays -
-          1; // Subtract 1 for the last classified day
-      print(
-          'Gap between $lastDay and today: $skippedDays days'); // Debugging: Check gap to today
-
-      if (skippedDays > 0) {
-        counts['skipped'] = counts['skipped']! + skippedDays;
-      }
-    }
-  }
-
-  print('Counts: $counts'); // Debugging: Final counts
-}
-
-
-  List<DateTime> getDatesForCurrentAndPastTwoWeeks() {
-    DateTime now = DateTime.now();
-    DateTime startOfWeek = now.subtract(
-        Duration(days: now.weekday % 7)); // Start of current week (Sunday)
-    DateTime startOfThreeWeeksAgo = startOfWeek.subtract(
-        Duration(days: 21)); // Start of two weeks before the current week
-
-    return List.generate(
-        28, (index) => startOfThreeWeeksAgo.add(Duration(days: index)));
   }
 
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
-    List<DateTime> dates = getDatesForCurrentAndPastTwoWeeks().sublist(7);
+    List<DateTime> dates =
+        homeLogic.getDatesForCurrentAndPastTwoWeeks().sublist(7);
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Journaling',
-          style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: Color(0xFF473c38),
+        body: Stack(children: [
+      // Color overlay
+      Container(
+        color: mindfulBrown['Brown60'], // Semi-transparent overlay
+      ),
+      Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+                'assets/journal/homebg.png'), // Replace with your image asset path
+            fit: BoxFit.cover,
           ),
         ),
-        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Upper Section: Open Book Icon and Journal Count
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.book,
-                  size: 80,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  '25',
-                  style: TextStyle(
-                    fontSize: 80,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppBar(
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            title: Text(
+              'Journaling',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+                color: Colors.white,
+              ),
             ),
-            Center(
-              child: Text(
-                'Journals this year',
+            centerTitle: true,
+          ),
+          // Upper Section: Open Book Icon and Journal Count
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 80,
+                child: Image.asset('assets/journal/book.png'),
+              ),
+              SizedBox(width: 8),
+              Text(
+                '25',
                 style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  fontSize: 120,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            // Streak Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.flash_on,
-                  color: Colors.amber,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  '28 days streak',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 32),
-            // Floating Plus Button
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CreateJournalPage()));
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(20),
-                ),
-                child: Icon(
-                  Icons.add,
-                  size: 40,
-                ),
+            ],
+          ),
+          Center(
+            child: Text(
+              'Journals this year',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 32),
-            // Journal Statistics
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Journal Statistics',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+          ),
+          // Streak Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.flash_on,
+                color: Colors.white,
+              ),
+              SizedBox(width: 8),
+              Text(
+                '28 days streak',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          Spacer(),
+          // Floating Plus Button
+
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // CustomPaint Background
+              CustomPaint(
+                size: Size(
+                  MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.height,
+                ),
+                painter: ConvexArcPainter(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  height: 360,
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Journal Statistics',
+                            style: TextStyle(
+                              color: mindfulBrown['Brown80'],
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (context) => JournalStatPage(
+                              //       skipCount: counts['skipped'] as int,
+                              //       negativeCount: counts['negative'] as int,
+                              //       positiveCount: counts['positive'] as int,
+                              //     ),
+                              //   ),
+                              // );
+                              context.push('/journal-stats', extra: {
+                                'skip': counts['skipped'] as int,
+                                'negative': counts['negative'] as int,
+                                'positive': counts['positive'] as int,
+                              });
+                            },
+                            child: Text(
+                              'See All',
+                              style: TextStyle(
+                                  color: serenityGreen['Green50'],
+                                  fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Calendar with Days of the Week
+                      Center(
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                                  .map((day) => Text(
+                                        day,
+                                        style: TextStyle(
+                                          color: optimisticGray['Gray40'],
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
+                            // Calendar Grid
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 7,
+                                crossAxisSpacing: 4,
+                                mainAxisSpacing: 4,
+                              ),
+                              itemCount: dates.length,
+                              itemBuilder: (context, index) {
+                                DateTime date = dates[index];
+                                bool isToday = date.day == now.day &&
+                                    date.month == now.month &&
+                                    date.year == now.year;
+
+                                // Determine classification for the current date
+                                String? classification;
+                                if (classifications.isNotEmpty) {
+                                  for (var entry in classifications) {
+                                    DateTime createdAt =
+                                        DateTime.parse(entry['created_at']);
+                                    if (createdAt.year == date.year &&
+                                        createdAt.month == date.month &&
+                                        createdAt.day == date.day) {
+                                      classification = entry['classification'];
+                                      break;
+                                    }
+                                  }
+                                }
+
+                                // Identify gaps in classifications and skipped days up to today
+                                bool isSkipped = false;
+                                if (classifications.isNotEmpty) {
+                                  // Parse and sort the classified dates
+                                  List<DateTime> classifiedDates =
+                                      classifications
+                                          .map((entry) => DateTime.parse(
+                                              entry['created_at']))
+                                          .toList()
+                                        ..sort();
+
+                                  // Check for skipped dates between classified dates
+                                  for (int i = 0;
+                                      i < classifiedDates.length - 1;
+                                      i++) {
+                                    DateTime start = classifiedDates[i];
+                                    DateTime end = classifiedDates[i + 1];
+
+                                    if (!date.isBefore(start) &&
+                                        !date.isAfter(end)) {
+                                      if (date.isAfter(start) &&
+                                          date.isBefore(end)) {
+                                        isSkipped = true;
+                                        break;
+                                      } else if (date ==
+                                              start.add(Duration(days: 1)) ||
+                                          date ==
+                                              end.subtract(Duration(days: 1))) {
+                                        isSkipped = true;
+                                        break;
+                                      }
+                                    }
+                                  }
+
+                                  // Check for skipped dates between the last classified date and today
+                                  DateTime? lastClassifiedDate;
+                                  for (var classifiedDate
+                                      in classifiedDates.reversed) {
+                                    if (classifiedDate.isBefore(now)) {
+                                      lastClassifiedDate = classifiedDate;
+                                      break;
+                                    }
+                                  }
+
+                                  if (lastClassifiedDate != null &&
+                                      date.isAfter(lastClassifiedDate) &&
+                                      date.isBefore(now)) {
+                                    isSkipped = true;
+                                  }
+                                }
+
+                                // Determine color based on classification and skip status
+                                Color backgroundColor;
+                                if (isToday && classification == null) {
+                                  backgroundColor = reflectiveBlue['Blue50']!;
+                                } else if (classification == 'positive') {
+                                  backgroundColor = serenityGreen['Green50']!;
+                                } else if (classification == 'negative') {
+                                  backgroundColor = empathyOrange['Orange50']!;
+                                } else if (isSkipped) {
+                                  backgroundColor = mindfulBrown['Brown50']!;
+                                } else {
+                                  backgroundColor = optimisticGray['Gray30']!;
+                                }
+
+                                return CircleAvatar(
+                                  backgroundColor: backgroundColor,
+                                  child: Text(
+                                    '${date.day}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: (isSkipped || isToday)
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          LegendItem(
+                              color: mindfulBrown['Brown50'], label: 'Skipped'),
+                          LegendItem(
+                              color: serenityGreen['Green50'],
+                              label: 'Positive'),
+                          LegendItem(
+                              color: empathyOrange['Orange50'],
+                              label: 'Negative'),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                TextButton(
+              ),
+              // Elevated Button at the Top
+              Positioned(
+                top: -40, // Adjust the top value to overlap the button
+                left: MediaQuery.of(context).size.width / 2 -
+                    40, // Center horizontally
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => JournalStatPage(
-                                skipCount: counts['skipped'] as int,
-                                negativeCount: counts['negative'] as int,
-                                positiveCount: counts['positive'] as int)));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateJournalPage(),
+                      ),
+                    );
                   },
-                  child: Text('See All'),
+                  style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(20),
+                      backgroundColor: mindfulBrown['Brown80']),
+                  child: Icon(
+                    color: Colors.white,
+                    Icons.add,
+                    size: 50,
+                  ),
                 ),
-              ],
-            ),
-            SizedBox(height: 16),
-            // Calendar with Days of the Week
-            Center(
-              child: Column(
-                children: [
-                  // Days of the week row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                        .map((day) => Text(
-                              day,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                  SizedBox(height: 8),
-                  // Calendar Grid
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 7,
-                      crossAxisSpacing: 4,
-                      mainAxisSpacing: 4,
-                    ),
-                    itemCount: dates.length,
-                    itemBuilder: (context, index) {
-                      DateTime date = dates[index];
-                      bool isToday = date.day == now.day &&
-                          date.month == now.month &&
-                          date.year == now.year;
-
-                      // Determine classification for the current date
-                      String? classification;
-                      if (classifications.isNotEmpty) {
-                        for (var entry in classifications) {
-                          DateTime createdAt =
-                              DateTime.parse(entry['created_at']);
-                          if (createdAt.year == date.year &&
-                              createdAt.month == date.month &&
-                              createdAt.day == date.day) {
-                            classification = entry['classification'];
-                            break;
-                          }
-                        }
-                      }
-
-                      // Identify gaps in classifications and skipped days up to today
-                      bool isSkipped = false;
-                      if (classifications.isNotEmpty) {
-                        // Parse and sort the classified dates
-                        List<DateTime> classifiedDates = classifications
-                            .map((entry) => DateTime.parse(entry['created_at']))
-                            .toList()
-                          ..sort();
-
-                        // Check for skipped dates between classified dates
-                        for (int i = 0; i < classifiedDates.length - 1; i++) {
-                          DateTime start = classifiedDates[i];
-                          DateTime end = classifiedDates[i + 1];
-
-                          if (!date.isBefore(start) && !date.isAfter(end)) {
-                            if (date.isAfter(start) && date.isBefore(end)) {
-                              isSkipped = true;
-                              break;
-                            } else if (date == start.add(Duration(days: 1)) ||
-                                date == end.subtract(Duration(days: 1))) {
-                              isSkipped = true;
-                              break;
-                            }
-                          }
-                        }
-
-                        // Check for skipped dates between the last classified date and today
-                        DateTime? lastClassifiedDate;
-                        for (var classifiedDate in classifiedDates.reversed) {
-                          if (classifiedDate.isBefore(now)) {
-                            lastClassifiedDate = classifiedDate;
-                            break;
-                          }
-                        }
-
-                        if (lastClassifiedDate != null &&
-                            date.isAfter(lastClassifiedDate) &&
-                            date.isBefore(now)) {
-                          isSkipped = true;
-                        }
-                      }
-
-                      // Determine color based on classification and skip status
-                      Color backgroundColor;
-                      if (isToday && classification == null) {
-                        backgroundColor =
-                            Colors.blue; // Today with no classification
-                      } else if (classification == 'positive') {
-                        backgroundColor = Colors.green;
-                      } else if (classification == 'negative') {
-                        backgroundColor = Colors.orange;
-                      } else if (isSkipped) {
-                        backgroundColor = Colors.brown[200]!; // Skipped dates
-                      } else {
-                        backgroundColor = Colors.grey[300]!;
-                      }
-
-                      return CircleAvatar(
-                        backgroundColor: backgroundColor,
-                        child: Text(
-                          '${date.day}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isToday && classification == null
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
               ),
-            ),
-            SizedBox(height: 16),
-            // Legend
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                LegendItem(color: Colors.brown[200], label: 'Skipped'),
-                LegendItem(color: Colors.green, label: 'Positive'),
-                LegendItem(color: Colors.orange, label: 'Negative'),
-              ],
-            ),
-          ],
-        ),
+            ],
+          )
+        ],
       ),
-    );
+    ]));
   }
 }
 
@@ -436,4 +387,30 @@ class LegendItem extends StatelessWidget {
       ],
     );
   }
+}
+
+class ConvexArcPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = mindfulBrown['Brown10']!
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, 30) // Start slightly below the top edge
+      ..quadraticBezierTo(
+        size.width / 2, // Control point x
+        -30, // Control point y (above the canvas for a convex arc)
+        size.width, // End point x
+        30, // End point y
+      )
+      ..lineTo(size.width, size.height) // Go to the bottom right
+      ..lineTo(0, size.height) // Go to the bottom left
+      ..close(); // Close the path
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

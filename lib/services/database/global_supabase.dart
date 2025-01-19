@@ -38,7 +38,6 @@ class GlobalSupabase {
   Future<void> insertProfile({required String uid}) async {
     final response = await _client.from('profile').insert({
       'id': uid,
-      'name': 'Guest',
       'status': 'unavailable',
       'display_name': false,
     });
@@ -58,6 +57,22 @@ class GlobalSupabase {
     }
   }
 
+  Future<Map<String, dynamic>?> fetchProfile(String uid) async {
+    try {
+      final response = await _client
+          .from('profile')
+          .select('name, age, weight, weight_lbl, imageUrl')
+          .eq('id', uid) // Filter by uid
+          .single(); // Ensure you get a single record
+
+      return response;
+    } catch (e) {
+      // Handle and log the error
+      print('Error fetching profile: $e');
+      return null;
+    }
+  }
+
   Future<bool> insertResponses(Map<String, dynamic> responses) async {
     try {
       // Validate that all required keys are present in the responses
@@ -72,14 +87,12 @@ class GlobalSupabase {
       final response = await _client.from('profile').insert({
         'name': responses['name'],
         'age': responses['age'],
-        'weight': responses['weight'],
+        'weight': responses['weight']['weight'],
+        'weight_lbl': responses['weight']['unit'],
         'mood': responses['mood'],
-        'sleep_quality': responses['sleepquality'],
+        'sleep_quality': responses['sleepQuality'],
+        'imageUrl': responses['profilePicture']
       });
-
-      if (response.error != null) {
-        throw Exception('Failed to insert data: ${response.error!.message}');
-      }
 
       print('Data inserted successfully');
       return true;

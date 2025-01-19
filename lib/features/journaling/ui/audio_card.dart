@@ -115,14 +115,7 @@ class _AudioCardState extends State<AudioCard> {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -149,14 +142,17 @@ class _AudioCardState extends State<AudioCard> {
               const SizedBox(width: 8),
 
               // Play/Pause button
-              IconButton(
-                icon: Icon(
-                  _isPlaying ? Icons.pause_circle : Icons.play_circle,
-                  size: 36,
-                  color: Colors.blue,
-                ),
-                onPressed: _togglePlayPause,
-              ),
+              SizedBox(
+                  height: 30,
+                  child: GestureDetector(
+                      onTap: _togglePlayPause,
+                      child: Padding(
+                        padding:
+                            _isPlaying ? EdgeInsets.all(2) : EdgeInsets.all(5),
+                        child: _isPlaying
+                            ? Image.asset('assets/journal/pause.png')
+                            : Image.asset('assets/journal/play.png'),
+                      )))
             ],
           ),
         ),
