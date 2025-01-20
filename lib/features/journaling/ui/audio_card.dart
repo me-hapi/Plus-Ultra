@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:just_audio/just_audio.dart' as just_audio;
+import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class AudioCard extends StatefulWidget {
   final String audioPath;
@@ -18,39 +20,70 @@ class AudioCard extends StatefulWidget {
 }
 
 class _AudioCardState extends State<AudioCard> {
-  late AudioPlayer _audioPlayer;
+  late just_audio.AudioPlayer _audioPlayer;
+  late PlayerController _waveformController;
   bool _isPlaying = false;
-  late final StreamSubscription<PlayerState> _playerStateSubscription;
+  bool _isDisposed = false;
+  late final StreamSubscription<just_audio.PlayerState>
+      _playerStateSubscription;
 
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer();
+    _audioPlayer = just_audio.AudioPlayer();
+    _waveformController = PlayerController();
 
-    // Listen for player state changes
-    _playerStateSubscription = _audioPlayer.playerStateStream.listen((state) {
-      setState(() {
-        if (state.processingState == ProcessingState.completed) {
-          _isPlaying = false;
-        } else if (state.playing) {
-          _isPlaying = true;
-        } else {
-          _isPlaying = false;
+    _waveformController.preparePlayer(
+      path: widget.audioPath,
+      shouldExtractWaveform: true,
+    );
+
+    _playerStateSubscription =
+        _audioPlayer.playerStateStream.listen((state) async {
+      if (mounted) {
+        setState(() {
+          if (state.processingState == just_audio.ProcessingState.completed) {
+            _isPlaying = false;
+            _audioPlayer.stop();
+            _waveformController.seekTo(0);
+          } else if (state.playing) {
+            _isPlaying = true;
+          } else {
+            _isPlaying = false;
+          }
+        });
+
+        // Force refresh by rebuilding the waveform widget
+        if (state.processingState == just_audio.ProcessingState.completed) {
+          // Ensure the widget rebuilds
+          await Future.delayed(
+              Duration(milliseconds: 100)); // Allow time for updates
+          setState(() {});
         }
-      });
+      }
+    });
+
+    _audioPlayer.positionStream.listen((position) {
+      if (mounted) {
+        _waveformController.seekTo(position.inMilliseconds);
+      }
     });
   }
 
   @override
   void dispose() {
-    try {
-      if (_audioPlayer.playing) {
-        _audioPlayer.stop();
+    if (!_isDisposed) {
+      try {
+        if (_audioPlayer.playing) {
+          _audioPlayer.stop();
+        }
+        _playerStateSubscription.cancel();
+        _audioPlayer.dispose();
+        _waveformController.dispose();
+      } catch (e) {
+        print('Error during dispose: $e');
       }
-      _playerStateSubscription.cancel();
-      _audioPlayer.dispose();
-    } catch (e) {
-      print('Error during dispose: $e');
+      _isDisposed = true;
     }
     super.dispose();
   }
@@ -71,6 +104,8 @@ class _AudioCardState extends State<AudioCard> {
   }
 
   void _togglePlayPause() async {
+    if (!mounted) return;
+
     try {
       if (!File(widget.audioPath).existsSync()) {
         throw Exception(
@@ -81,18 +116,22 @@ class _AudioCardState extends State<AudioCard> {
         await _audioPlayer.pause();
         print('Playback paused');
       } else {
-        if (_audioPlayer.processingState == ProcessingState.completed) {
+        if (_audioPlayer.processingState ==
+            just_audio.ProcessingState.completed) {
           await _audioPlayer.seek(Duration.zero);
+          _waveformController.seekTo(0);
         }
         await _audioPlayer.setFilePath(widget.audioPath);
         await _audioPlayer.play();
         print('Playback started');
       }
     } catch (e) {
-      print("Error playing audio: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error playing audio: $e")),
-      );
+      if (mounted) {
+        print("Error playing audio: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error playing audio: $e")),
+        );
+      }
     }
   }
 
@@ -120,21 +159,18 @@ class _AudioCardState extends State<AudioCard> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Flexible widget for the "Audio Wave" placeholder
+              // Audio waveform widget
               Expanded(
-                child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Audio Wave",
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ),
+                child: AudioFileWaveforms(
+                  waveformType: WaveformType.fitWidth,
+                  playerController: _waveformController,
+                  size: Size(MediaQuery.of(context).size.width * 0.7, 40),
+                  playerWaveStyle: PlayerWaveStyle(
+                      fixedWaveColor: mindfulBrown['Brown60']!,
+                      seekLineColor: mindfulBrown['Brown80']!,
+                      showSeekLine: true),
                 ),
               ),
 
@@ -143,16 +179,19 @@ class _AudioCardState extends State<AudioCard> {
 
               // Play/Pause button
               SizedBox(
-                  height: 30,
-                  child: GestureDetector(
-                      onTap: _togglePlayPause,
-                      child: Padding(
-                        padding:
-                            _isPlaying ? EdgeInsets.all(2) : EdgeInsets.all(5),
-                        child: _isPlaying
-                            ? Image.asset('assets/journal/pause.png')
-                            : Image.asset('assets/journal/play.png'),
-                      )))
+                height: 30,
+                child: GestureDetector(
+                  onTap: _togglePlayPause,
+                  child: Padding(
+                    padding: _isPlaying
+                        ? const EdgeInsets.all(2)
+                        : const EdgeInsets.all(5),
+                    child: _isPlaying
+                        ? Image.asset('assets/journal/pause.png')
+                        : Image.asset('assets/journal/play.png'),
+                  ),
+                ),
+              )
             ],
           ),
         ),

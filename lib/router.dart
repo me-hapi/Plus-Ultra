@@ -7,8 +7,10 @@ import 'package:lingap/core/utils/test/das_test.dart';
 import 'package:lingap/core/utils/test/test_intro.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
 import 'package:lingap/features/journaling/ui/journal_collection.dart';
+import 'package:lingap/features/journaling/ui/journal_detail.dart';
 import 'package:lingap/features/journaling/ui/journal_insights.dart';
 import 'package:lingap/features/journaling/ui/journal_stat.dart';
+import 'package:lingap/features/journaling/ui/journal_success.dart';
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
 
 //USER TELECONSULT
@@ -189,6 +191,31 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as List<Map<String, dynamic>>;
           return JournalCollection(dates: extra);
+        },
+      ),
+      GoRoute(
+        path: '/journal-success',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return JournalSuccessPage(
+              emotion: extra['emotion'],
+              date: extra['date'],
+              time: extra['time'],
+              title: extra['title'],
+              journalItems: extra['journalItems']);
+        },
+      ),
+
+      GoRoute(
+        path: '/journal-details',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return JournalDetailPage(
+              emotion: extra['emotion'],
+              date: extra['date'],
+              time: extra['time'],
+              title: extra['title'],
+              journalItems: extra['journalItems']);
         },
       ),
     ],

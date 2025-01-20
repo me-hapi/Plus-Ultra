@@ -23,9 +23,11 @@ class _LandingPageState extends State<LandingPage> {
   Future<void> getAppointment() async {
     Map<String, dynamic>? result =
         await supabaseDB.fetchReservedAppointment(uid);
-    setState(() {
-      appointment = result;
-    });
+    if (mounted) {
+      setState(() {
+        appointment = result;
+      });
+    }
   }
 
   @override
@@ -57,7 +59,8 @@ class _LandingPageState extends State<LandingPage> {
               const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder:(context) => HomePage()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomePage()));
                 },
                 child: const Text('Schedule Appointment'),
               ),

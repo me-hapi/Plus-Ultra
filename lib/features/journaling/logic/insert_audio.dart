@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:record/record.dart';
-import 'dart:io';
+import 'package:audio_waveforms/audio_waveforms.dart';
 
 class InsertAudio extends StatefulWidget {
   final Function(String) onAudioInserted;
@@ -15,9 +14,21 @@ class InsertAudio extends StatefulWidget {
 }
 
 class _InsertAudioState extends State<InsertAudio> {
-  final AudioRecorder _recorder = AudioRecorder();
+  final RecorderController _recorderController = RecorderController();
   bool _isRecording = false;
   String? _audioPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _recorderController.checkPermission();
+  }
+
+  @override
+  void dispose() {
+    _recorderController.dispose();
+    super.dispose();
+  }
 
   Future<String> _getAudioPath() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -29,25 +40,15 @@ class _InsertAudioState extends State<InsertAudio> {
       final status = await Permission.microphone.request();
       if (status.isGranted) {
         _audioPath = await _getAudioPath();
-        final recordConfig = RecordConfig(
-          encoder: AudioEncoder.aacLc,
-          bitRate: 128000,
-          sampleRate: 44100,
+        await _recorderController.record(
+          path: _audioPath,
+          androidEncoder: AndroidEncoder.aac,
+          androidOutputFormat: AndroidOutputFormat.mpeg4,
+          iosEncoder: IosEncoder.kAudioFormatMPEG4AAC,
         );
-
-        if (await _recorder.hasPermission()) {
-          await _recorder.start(
-            recordConfig,
-            path: _audioPath!,
-          );
-          setState(() {
-            _isRecording = true;
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Microphone permission is required')),
-          );
-        }
+        setState(() {
+          _isRecording = true;
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Microphone permission is required')),
@@ -60,10 +61,13 @@ class _InsertAudioState extends State<InsertAudio> {
 
   Future<void> _stopRecording() async {
     try {
-      await _recorder.stop();
-      setState(() {
-        _isRecording = false;
-      });
+      if (_isRecording) {
+        await _recorderController.stop();
+        setState(() {
+          _isRecording = false;
+        });
+        _saveRecording();
+      }
     } catch (e, stackTrace) {
       print('Error in _stopRecording: $e\n$stackTrace');
     }
@@ -89,7 +93,7 @@ class _InsertAudioState extends State<InsertAudio> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
                   minHeight: 200,
-                  maxHeight: 200,
+                  maxHeight: 300,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -106,57 +110,58 @@ class _InsertAudioState extends State<InsertAudio> {
                     Text(
                       _isRecording ? 'Recording...' : 'Tap to Record',
                       style: TextStyle(
-                          color: mindfulBrown['Brown80'],
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
+                        color: mindfulBrown['Brown80'],
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    AudioWaveforms(
+                      recorderController: _recorderController,
+                      size: Size(MediaQuery.of(context).size.width, 100),
+                      shouldCalculateScrolledPosition: false,
+                      waveStyle: WaveStyle(
+                        waveThickness: 5,
+                        showMiddleLine: false,
+                        waveColor: mindfulBrown['Brown60']!,
+                        showDurationLabel: false,
+                        durationStyle: TextStyle(color: Colors.black),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
                       width: 80,
                       height: 80,
                       child: GestureDetector(
-                          onTap: () async {
-                            try {
-                              if (_isRecording) {
-                                await _stopRecording();
-                                setModalState(() {
-                                  _isRecording = false;
-                                });
-                                setState(() {
-                                  _isRecording = false;
-                                });
-                                _saveRecording();
-                              } else {
-                                await _startRecording();
-                                setModalState(() {
-                                  _isRecording = true;
-                                });
-                                setState(() {
-                                  _isRecording = true;
-                                });
-                              }
-                            } catch (e, stackTrace) {
-                              print(
-                                  'Error in GestureDetector: $e\n$stackTrace');
+                        onTap: () async {
+                          try {
+                            if (_isRecording) {
+                              await _stopRecording();
+                              setModalState(() {
+                                _isRecording = false;
+                              });
+                              setState(() {
+                                _isRecording = false;
+                              });
+                            } else {
+                              await _startRecording();
+                              setModalState(() {
+                                _isRecording = true;
+                              });
+                              setState(() {
+                                _isRecording = true;
+                              });
                             }
-                          },
-                          child: SizedBox(
-                            height: 50,
-                            child: _isRecording
-                                ? Image.asset('assets/journal/stop.png')
-                                : Image.asset('assets/journal/record.png'),
-                          )
-                          // CircleAvatar(
-                          //   radius: 40,
-                          //   backgroundColor:
-                          //       _isRecording ? Colors.red : Colors.green,
-                          //   child: Icon(
-                          //     _isRecording ? Icons.stop : Icons.mic,
-                          //     color: Colors.white,
-                          //     size: 30,
-                          //   ),
-                          // ),
-                          ),
+                          } catch (e, stackTrace) {
+                            print('Error in GestureDetector: $e\n$stackTrace');
+                          }
+                        },
+                        child: Image.asset(
+                          _isRecording
+                              ? 'assets/journal/stop.png'
+                              : 'assets/journal/record.png',
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -171,15 +176,15 @@ class _InsertAudioState extends State<InsertAudio> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      shape: CircleBorder(), // Ensures the button is circular
-      backgroundColor: Colors.white, // Sets the background color to white
-      elevation: 0, // No shadow
+      shape: const CircleBorder(),
+      backgroundColor: Colors.white,
+      elevation: 0,
       heroTag: 'voice_button',
       onPressed: () => _showAudioOptions(context),
       child: Padding(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Image.asset('assets/journal/mic.png'),
-      ), // Your microphone icon
+      ),
     );
   }
 }

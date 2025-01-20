@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/journaling/logic/create_logic.dart';
 import 'package:lingap/features/journaling/logic/insert_audio.dart';
@@ -87,7 +88,8 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: 'Write your journal here...',
-                            hintStyle: TextStyle(color: Colors.grey),
+                            hintStyle:
+                                TextStyle(color: optimisticGray['Gray60']),
                             filled: true,
                             fillColor: Colors.transparent,
                           ),
@@ -134,7 +136,8 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Tap here to continue writing...',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                          style: TextStyle(
+                              color: optimisticGray['Gray60'], fontSize: 20),
                         ),
                       ),
                     ),
@@ -171,10 +174,21 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                   SizedBox(
                     height: 60,
                     child: GestureDetector(
-                      onTap: (){},
+                      onTap: () {
+                        context.go('/journal-success', extra: {
+                          'emotion': 'Neutral',
+                          'date': DateTime.now().toString(),
+                          'time': DateTime.now()
+                              .toLocal()
+                              .toIso8601String()
+                              .split('T')[1]
+                              .substring(0, 5),
+                          'title': _logic.titleController.text,
+                          'journalItems': _logic.journalItems
+                        });
+                      },
                       child: Image.asset('assets/journal/save.png'),
                     ),
-
                   ),
                   // ElevatedButton(
                   //   onPressed: () {

@@ -36,6 +36,7 @@ dependencies:
   health: ^11.1.1
   workmanager: ^0.5.2
   shared_preferences: ^2.3.5
+  audio_waveforms: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -128,4 +129,10 @@ flutter:
     - assets/journal/save.png
     - assets/journal/play.png
     - assets/journal/pause.png
+    - assets/journal/created.png
+    - assets/journal/cancel.png
+    - assets/journal/trash.png
+    - assets/journal/delete.png
+    - assets/journal/edit.png
+    - assets/journal/remove.png
 
