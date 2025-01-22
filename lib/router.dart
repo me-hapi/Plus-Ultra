@@ -147,6 +147,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => LandingPage(),
       ),
       GoRoute(
+        path: '/findpage',
+        builder: (context, state) => user_home.HomePage(),
+      ),
+      GoRoute(
         path: '/professional_profile',
         builder: (context, state) {
           final professionalData = state.extra as Map<String, dynamic>;

@@ -48,8 +48,8 @@ class ProfessionalCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20.0),
                 child: Image.network(
                   imageUrl,
-                  width: screenWidth * 0.2, // Adjust size for responsiveness
-                  height: screenWidth * 0.2,
+                  width: 60, // Adjust size for responsiveness
+                  height: 60,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, StackTrace) {
                     return const Icon(Icons.person, size: 50);
@@ -66,7 +66,6 @@ class ProfessionalCard extends StatelessWidget {
                     Text(
                       name,
                       style: TextStyle(
-                        fontFamily: 'Montserrat',
                         color: Color(0xFF473c38),
                         fontSize: screenWidth * 0.050,
                         fontWeight: FontWeight.bold,
@@ -77,7 +76,6 @@ class ProfessionalCard extends StatelessWidget {
                     Text(
                       job,
                       style: TextStyle(
-                        fontFamily: 'Montserrat',
                         fontSize: screenWidth * 0.035,
                         color: Colors.grey[700],
                       ),
@@ -96,7 +94,6 @@ class ProfessionalCard extends StatelessWidget {
                               Text(
                                 location,
                                 style: TextStyle(
-                                  fontFamily: 'Montserrat',
                                   fontSize: screenWidth * 0.035,
                                   color: Colors.grey[700],
                                 ),
@@ -105,7 +102,6 @@ class ProfessionalCard extends StatelessWidget {
                               Text(
                                 distance,
                                 style: TextStyle(
-                                  fontFamily: 'Montserrat',
                                   fontSize: screenWidth * 0.035,
                                   color: Colors.grey[700],
                                 ),
@@ -115,7 +111,6 @@ class ProfessionalCard extends StatelessWidget {
                         : Text(
                             'Teleconsultation Only',
                             style: TextStyle(
-                              fontFamily: 'Montserrat',
                               fontSize: screenWidth * 0.035,
                               color: Colors.grey[700],
                             ),

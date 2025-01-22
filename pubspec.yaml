@@ -136,3 +136,19 @@ flutter:
     - assets/journal/edit.png
     - assets/journal/remove.png
 
+    - assets/consultation/addiction.png
+    - assets/consultation/anxiety.png
+    - assets/consultation/children.png
+    - assets/consultation/depression.png
+    - assets/consultation/email.png
+    - assets/consultation/food.png
+    - assets/consultation/grief.png
+    - assets/consultation/lgbtq.png
+    - assets/consultation/no_appointment.png
+    - assets/consultation/psychosis.png
+    - assets/consultation/relationship.png
+    - assets/consultation/schedule.png
+    - assets/consultation/sleep.png
+    - assets/consultation/telephone.png
+    - assets/consultation/user.png
+

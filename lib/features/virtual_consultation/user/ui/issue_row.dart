@@ -21,26 +21,11 @@ class IssuesRow extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 65,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey[350], // Gray color for the frame
-                        ),
-                      ),
-                      ClipOval(
-                        child: Image.asset(
-                          entry.value,
-                          width: 35,
-                          height: 35,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
+                  Image.asset(
+                    entry.value,
+                    width: 65,
+                    height: 65,
+                    fit: BoxFit.cover,
                   ),
                   const SizedBox(height: 4),
                   Text(

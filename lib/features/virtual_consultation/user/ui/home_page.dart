@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/appointment_history.dart';
@@ -34,19 +35,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   final Map<String, String> issues = {
-    "Stress": "assets/vitals/mood.png",
-    "Anxiety": "assets/vitals/mood.png",
-    "Depression": "assets/vitals/mood.png",
-    "Relationship": "assets/vitals/mood.png",
-    "Self-Esteem": "assets/vitals/mood.png",
-    "Adjustment": "assets/vitals/mood.png",
-    "Caregiving": "assets/vitals/mood.png",
-    "Parenting": "assets/vitals/mood.png",
-    "Career": "assets/vitals/mood.png",
-    "Grief": "assets/vitals/mood.png",
-    "Identity": "assets/vitals/mood.png",
-    "Emotion": "assets/vitals/mood.png",
-    "Resilience": "assets/vitals/mood.png",
+    "Addiction": "assets/consultation/addiction.png",
+    "Anxiety": "assets/consultation/anxiety.png",
+    "Children": "assets/consultation/children.png",
+    "Depression": "assets/consultation/depression.png",
+    "Food": "assets/consultation/food.png",
+    "Grief": "assets/consultation/grief.png",
+    "LGBTQ": "assets/consultation/lgbtq.png",
+    "Psychosis": "assets/consultation/psychosis.png",
+    "Relationship": "assets/consultation/relationship.png",
+    "Sleep": "assets/consultation/sleep.png",
   };
 
   void getProfessionals() async {
@@ -69,7 +67,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEBE7E4),
+        backgroundColor: mindfulBrown['Brown10'],
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back,
@@ -79,32 +77,29 @@ class _HomePageState extends ConsumerState<HomePage> {
             Navigator.pop(context); // Navigate back to the previous screen
           },
         ),
-        title: const Text(
+        title: Text(
           'Find Therapist',
           style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: Color(0xFF473c38),
-          ),
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: mindfulBrown["Brown80"]),
         ),
         centerTitle: true, // Centers the title
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.history, // Icon for appointment history
-              color: Color(0xFF473c38),
-            ),
+            icon: Icon(Icons.history, color: mindfulBrown["Brown80"]),
             iconSize: 30.0,
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => AppointmentHistory()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AppointmentHistory()));
             },
           ),
         ],
-        automaticallyImplyLeading:
-            false, // Removes the back button from the AppBar
+        automaticallyImplyLeading: false,
       ),
-      backgroundColor: const Color(0xFFEBE7E4),
+      backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -115,24 +110,37 @@ class _HomePageState extends ConsumerState<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: SizedBox(
-                  height: 40,
+                  height: 65,
                   child: TextField(
                     key: const Key('search_bar'),
                     controller: searchController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Search',
                       hintStyle: TextStyle(
-                        fontFamily: 'Montserrat',
+                        color: mindfulBrown['Brown80'],
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
+                      filled: true,
+                      fillColor: Colors.white,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
                           Radius.circular(30.0),
                         ),
+                        borderSide: BorderSide(
+                            color: serenityGreen['Green30']!,
+                            width: 3), // Light green border
                       ),
-                      prefixIcon: Icon(Icons.search),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(30.0),
+                        ),
+                        borderSide: const BorderSide(
+                            color: Colors.transparent, width: 5),
+                      ),
+                      prefixIcon:
+                          Icon(Icons.search, color: mindfulBrown['Brown80']),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 15),
                     ),
                     onChanged: (value) {
                       ref.read(searchProvider.notifier).state = value;
@@ -144,14 +152,12 @@ class _HomePageState extends ConsumerState<HomePage> {
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: const Text(
+                child: Text(
                   'Browse by Issues',
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Montserrat',
-                    color: Color(0xFF473c38),
-                  ),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80']),
                 ),
               ),
 
@@ -166,16 +172,16 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: const Text(
+                child: Text(
                   'All Therapist',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Montserrat',
-                    color: Color(0xFF473c38),
+                    color: mindfulBrown['Brown80'],
                   ),
                 ),
               ),
+              SizedBox(height: 6,),
               professionals.isNotEmpty
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
