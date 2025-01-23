@@ -1,7 +1,8 @@
 // date_time_page.dart
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/virtual_consultation/user/logic/datetime_logic.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
 
 class DateTimePage extends StatefulWidget {
   final void Function(Map<String, dynamic> data)? onDataChanged;
@@ -23,10 +24,12 @@ class DateTimePage extends StatefulWidget {
 
 class _DateTimePageState extends State<DateTimePage> {
   final DateTimeLogic _logic = DateTimeLogic();
+  late DateTime _focusedDate;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    _focusedDate = DateTime.now();
     _logic.parseData(
       timeSlot: widget.timeSlot,
       availableDays: widget.availableDays,
@@ -42,7 +45,7 @@ class _DateTimePageState extends State<DateTimePage> {
     });
   }
 
-  void _onDateSelected(DateTime date, DateTime? focusedDate) {
+  void _onDateSelected(DateTime date) {
     setState(() {
       _logic.selectedDate = date;
     });
@@ -55,17 +58,114 @@ class _DateTimePageState extends State<DateTimePage> {
       _logic.selectedTimeSlot = timeSlot;
     });
     _triggerDataChanged();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Time Slot Selected'),
-        content: Text('You selected $timeSlot'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
+  }
+
+  Widget buildMonthSelector() {
+    return Container(
+        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                setState(() {
+                  _focusedDate =
+                      DateTime(_focusedDate.year, _focusedDate.month - 1);
+                });
+              },
+            ),
+            Text(
+              DateFormat.yMMMM().format(_focusedDate),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_forward_ios),
+              onPressed: () {
+                setState(() {
+                  _focusedDate =
+                      DateTime(_focusedDate.year, _focusedDate.month + 1);
+                });
+              },
+            ),
+          ],
+        ));
+  }
+
+  Widget buildDayHeaders() {
+    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: days.map((day) {
+        return Text(
+          day,
+          style: TextStyle(
+            color: optimisticGray['Gray50'],
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
-        ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget buildMonth() {
+    final firstDayOfMonth = DateTime(_focusedDate.year, _focusedDate.month, 1);
+    final daysInMonth =
+        DateTime(_focusedDate.year, _focusedDate.month + 1, 0).day;
+    final startDay = firstDayOfMonth.weekday;
+    final List<Widget> days = [];
+
+    // Add empty spaces for the first week
+    for (int i = 0; i < startDay - 1; i++) {
+      days.add(SizedBox(width: 40));
+    }
+
+    for (int i = 1; i <= daysInMonth; i++) {
+      final day = DateTime(_focusedDate.year, _focusedDate.month, i);
+      final isAvailable =
+          widget.availableDays?.contains(_logic.getDayName(day.weekday)) ??
+              false;
+
+      days.add(buildDay(day, isAvailable));
+    }
+
+    return GridView.count(
+      crossAxisCount: 7,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      children: days,
+    );
+  }
+
+  Widget buildDay(DateTime day, bool isAvailable) {
+    final isSelected = _logic.selectedDate != null &&
+        _logic.selectedDate!.isAtSameMomentAs(day);
+
+    return GestureDetector(
+      onTap: isAvailable ? () => _onDateSelected(day) : null,
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: isAvailable
+              ? isSelected
+                  ? reflectiveBlue['Blue50']
+                  : serenityGreen['Green50']
+              : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            '${day.day}',
+            style: TextStyle(
+              color: isAvailable ? Colors.white : mindfulBrown['Brown80'],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -75,93 +175,29 @@ class _DateTimePageState extends State<DateTimePage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Text(
-            'Select Date',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: buildMonthSelector(),
         ),
-       NotificationListener<OverscrollIndicatorNotification>(
-  onNotification: (OverscrollIndicatorNotification notification) {
-    notification.disallowIndicator(); // Prevent default glow behavior
-    return true;
-  },
-  child: NotificationListener<ScrollNotification>(
-    onNotification: (ScrollNotification notification) {
-      // Allow the parent to scroll when the calendar reaches its limits
-      Scrollable.of(context)?.position.moveTo(
-        Scrollable.of(context)!.position.pixels - notification.metrics.pixels,
-      );
-      return false; // Let the default behavior continue
-    },
-    child: Container(
-      color: Colors.transparent,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: TableCalendar(
-        focusedDay: _logic.selectedDate,
-        firstDay: DateTime.now().subtract(Duration(days: 365)),
-        lastDay: DateTime.now().add(Duration(days: 365)),
-        selectedDayPredicate: (day) => isSameDay(_logic.selectedDate, day),
-        onDaySelected: _onDateSelected,
-        calendarStyle: CalendarStyle(
-          outsideDaysVisible: false,
-          todayDecoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.5),
-            shape: BoxShape.circle,
-          ),
-          selectedDecoration: BoxDecoration(
-            color: Colors.blue,
-            shape: BoxShape.circle,
-          ),
-          weekendTextStyle: TextStyle(color: Colors.black),
-        ),
-        enabledDayPredicate: (day) =>
-            _logic.availableDays.contains(_logic.getDayName(day.weekday)),
-        calendarBuilders: CalendarBuilders(
-          defaultBuilder: (context, day, focusedDay) {
-            if (_logic.availableDays
-                .contains(_logic.getDayName(day.weekday))) {
-              return Container(
-                margin: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    '${day.day}',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              );
-            }
-            return null;
-          },
-          disabledBuilder: (context, day, focusedDay) {
-            return Center(
-              child: Text(
-                '${day.day}',
-                style: TextStyle(color: Colors.black),
-              ),
-            );
-          },
-        ),
-      ),
-    ),
-  ),
-),
-
-
-        Divider(color: Colors.grey, height: 1),
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: buildDayHeaders(),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: buildMonth(),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Text(
             'Select a Time Slot',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2.0),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Wrap(
             spacing: 8.0,
             runSpacing: 8.0,
@@ -169,13 +205,13 @@ class _DateTimePageState extends State<DateTimePage> {
               return Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: SizedBox(
-                  width: 120,
+                  width: 100,
                   child: TextButton(
                     onPressed: () => _onTimeSlotSelected(timeSlot),
                     style: TextButton.styleFrom(
                       backgroundColor: _logic.selectedTimeSlot == timeSlot
-                          ? Colors.blue
-                          : Colors.grey[200],
+                          ? serenityGreen['Green50']
+                          : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25.0),
                       ),
@@ -185,7 +221,7 @@ class _DateTimePageState extends State<DateTimePage> {
                       style: TextStyle(
                         color: _logic.selectedTimeSlot == timeSlot
                             ? Colors.white
-                            : Colors.black,
+                            : mindfulBrown['Brown80'],
                         fontSize: 12,
                       ),
                     ),
@@ -194,7 +230,7 @@ class _DateTimePageState extends State<DateTimePage> {
               );
             }).toList(),
           ),
-        ),
+        )
       ],
     );
   }

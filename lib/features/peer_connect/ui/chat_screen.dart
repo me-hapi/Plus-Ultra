@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/security/encryption.dart';
 import 'package:lingap/features/peer_connect/ui/meeting_screen.dart';
@@ -38,6 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: mindfulBrown['Brown30'],
         title: Text('Chat'),
         actions: [
           IconButton(
@@ -58,6 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
+      backgroundColor: mindfulBrown['Brown10'],
       body: Column(
         children: [
           Expanded(
@@ -98,7 +101,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: InputDecoration(
                       hintText: 'Type a message',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/logic/booking_logic.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/booking/payment_page.dart';
@@ -66,9 +67,9 @@ class _BookingPageState extends State<BookingPage> {
     final professionalData = widget.professionalData;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEBE7E4),
+      backgroundColor: mindfulBrown['Brown10'],
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEBE7E4),
+        backgroundColor: mindfulBrown['Brown10'],
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
@@ -76,15 +77,15 @@ class _BookingPageState extends State<BookingPage> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.grey[300],
+              color: Colors.white,
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.blueGrey),
+            child: Icon(Icons.arrow_back, color: mindfulBrown['Brown80']),
           ),
         ),
-        title: const Text(
+        title: Text(
           "Book Therapist",
           style: TextStyle(
-            color: Colors.blueGrey,
+            color: mindfulBrown['Brown80'],
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -105,10 +106,19 @@ class _BookingPageState extends State<BookingPage> {
                     children: List.generate(steps.length, (stepIndex) {
                       return Row(
                         children: [
-                          _buildStep(isActive: stepIndex <= bookingLogic.index),
+                          _buildStep(
+                            isPreviousActive: stepIndex < bookingLogic.index,
+                            isCurrentActive: stepIndex <= bookingLogic.index,
+                          ),
                           if (stepIndex < steps.length - 1)
                             _buildConnectorLine(
-                                isActive: stepIndex <= bookingLogic.index),
+                              isPreviousActive: stepIndex <= bookingLogic.index,
+                              isCurrentActive:
+                                  stepIndex + 1 <= bookingLogic.index,
+                            )
+                          // if (stepIndex < steps.length - 1)
+                          //   _buildConnectorLine(
+                          //       isActive: stepIndex <= bookingLogic.index),
                         ],
                       );
                     }),
@@ -116,18 +126,18 @@ class _BookingPageState extends State<BookingPage> {
                   const SizedBox(height: 8),
                   // Step labels
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: steps.map((step) {
                       int stepIndex = steps.indexOf(step);
                       return SizedBox(
-                        width: 80,
+                        width: 130,
                         child: Text(
                           step,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: stepIndex == bookingLogic.index
-                                ? Colors.blueGrey
-                                : Colors.grey,
+                                ? mindfulBrown['Brown80']
+                                : mindfulBrown['Brown30'],
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
                           ),
@@ -154,25 +164,32 @@ class _BookingPageState extends State<BookingPage> {
             ),
             const SizedBox(height: 16),
             // Custom Continue Button
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  bookingLogic.nextPage(context, () {
-                    setState(() {});
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey,
-                    borderRadius: BorderRadius.circular(20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SizedBox(
+                height: 55,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    bookingLogic.nextPage(context, () {
+                      setState(() {});
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: mindfulBrown['Brown80'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   child: Text(
                     bookingLogic.index < steps.length - 1
                         ? 'Continue'
                         : 'Finish',
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -184,22 +201,90 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
-  Widget _buildStep({required bool isActive}) {
+  Widget _buildStep({
+    required bool isPreviousActive,
+    required bool isCurrentActive,
+  }) {
     return Container(
-      width: 25,
-      height: 25,
+      width: isPreviousActive
+          ? 32
+          : isCurrentActive
+              ? 39
+              : 32,
+      height: isPreviousActive
+          ? 32
+          : isCurrentActive
+              ? 39
+              : 32,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? Colors.blueGrey : Colors.grey,
+        color: isCurrentActive
+            ? serenityGreen['Green50']
+            : isPreviousActive
+                ? serenityGreen['Green50']
+                : Colors.transparent,
+        border: Border.all(
+          width: isCurrentActive ? 4 : 2,
+          color: isPreviousActive
+              ? Colors.transparent
+              : isCurrentActive
+                  ? serenityGreen['Green30']!
+                  : mindfulBrown['Brown30']!,
+        ),
       ),
+      child: isPreviousActive
+          ? Center(
+              child: Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 20,
+              ),
+            )
+          : isCurrentActive
+              ? Center(
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              : Center(
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mindfulBrown['Brown30'],
+                    ),
+                  ),
+                ),
     );
   }
 
-  Widget _buildConnectorLine({required bool isActive}) {
-    return Container(
-      width: 80,
-      height: 2,
-      color: isActive ? Colors.blueGrey : Colors.grey,
+  Widget _buildConnectorLine({
+    required bool isPreviousActive,
+    required bool isCurrentActive,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 50,
+          height: 2,
+          color: isPreviousActive
+              ? serenityGreen['Green50']
+              : mindfulBrown['Brown30'],
+        ),
+        Container(
+          width: 50,
+          height: 2,
+          color: isCurrentActive
+              ? serenityGreen['Green50']
+              : mindfulBrown['Brown30'],
+        ),
+      ],
     );
   }
 }

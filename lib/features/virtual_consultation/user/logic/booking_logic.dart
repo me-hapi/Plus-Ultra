@@ -23,17 +23,17 @@ class BookingLogic {
   });
 
   void nextPage(BuildContext context, VoidCallback onUpdateIndex) {
-    if (index == 0 && !_validateUserDetails()) {
-      _showValidationError(context,
-          'Please fill in all required fields correctly in User Details.');
-      return;
-    }
+    // if (index == 0 && !_validateUserDetails()) {
+    //   _showValidationError(context,
+    //       'Please fill in all required fields correctly in User Details.');
+    //   return;
+    // }
 
-    if (index == 1 && !_validateDateTime()) {
-      _showValidationError(
-          context, 'Please select a valid date and time slot.');
-      return;
-    }
+    // if (index == 1 && !_validateDateTime()) {
+    //   _showValidationError(
+    //       context, 'Please select a valid date and time slot.');
+    //   return;
+    // }
 
     if (index < 2) {
       index++;

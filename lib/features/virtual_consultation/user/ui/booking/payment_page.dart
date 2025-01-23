@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class PaymentPage extends StatelessWidget {
   const PaymentPage({Key? key}) : super(key: key);
@@ -14,7 +15,7 @@ class PaymentPage extends StatelessWidget {
           Text(
             'Payment',
             style: TextStyle(
-              fontFamily: 'Montserrat',
+                  color: mindfulBrown['Brown80'],
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -35,7 +36,7 @@ class PaymentPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 32),
-          Divider(color: Colors.grey),
+          Divider(color: mindfulBrown['Brown30']),
           SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,16 +44,16 @@ class PaymentPage extends StatelessWidget {
               Text(
                 'Session Fee',
                 style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 14,
+                  color: optimisticGray['Gray50'],
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
                 'P 500',
                 style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 18,
+                  color: mindfulBrown['Brown80'],
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),

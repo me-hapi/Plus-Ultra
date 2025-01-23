@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class IssuesRow extends StatelessWidget {
   final Map<String, String> issues;
@@ -31,11 +32,10 @@ class IssuesRow extends StatelessWidget {
                   Text(
                     entry.key,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 10,
+                    style: TextStyle(
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF473c38),
+                      color: mindfulBrown['Brown80'],
                     ),
                     maxLines: 2, // Limit to two lines to handle longer text
                     overflow: TextOverflow.ellipsis, // Ellipsis for overflow

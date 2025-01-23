@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart';
 
 class ProfessionalCard extends StatelessWidget {
@@ -46,15 +47,21 @@ class ProfessionalCard extends StatelessWidget {
               // Picture on the left
               ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
-                child: Image.network(
-                  imageUrl,
-                  width: 60, // Adjust size for responsiveness
-                  height: 60,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, StackTrace) {
-                    return const Icon(Icons.person, size: 50);
-                  },
-                ),
+                child: Image.asset(
+                  'assets/doctor.jpg',
+                  width: 70,
+                  height: 70,
+                )
+                
+                // Image.network(
+                //   imageUrl,
+                //   width: 60, // Adjust size for responsiveness
+                //   height: 60,
+                //   fit: BoxFit.cover,
+                //   errorBuilder: (context, error, StackTrace) {
+                //     return const Icon(Icons.person, size: 50);
+                //   },
+                // ),
               ),
               const SizedBox(width: 8),
               // Text details
@@ -66,8 +73,8 @@ class ProfessionalCard extends StatelessWidget {
                     Text(
                       name,
                       style: TextStyle(
-                        color: Color(0xFF473c38),
-                        fontSize: screenWidth * 0.050,
+                        color: mindfulBrown['Brown80'],
+                        fontSize: screenWidth * 0.055,
                         fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -76,7 +83,7 @@ class ProfessionalCard extends StatelessWidget {
                     Text(
                       job,
                       style: TextStyle(
-                        fontSize: screenWidth * 0.035,
+                        fontSize: screenWidth * 0.03,
                         color: Colors.grey[700],
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -94,7 +101,7 @@ class ProfessionalCard extends StatelessWidget {
                               Text(
                                 location,
                                 style: TextStyle(
-                                  fontSize: screenWidth * 0.035,
+                                  fontSize: screenWidth * 0.030,
                                   color: Colors.grey[700],
                                 ),
                               ),
@@ -102,7 +109,7 @@ class ProfessionalCard extends StatelessWidget {
                               Text(
                                 distance,
                                 style: TextStyle(
-                                  fontSize: screenWidth * 0.035,
+                                  fontSize: screenWidth * 0.030,
                                   color: Colors.grey[700],
                                 ),
                               ),
@@ -111,7 +118,7 @@ class ProfessionalCard extends StatelessWidget {
                         : Text(
                             'Teleconsultation Only',
                             style: TextStyle(
-                              fontSize: screenWidth * 0.035,
+                              fontSize: screenWidth * 0.030,
                               color: Colors.grey[700],
                             ),
                           ),

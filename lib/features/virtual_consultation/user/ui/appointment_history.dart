@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/appointment_card.dart';
@@ -37,29 +38,64 @@ class _AppointmentHistoryState extends State<AppointmentHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appointment History'),
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Appointment History',
+          style: TextStyle(
+              color: mindfulBrown['Brown80'],
+              fontSize: 20,
+              fontWeight: FontWeight.w700),
+        ),
+        centerTitle: true,
       ),
+      backgroundColor: mindfulBrown['Brown10'],
       body: Column(
         children: [
           // Search Bar
+          SizedBox(
+            height: 8,
+          ),
+
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: 'Search appointments...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SizedBox(
+              height: 65,
+              child: TextField(
+                key: const Key('search_bar'),
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintStyle: TextStyle(
+                    color: mindfulBrown['Brown80'],
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(30.0),
+                    ),
+                    borderSide: BorderSide(
+                        color: serenityGreen['Green30']!,
+                        width: 3), // Light green border
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(30.0),
+                    ),
+                    borderSide:
+                        const BorderSide(color: Colors.transparent, width: 5),
+                  ),
+                  prefixIcon:
+                      Icon(Icons.search, color: mindfulBrown['Brown80']),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                filled: true,
-                fillColor: Colors.grey[200],
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
+                  });
+                },
               ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase();
-                });
-              },
             ),
           ),
 
@@ -68,7 +104,7 @@ class _AppointmentHistoryState extends State<AppointmentHistory> {
                 ? Center(
                     child: Text(
                       'No appointment history yet',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: TextStyle(fontSize: 16, color: optimisticGray['Gray40']),
                     ),
                   )
                 : ListView.builder(

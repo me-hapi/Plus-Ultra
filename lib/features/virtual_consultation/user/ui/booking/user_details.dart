@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class UserDetails extends StatefulWidget {
   final void Function(Map<String, dynamic> data)? onDataChanged;
@@ -36,38 +37,49 @@ class _UserDetailsState extends State<UserDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Personal Information',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('Personal Information',
+              style: TextStyle(
+                  color: mindfulBrown['Brown80'],
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
 
           // Full Name
           _buildLabelAndField(
-              'Full Name', _buildTextField('Enter Full Name', Icons.person, fullNameController)),
+              'Full Name',
+              _buildTextField(
+                  'Enter Full Name', Icons.person, fullNameController)),
           const SizedBox(height: 10),
 
           // Email
-          _buildLabelAndField(
-              'Email', _buildTextField('Enter Email', Icons.email, emailController)),
+          _buildLabelAndField('Email',
+              _buildTextField('Enter Email', Icons.email, emailController)),
           const SizedBox(height: 10),
 
           // Mobile Number
-          _buildLabelAndField('Mobile Number',
-              _buildTextField('Enter Mobile Number', Icons.phone, mobileController)),
+          _buildLabelAndField(
+              'Mobile Number',
+              _buildTextField(
+                  'Enter Mobile Number', Icons.phone, mobileController)),
           const SizedBox(height: 10),
 
           // Age
-          _buildLabelAndField('Age',
-              _buildTextField('Enter Age', Icons.cake, ageController)),
+          _buildLabelAndField(
+              'Age', _buildTextField('Enter Age', Icons.cake, ageController)),
           const SizedBox(height: 20),
 
-          const Divider(),
+          Divider(color: mindfulBrown['Brown30'],),
 
-          const Text('Additional Information',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('Additional Information',
+              style: TextStyle(
+                  color: mindfulBrown['Brown80'],
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
 
           // Gender Selection
-          const Text('Gender', style: TextStyle(fontSize: 16)),
+          Text('Gender',
+              style: TextStyle(color: mindfulBrown['Brown80'], fontSize: 16)),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -79,7 +91,7 @@ class _UserDetailsState extends State<UserDetails> {
           ),
           const SizedBox(height: 20),
 
-          const Divider(),
+          Divider(color: mindfulBrown['Brown30'],),
 
           // Comments TextBox
           _buildLabelAndField(
@@ -110,7 +122,10 @@ class _UserDetailsState extends State<UserDetails> {
       controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
-        prefixIcon: Icon(icon),
+        prefixIcon: Icon(
+          icon,
+          color: mindfulBrown['Brown80'],
+        ),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -126,6 +141,7 @@ class _UserDetailsState extends State<UserDetails> {
   Widget _buildGenderButton(String label, IconData icon) {
     return SizedBox(
       width: 105,
+      height: 50,
       child: TextButton.icon(
         onPressed: () {
           setState(() {
@@ -133,13 +149,18 @@ class _UserDetailsState extends State<UserDetails> {
           });
           _triggerDataChanged();
         },
-        icon: Icon(icon),
+        icon: Icon(
+          icon,
+          color: gender == label ? Colors.white : optimisticGray['Gray60'],
+        ),
         label: Text(label),
         style: TextButton.styleFrom(
-          backgroundColor: gender == label ? Colors.blue : Colors.white,
-          foregroundColor: gender == label ? Colors.white : Colors.black,
+          backgroundColor:
+              gender == label ? kindPurple['Purple40'] : Colors.white,
+          foregroundColor:
+              gender == label ? Colors.white : mindfulBrown['Brown80'],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
       ),
@@ -152,7 +173,7 @@ class _UserDetailsState extends State<UserDetails> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 16),
+          style: TextStyle(color: mindfulBrown['Brown80'], fontSize: 16),
         ),
         const SizedBox(height: 5),
         field,

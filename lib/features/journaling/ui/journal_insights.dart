@@ -341,4 +341,7 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
       ),
     );
   }
+
+
+  
 }
