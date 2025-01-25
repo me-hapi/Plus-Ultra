@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/professional/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/professional/ui/appointment_card.dart';
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage>
     'approved': [],
     'completed': []
   };
+  String selectedButton = "Pending";
 
   @override
   void initState() {
@@ -44,50 +46,87 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: mindfulBrown['Brown10'],
       appBar: AppBar(
-        title: const Text('Appointments'),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              // Navigate to profile page or show profile dialog
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile picture clicked')),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                  'https://via.placeholder.com/150', // Replace with actual profile image URL
-                ),
+        backgroundColor: mindfulBrown['Brown10'],
+        title: Text(
+          'Appointments',
+          style: TextStyle(color: mindfulBrown['Brown80'], fontSize: 24),
+        ),
+      ),
+      body: Column(
+        children: [
+          Center(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    blurRadius: 3,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildToggleButton("Pending", empathyOrange['Orange40']!),
+                  _buildToggleButton("Approved", reflectiveBlue['Blue50']!),
+                  _buildToggleButton("Completed", serenityGreen['Green50']!),
+                ],
               ),
             ),
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Pending'),
-            Tab(text: 'Approved'),
-            Tab(text: 'Completed'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          buildAppointmentList(
-              appointments['pending']!.cast<Map<String, dynamic>>(),
-              'No pending appointments yet'),
-          buildAppointmentList(
-              appointments['approved']!.cast<Map<String, dynamic>>(),
-              'No approved appointments yet'),
-          buildAppointmentList(
-              appointments['completed']!.cast<Map<String, dynamic>>(),
-              'No completed appointments yet'),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                buildAppointmentList(
+                    appointments['pending']!.cast<Map<String, dynamic>>(),
+                    'No pending appointments yet'),
+                buildAppointmentList(
+                    appointments['approved']!.cast<Map<String, dynamic>>(),
+                    'No approved appointments yet'),
+                buildAppointmentList(
+                    appointments['completed']!.cast<Map<String, dynamic>>(),
+                    'No completed appointments yet'),
+              ],
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildToggleButton(String label, Color activeColor) {
+    return GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedButton = label;
+          });
+        },
+        child: SizedBox(
+          width: 100,
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            decoration: BoxDecoration(
+              color: selectedButton == label ? activeColor : Colors.white,
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            child: Text(
+              textAlign: TextAlign.center,
+              label,
+              style: TextStyle(
+                color: selectedButton == label ? Colors.white : Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ));
   }
 
   Widget buildAppointmentList(

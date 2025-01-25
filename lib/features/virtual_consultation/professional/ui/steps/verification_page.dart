@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'dart:io';
 import 'package:lingap/features/virtual_consultation/professional/logic/verification_logic.dart';
 
 class VerificationPage extends StatefulWidget {
   final Function(Map<String, File?>) onDataChanged;
 
-  const VerificationPage({Key? key, required this.onDataChanged}) : super(key: key);
+  const VerificationPage({Key? key, required this.onDataChanged})
+      : super(key: key);
 
   @override
   _VerificationPageState createState() => _VerificationPageState();
@@ -33,13 +35,13 @@ class _VerificationPageState extends State<VerificationPage> {
         height: 200,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blueGrey, width: 2),
-          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: mindfulBrown['Brown80']!, width: 2),
+          color: Colors.white,
         ),
         child: imageFile != null
             ? ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(28),
                 child: Image.file(
                   imageFile,
                   fit: BoxFit.cover,
@@ -48,7 +50,7 @@ class _VerificationPageState extends State<VerificationPage> {
             : Center(
                 child: Text(
                   'Upload $label ID',
-                  style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+                  style: TextStyle(fontSize: 16, color: mindfulBrown['Brown80']),
                 ),
               ),
       ),
@@ -57,13 +59,16 @@ class _VerificationPageState extends State<VerificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 20),
-        _buildImageContainer('Front', _logic.frontImage, true),
-        _buildImageContainer('Back', _logic.backImage, false),
-      ],
-    );
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 20),
+            _buildImageContainer('Front', _logic.frontImage, true),
+            _buildImageContainer('Back', _logic.backImage, false),
+            SizedBox(height: 100,)
+          ],
+        ));
   }
 }

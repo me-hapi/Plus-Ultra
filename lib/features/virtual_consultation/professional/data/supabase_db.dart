@@ -88,29 +88,12 @@ class SupabaseDB {
       final isFreeConsultation = stepData['isFreeConsultation'] ?? false;
       final consultationFee =
           isFreeConsultation ? '0' : stepData['consultationFee'] ?? '';
-      final gcashQrImage = isFreeConsultation ? null : stepData['gcashQrImage'];
-
-      if (!isFreeConsultation && gcashQrImage == null) {
-        throw Exception('GCash QR image is required for paid consultations.');
-      }
-
-      String? qrPublicUrl;
-      if (!isFreeConsultation) {
-        final qrStoragePath = 'payment_qr_codes/$uid/qr_code.jpg';
-
-        final uploadResponse = await _client.storage.from('payment').upload(
-              qrStoragePath,
-              gcashQrImage!,
-            );
-
-        qrPublicUrl =
-            _client.storage.from('payment').getPublicUrl(qrStoragePath);
-      }
+      final gcashQr = isFreeConsultation ? null : stepData['gcashQr'];
 
       final response = await _client.from('professional_payment').insert({
         'uid': uid,
         'consultation_fee': consultationFee,
-        'payment_qr': qrPublicUrl,
+        'payment_qr': gcashQr,
       });
 
       print('Payment details inserted successfully.');

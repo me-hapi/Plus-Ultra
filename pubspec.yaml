@@ -37,6 +37,8 @@ dependencies:
   workmanager: ^0.5.2
   shared_preferences: ^2.3.5
   audio_waveforms: ^1.2.0
+  qr_code_dart_scan: ^0.9.4
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
@@ -152,4 +154,8 @@ flutter:
     - assets/consultation/telephone.png
     - assets/consultation/user.png
     - assets/doctor.jpg
+
+    - assets/peer/videocall.png
+    - assets/peer/call.png
+    - assets/peer/send.png
 

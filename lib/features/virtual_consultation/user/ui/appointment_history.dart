@@ -43,7 +43,7 @@ class _AppointmentHistoryState extends State<AppointmentHistory> {
           'Appointment History',
           style: TextStyle(
               color: mindfulBrown['Brown80'],
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.w700),
         ),
         centerTitle: true,

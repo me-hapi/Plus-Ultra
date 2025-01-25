@@ -31,6 +31,7 @@ class _ChatHomeState extends State<ChatHome> {
     return Scaffold(
         backgroundColor: mindfulBrown['Brown10'],
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: mindfulBrown['Brown10'],
           title: Text(
             'Chat',

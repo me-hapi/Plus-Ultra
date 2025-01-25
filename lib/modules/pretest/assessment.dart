@@ -28,7 +28,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   // List of questions and their corresponding widgets
   final List<Map<String, dynamic>> questions = [
     {
-      'question': 'What do you want us to call you?',
+      'question': 'Set your display name and choose an avatar!',
       'widget':
           (Function(String) onNameUpdate, Function(String?) onProfileUpdate) =>
               DisplayName(
@@ -115,6 +115,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -182,7 +183,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             SizedBox(
               height: 60,
               width: double.infinity,
-              child: ElevatedButton(
+              child: TextButton(
                 onPressed: nextQuestion,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: mindfulBrown['Brown80'],

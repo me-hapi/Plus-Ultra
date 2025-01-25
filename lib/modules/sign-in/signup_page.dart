@@ -18,6 +18,9 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordConfirmationController =
       TextEditingController();
 
+  bool isVisible = false;
+  bool isVisibleCon = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -156,11 +159,20 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       child: TextField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: !isVisible,
                         obscuringCharacter: '•',
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.email),
-                          suffixIcon: Icon(Icons.remove_red_eye),
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isVisible = !isVisible;
+                              });
+                            },
+                            child: Icon(isVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                          ),
                           border: InputBorder.none,
                           hintText: 'Enter your password',
                           contentPadding: EdgeInsets.symmetric(
@@ -212,11 +224,20 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       child: TextField(
                         controller: _passwordConfirmationController,
-                        obscureText: true,
+                        obscureText: !isVisibleCon,
                         obscuringCharacter: '•',
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.email),
-                          suffixIcon: Icon(Icons.remove_red_eye),
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isVisibleCon = !isVisibleCon;
+                              });
+                            },
+                            child: Icon(isVisibleCon
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                          ),
                           border: InputBorder.none,
                           hintText: 'Enter your password',
                           contentPadding: EdgeInsets.symmetric(
@@ -236,41 +257,68 @@ class _SignUpPageState extends State<SignUpPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    // Handle sign-up logic here
-                    // print('Email: ${_emailController.text}');
-                    // print('Password: ${_passwordController.text}');
-                    // print(
-                    //     'Password Confirmation: ${_passwordConfirmationController.text}');
-
+                    // Check if email, password, and password confirmation fields are not empty
                     if (_emailController.text.isNotEmpty &&
-                        _passwordController.text.isNotEmpty) {
-                      LoadingScreen.show(context); // Show the loading screen
+                        _passwordController.text.isNotEmpty &&
+                        _passwordConfirmationController.text.isNotEmpty) {
+                      final password = _passwordController.text;
 
-                      try {
-                        if (await signLogic.signUpWithEmail(
-                          _emailController.text,
-                          _passwordController.text,
-                          context,
-                        )) {
-                          // Navigate to the next screen after successful signup
-                          context.push('/otpsetup',
-                              extra: _emailController.text);
+                      // Check if the passwords match
+                      if (password == _passwordConfirmationController.text) {
+                        // Check if the password meets the criteria
+                        if (RegExp(
+                                r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+                            .hasMatch(password)) {
+                          LoadingScreen.show(
+                              context); // Show the loading screen
+
+                          try {
+                            // Attempt to sign up the user
+                            if (await signLogic.signUpWithEmail(
+                              _emailController.text,
+                              password,
+                              context,
+                            )) {
+                              // Navigate to the next screen after successful signup
+                              context.push('/otpsetup',
+                                  extra: _emailController.text);
+                            } else {
+                              // Handle signup failure (e.g., show an error message)
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Signup failed. Please try again.'),
+                                ),
+                              );
+                            }
+                          } finally {
+                            LoadingScreen.hide(
+                                context); // Hide the loading screen
+                          }
                         } else {
-                          // Handle signup failure (e.g., show an error message)
+                          // Show a SnackBar if the password doesn't meet the criteria
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content:
-                                    Text('Signup failed. Please try again.')),
+                              content: Text(
+                                  'Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number, and a special character.'),
+                            ),
                           );
                         }
-                      } finally {
-                        LoadingScreen.hide(context); // Hide the loading screen
+                      } else {
+                        // Show a SnackBar if passwords do not match
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Passwords do not match.'),
+                          ),
+                        );
                       }
                     } else {
+                      // Show a SnackBar if email or password fields are empty
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content:
-                                Text('Email and password cannot be empty.')),
+                          content: Text(
+                              'Email, password, and password confirmation cannot be empty.'),
+                        ),
                       );
                     }
                   },

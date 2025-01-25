@@ -39,24 +39,35 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: mindfulBrown['Brown30'],
-        title: Text('Chat'),
+        backgroundColor: mindfulBrown['Brown50'],
+        toolbarHeight: 50.0, // Reduce the height of the AppBar
+        title: Text('Chat',
+            style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+                color: Colors.white)),
         actions: [
-          IconButton(
-            icon: Icon(Icons.video_call),
-            onPressed: () {
-              // Video call functionality to be implemented
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    MeetingScreen(roomId: widget.roomId, token: token),
-              ));
-            },
+          GestureDetector(
+            onTap: () {},
+            child: Image.asset(
+              'assets/peer/videocall.png',
+              width: 25,
+              height: 25,
+            ),
           ),
-          IconButton(
-            icon: Icon(Icons.call),
-            onPressed: () {
-              // Audio call functionality to be implemented
-            },
+          SizedBox(
+            width: 15,
+          ),
+          GestureDetector(
+            onTap: () {},
+            child: Image.asset(
+              'assets/peer/call.png',
+              width: 20,
+              height: 20,
+            ),
+          ),
+          SizedBox(
+            width: 20,
           ),
         ],
       ),
@@ -100,19 +111,64 @@ class _ChatScreenState extends State<ChatScreen> {
                     controller: _messageController,
                     decoration: InputDecoration(
                       hintText: 'Type a message',
+                      hintStyle: TextStyle(
+                        color:
+                            mindfulBrown['Brown80'], // Hint text color to brown
+                      ),
+                      filled: true, // Enable the fill color
+                      fillColor: Colors.white, // Set the fill color to white
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius:
+                            BorderRadius.circular(30.0), // Rounded corners
+                        borderSide: BorderSide.none, // No visible border
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(30.0), // Rounded corners
+                        borderSide: BorderSide(
+                          color: serenityGreen['Green30']!, // Green border when focused
+                          width: 2.0, // Border width
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 10.0,
+                      ), // Adjust padding
+                    ),
+                    style: TextStyle(
+                      color:
+                          mindfulBrown['Brown80'], // Input text color to brown
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                GestureDetector(
+                  onTap: _sendMessage,
+                  child: Container(
+                    width: 40.0, // Adjust the size of the circle
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle, // Circular shape
+                      color: serenityGreen[
+                          'Green50'], // Background color (can be customized)
+                    ),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/peer/send.png',
+                        width: 20.0, // Adjust the image size
+                        height: 20.0,
                       ),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
               ],
             ),
           ),
+          SizedBox(
+            height: 10,
+          )
         ],
       ),
     );

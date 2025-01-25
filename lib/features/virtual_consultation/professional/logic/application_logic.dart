@@ -20,6 +20,7 @@ class ApplicationLogic {
 
   Future<void> nextPage() async {
     if (!validateCurrentStep()) return;
+    print(stepData['verification']);
     print(stepData['payment']);
     print(stepData['clinic']);
     print(stepData['availability']);

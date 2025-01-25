@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class AvailabilityPage extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
@@ -71,11 +72,14 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
           children: [
             Text(
               'Select Days',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                  color: mindfulBrown['Brown80'],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
             ),
             SizedBox(height: 8),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: allDays.map((day) {
                 final isSelected = availableDays.contains(day);
                 return GestureDetector(
@@ -101,13 +105,15 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
                     margin: EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isSelected ? Colors.blue : Colors.grey.shade300,
+                      color:
+                          isSelected ? serenityGreen['Green50'] : Colors.white,
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       dayShortcuts[day]!,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
+                        color:
+                            isSelected ? Colors.white : mindfulBrown['Brown80'],
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -124,7 +130,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
                   margin: EdgeInsets.symmetric(vertical: 8),
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(30),
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(

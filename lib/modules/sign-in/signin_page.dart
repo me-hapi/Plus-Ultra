@@ -16,6 +16,8 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool isVisible = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -153,16 +155,27 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                       child: TextField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: !isVisible,
                         obscuringCharacter: '•',
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.lock),
-                          suffixIcon: Icon(Icons.remove_red_eye),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isVisible = !isVisible;
+                              });
+                            },
+                            child: Icon(isVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                          ),
                           border: InputBorder.none,
                           hintText: 'Enter your password',
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
                         ),
+                        style: TextStyle(
+                            fontSize: 16, color: mindfulBrown['Brown80']),
                       ),
                     );
                   },

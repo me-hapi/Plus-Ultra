@@ -1,5 +1,6 @@
 // application_page.dart
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/professional/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/professional/logic/application_logic.dart';
@@ -50,25 +51,29 @@ class _ApplicationPageState extends State<ApplicationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEBE7E4),
+      backgroundColor: mindfulBrown['Brown10'],
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEBE7E4),
+        backgroundColor: mindfulBrown['Brown10'],
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.grey[300],
+              color: mindfulBrown['Brown80'],
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.blueGrey),
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
           ),
         ),
-        title: const Text(
+        title: Text(
           "Application Process",
           style: TextStyle(
-            color: Colors.blueGrey,
+            fontSize: 24,
+            color: mindfulBrown['Brown80'],
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -89,7 +94,9 @@ class _ApplicationPageState extends State<ApplicationPage> {
                   children: List.generate(steps.length, (index) {
                     return Row(
                       children: [
-                        _buildStep(isActive: index <= appLogic.currentIndex),
+                        _buildStep(
+                            isPreviousActive: index < appLogic.currentIndex,
+                            isCurrentActive: index <= appLogic.currentIndex),
                         if (index < steps.length - 1)
                           _buildConnectorLine(
                             stepWidth: stepWidth,
@@ -104,48 +111,77 @@ class _ApplicationPageState extends State<ApplicationPage> {
             ),
             const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: steps.map((step) {
-                int stepIndex = steps.indexOf(step);
-                return SizedBox(
-                  width: 68,
-                  child: Text(
-                    step,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: stepIndex == appLogic.currentIndex
-                          ? Colors.blueGrey
-                          : Colors.grey,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                );
-              }).toList(),
+              children: [
+                SizedBox(width: 10,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: steps.map((step) {
+                    int stepIndex = steps.indexOf(step);
+                    return SizedBox(
+                      width: 76,
+                      child: Text(
+                        step,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: stepIndex == appLogic.currentIndex
+                              ? mindfulBrown['Brown80']
+                              : Colors.transparent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             SizedBox(
               child: getScreen(appLogic.currentIndex),
             ),
-            GestureDetector(
-              onTap: () async {
-                await appLogic.nextPage();
-                setState(() {});
-              },
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 20, top: 20),
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                child: Text(
-                  appLogic.currentIndex < steps.length - 1 ? 'Continue' : 'Finish',
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ),
+            // GestureDetector(
+            //   onTap: () async {
+            //     await appLogic.nextPage();
+            //     setState(() {});
+            //   },
+            //   child: Container(
+            //     margin: const EdgeInsets.only(bottom: 20, top: 20),
+            //     decoration: BoxDecoration(
+            //       color: Colors.blueGrey,
+            //       borderRadius: BorderRadius.circular(20),
+            //     ),
+            //     padding:
+            //         const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+            //     child: Text(
+            //       appLogic.currentIndex < steps.length - 1 ? 'Continue' : 'Finish',
+            //       style: const TextStyle(fontSize: 16, color: Colors.white),
+            //     ),
+            //   ),
+            // ),
+            SizedBox(
+                height: 55,
+                width: double.infinity,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: TextButton(
+                    onPressed: () {
+                      appLogic.nextPage();
+                      setState(() {});
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: mindfulBrown['Brown80'],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      appLogic.currentIndex < steps.length - 1
+                          ? 'Continue'
+                          : 'Finish',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                )),
           ],
         ),
       ),
@@ -173,14 +209,77 @@ class _ApplicationPageState extends State<ApplicationPage> {
     return screens[index];
   }
 
-  Widget _buildStep({required bool isActive}) {
+  // Widget _buildStep({required bool isActive}) {
+  //   return Container(
+  //     width: 25,
+  //     height: 25,
+  //     decoration: BoxDecoration(
+  //       shape: BoxShape.circle,
+  //       color: isActive ? Colors.blueGrey : Colors.grey,
+  //     ),
+  //   );
+  // }
+
+  Widget _buildStep({
+    required bool isPreviousActive,
+    required bool isCurrentActive,
+  }) {
     return Container(
-      width: 25,
-      height: 25,
+      width: isPreviousActive
+          ? 32
+          : isCurrentActive
+              ? 39
+              : 32,
+      height: isPreviousActive
+          ? 32
+          : isCurrentActive
+              ? 39
+              : 32,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? Colors.blueGrey : Colors.grey,
+        color: isCurrentActive
+            ? serenityGreen['Green50']
+            : isPreviousActive
+                ? serenityGreen['Green50']
+                : Colors.white,
+        border: Border.all(
+          width: isCurrentActive ? 4 : 2,
+          color: isPreviousActive
+              ? Colors.transparent
+              : isCurrentActive
+                  ? serenityGreen['Green30']!
+                  : mindfulBrown['Brown30']!,
+        ),
       ),
+      child: isPreviousActive
+          ? Center(
+              child: Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 20,
+              ),
+            )
+          : isCurrentActive
+              ? Center(
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              : Center(
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mindfulBrown['Brown30'],
+                    ),
+                  ),
+                ),
     );
   }
 
@@ -194,12 +293,16 @@ class _ApplicationPageState extends State<ApplicationPage> {
         Container(
           width: stepWidth / 2,
           height: 2,
-          color: isPreviousActive ? Colors.blueGrey : Colors.grey,
+          color: isPreviousActive
+              ? serenityGreen['Green50']
+              : mindfulBrown['Brown30'],
         ),
         Container(
           width: stepWidth / 2,
           height: 2,
-          color: isCurrentActive ? Colors.blueGrey : Colors.grey,
+          color: isCurrentActive
+              ? serenityGreen['Green50']
+              : mindfulBrown['Brown30'],
         ),
       ],
     );

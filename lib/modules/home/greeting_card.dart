@@ -40,7 +40,24 @@ class _GreetingCardState extends State<GreetingCard> {
   Widget build(BuildContext context) {
     // Get the current date formatted as "January 15, 2025"
     final currentDate = DateFormat('MMMM d, yyyy').format(DateTime.now());
-    final String username = widget.profile['name'];
+    final String username = (() {
+      // Split the name at spaces
+      final List<String> parts = widget.profile['name'].split(' ');
+
+      // Get the first two items if they exist
+      final String firstName = parts.isNotEmpty ? parts[0] : '';
+      final String secondName = parts.length > 1 ? parts[1] : '';
+
+      // Combine the first two names
+      final String combined = '$firstName $secondName';
+
+      // Return the username based on the length condition
+      if (combined.length <= 11) {
+        return combined;
+      } else {
+        return firstName;
+      }
+    })();
 
     return Center(
       child: Container(
@@ -81,7 +98,10 @@ class _GreetingCardState extends State<GreetingCard> {
               children: [
                 GestureDetector(
                     onTap: () {
-                      context.push('/profile', extra: {'bg': _backgroundImage, 'profile': widget.profile});
+                      context.push('/profile', extra: {
+                        'bg': _backgroundImage,
+                        'profile': widget.profile
+                      });
                     },
                     child: SizedBox(
                       height: 80,

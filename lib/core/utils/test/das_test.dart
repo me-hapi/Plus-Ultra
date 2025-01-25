@@ -50,7 +50,6 @@ class _DASTestState extends ConsumerState<DASTest> {
   ];
 
   void _nextQuestion(int response) {
-    print(response);
     final currentQuestionIndex = ref.read(currentQuestionIndexProvider);
     final responses = ref.read(responsesProvider.notifier);
 
@@ -59,6 +58,16 @@ class _DASTestState extends ConsumerState<DASTest> {
       ref.read(currentQuestionIndexProvider.notifier).state++;
     } else {
       context.go('/dasresult', extra: _computeScores());
+    }
+  }
+
+  void _previousQuestion() {
+    final currentQuestionIndex = ref.read(currentQuestionIndexProvider);
+
+    if (currentQuestionIndex > 0) {
+      ref.read(currentQuestionIndexProvider.notifier).state--;
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -116,9 +125,7 @@ class _DASTestState extends ConsumerState<DASTest> {
           children: [
             IconButton(
               icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: _previousQuestion,
             ),
             Container(
               width: 280,

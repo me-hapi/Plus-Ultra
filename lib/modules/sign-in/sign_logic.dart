@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignLogic {
@@ -78,7 +79,11 @@ class SignLogic {
 
       return true;
     } catch (e) {
-      _showSnackBar(context, "An error occurred: $e");
+      if ("$e".contains('invalid_credentials')) {
+        _showSnackBar(context, "Invalid Credentials");
+      } else {
+        _showSnackBar(context, "An error occurred: $e");
+      }
       print(e);
       return false;
     }
@@ -87,7 +92,10 @@ class SignLogic {
   /// Displays a snackbar with a message.
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white),),
+        backgroundColor: presentRed['Red40'], // Set the background color to red
+      ),
     );
   }
 }

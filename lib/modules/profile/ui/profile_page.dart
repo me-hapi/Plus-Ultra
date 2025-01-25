@@ -263,7 +263,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   title: Text(
-                    isProfessional ? 'Professional' : 'Patient',
+                    'Professional Mode',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: mindfulBrown['Brown80'],
