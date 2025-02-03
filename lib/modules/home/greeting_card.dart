@@ -3,23 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 
 class GreetingCard extends StatefulWidget {
-  final Map<String, dynamic> profile;
+  // final Map<String, dynamic> profile;
+  final String name;
+  final String imageUrl;
 
-  const GreetingCard({Key? key, required this.profile}) : super(key: key);
+  const GreetingCard({Key? key, required this.name, required this.imageUrl})
+      : super(key: key);
 
   @override
   _GreetingCardState createState() => _GreetingCardState();
 }
 
 class _GreetingCardState extends State<GreetingCard> {
+  final GlobalSupabase supabase = GlobalSupabase(client);
   ui.Image? _backgroundImage;
+  Map<String, dynamic>? profile;
 
   @override
   void initState() {
     super.initState();
     _loadBackgroundImage();
+
+    _fetchProfile();
+  }
+
+  Future<void> _fetchProfile() async {
+    Map<String, dynamic>? result = await supabase.fetchProfile(uid);
+    setState(() {
+      profile = result;
+    });
   }
 
   Future<void> _loadBackgroundImage() async {
@@ -42,7 +58,7 @@ class _GreetingCardState extends State<GreetingCard> {
     final currentDate = DateFormat('MMMM d, yyyy').format(DateTime.now());
     final String username = (() {
       // Split the name at spaces
-      final List<String> parts = widget.profile['name'].split(' ');
+      final List<String> parts = widget.name.split(' ');
 
       // Get the first two items if they exist
       final String firstName = parts.isNotEmpty ? parts[0] : '';
@@ -100,12 +116,12 @@ class _GreetingCardState extends State<GreetingCard> {
                     onTap: () {
                       context.push('/profile', extra: {
                         'bg': _backgroundImage,
-                        'profile': widget.profile
+                        'profile': profile
                       });
                     },
                     child: SizedBox(
                       height: 80,
-                      child: Image.asset(widget.profile['imageUrl']),
+                      child: Image.asset(widget.imageUrl),
                     )
                     // CircleAvatar(
                     //   child: Icon(Icons.person, size: 24, color: Colors.white),

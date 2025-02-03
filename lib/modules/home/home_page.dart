@@ -10,6 +10,7 @@ import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
 import 'package:lingap/services/database/global_supabase.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -22,7 +23,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GlobalSupabase supabase = GlobalSupabase(client);
   bool isConnected = false;
   final HealthLogic healthLogic = HealthLogic();
-  Map<String, dynamic>? profile;
+  String? name;
+  String? imageUrl;
 
   Map<String, dynamic> healthDataMap = {};
 
@@ -61,7 +63,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future<void> _fetchProfile() async {
     Map<String, dynamic>? result = await supabase.fetchProfile(uid);
     setState(() {
-      profile = result;
+      name = result!['name'];
+      imageUrl = result['imageUrl'];
     });
   }
 
@@ -101,10 +104,22 @@ class _HomePageState extends ConsumerState<HomePage> {
               width: MediaQuery.of(context).size.width,
               margin: EdgeInsets.zero,
               padding: EdgeInsets.zero,
-              child: profile == null
-                  ? Center(child: CircularProgressIndicator())
+              child: name == null
+                  ? Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        height: 300,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300]!,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    )
                   : GreetingCard(
-                      profile: profile!,
+                      name: name!,
+                      imageUrl: imageUrl!,
                     ),
             ),
             const SizedBox(height: 15),

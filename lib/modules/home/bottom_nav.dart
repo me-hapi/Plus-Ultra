@@ -42,15 +42,8 @@ class _BottomNavState extends State<BottomNav> {
     }
   }
 
-  // void _checkFetchIdStatus() async {
-  //   bool? fetchIdStatus =
-  //       await _supabase.fetchMhScore(_client.auth.currentUser!.id);
-  //   if (!fetchIdStatus!) {}
-  // }
-
   List<Widget> _screens() {
     return [
-      // BluetoothScanPage(),
       HomePage(),
       hasSession ? ChatHome() : ChatbotLanding(),
       JournalPage(),
