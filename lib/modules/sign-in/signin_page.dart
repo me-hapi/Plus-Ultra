@@ -186,7 +186,7 @@ class _SignInPageState extends State<SignInPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SizedBox(
-                height: 60,
+                height: 55,
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {

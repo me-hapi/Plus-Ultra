@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/chatbot/data/supabase_db.dart';
+import 'package:lingap/features/chatbot/ui/homepage.dart';
+import 'package:lingap/features/chatbot/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/professional/professional_page.dart';
 import 'package:lingap/features/virtual_consultation/user/user_page.dart';
 import 'package:lingap/modules/home/home_page.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
 import 'package:lingap/features/journaling/journal_page.dart';
 import 'package:lingap/features/peer_connect/peer_page.dart';
-import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
@@ -22,29 +24,35 @@ class BottomNav extends StatefulWidget {
 
 class _BottomNavState extends State<BottomNav> {
   late int _currentIndex;
-  late GlobalSupabase _supabase;
-  late SupabaseClient _client;
+  final SupabaseDB supabase = SupabaseDB(client);
+  bool hasSession = false;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.currentIndex;
-    _client = Supabase.instance.client;
-    _supabase = GlobalSupabase(_client);
-    _checkFetchIdStatus();
+    hasConversation();
   }
 
-  void _checkFetchIdStatus() async {
-    bool? fetchIdStatus =
-        await _supabase.fetchMhScore(_client.auth.currentUser!.id);
-    if (!fetchIdStatus!) {}
+  void hasConversation() async {
+    bool result = await supabase.hasSession(uid);
+    print('debug $result');
+    if (result) {
+      hasSession = result;
+    }
   }
+
+  // void _checkFetchIdStatus() async {
+  //   bool? fetchIdStatus =
+  //       await _supabase.fetchMhScore(_client.auth.currentUser!.id);
+  //   if (!fetchIdStatus!) {}
+  // }
 
   List<Widget> _screens() {
     return [
       // BluetoothScanPage(),
       HomePage(),
-      ChatbotPage(),
+      hasSession ? ChatHome() : ChatbotLanding(),
       JournalPage(),
       accountType == "Patient" ? UserPage() : ProfessionalPage(),
       PeerConnectPage(),

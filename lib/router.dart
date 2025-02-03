@@ -6,6 +6,8 @@ import 'package:lingap/core/utils/test/das_result.dart';
 import 'package:lingap/core/utils/test/das_test.dart';
 import 'package:lingap/core/utils/test/test_intro.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
+import 'package:lingap/features/chatbot/ui/chat_screen.dart';
+import 'package:lingap/features/chatbot/ui/landing_page.dart';
 import 'package:lingap/features/journaling/ui/journal_collection.dart';
 import 'package:lingap/features/journaling/ui/journal_detail.dart';
 import 'package:lingap/features/journaling/ui/journal_insights.dart';
@@ -131,8 +133,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // CHATBOT FEATURE
       GoRoute(
-        path: '/chatbot',
-        builder: (context, state) => ChatbotPage(),
+        path: '/chatscreen',
+        builder: (context, state) {
+          final sessionID = state.extra as int;
+          return ChatScreen(sessionID: sessionID);
+        },
+      ),
+
+      GoRoute(
+        path: '/chatbot-landing',
+        builder: (context, state) => ChatbotLanding(),
       ),
 
       //VIRTUAL CONSULTATION

@@ -22,12 +22,12 @@ class ChatBubble extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSentByMe ? serenityGreen['Green50'] : Colors.white,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(12.0),
-              topRight: Radius.circular(12.0),
+              topLeft: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
               bottomLeft:
-                  isSentByMe ? Radius.circular(12.0) : Radius.circular(0),
+                  isSentByMe ? Radius.circular(30.0) : Radius.circular(0),
               bottomRight:
-                  isSentByMe ? Radius.circular(0) : Radius.circular(12.0),
+                  isSentByMe ? Radius.circular(0) : Radius.circular(30.0),
             ),
           ),
           child: Text(

@@ -159,3 +159,43 @@ flutter:
     - assets/peer/call.png
     - assets/peer/send.png
 
+    - assets/chatbot/chatbot.png
+    - assets/chatbot/limit.png
+    - assets/chatbot/chat.png
+
+    - assets/chatbot/icon/abstract.png
+    - assets/chatbot/icon/arrowdown.png
+    - assets/chatbot/icon/arrowup.png
+    - assets/chatbot/icon/bandaid.png
+    - assets/chatbot/icon/bell.png
+    - assets/chatbot/icon/blood.png
+    - assets/chatbot/icon/bulb.png
+    - assets/chatbot/icon/calendar.png
+    - assets/chatbot/icon/chart.png
+    - assets/chatbot/icon/cloud.png
+    - assets/chatbot/icon/control.png
+    - assets/chatbot/icon/document.png
+    - assets/chatbot/icon/drug.png
+    - assets/chatbot/icon/ekg.png
+    - assets/chatbot/icon/head.png
+    - assets/chatbot/icon/healthplus.png
+    - assets/chatbot/icon/heartbeat.png
+    - assets/chatbot/icon/house.png
+    - assets/chatbot/icon/leaf.png
+    - assets/chatbot/icon/lock.png
+    - assets/chatbot/icon/mask.png
+    - assets/chatbot/icon/medal.png
+    - assets/chatbot/icon/microscope.png
+    - assets/chatbot/icon/performance.png
+    - assets/chatbot/icon/phone.png
+    - assets/chatbot/icon/piechart.png
+    - assets/chatbot/icon/pill.png
+    - assets/chatbot/icon/processor.png
+    - assets/chatbot/icon/search.png
+    - assets/chatbot/icon/shield_health.png
+    - assets/chatbot/icon/stethoscope.png
+    - assets/chatbot/icon/syringe.png
+    - assets/chatbot/icon/time.png
+    - assets/chatbot/icon/virus.png
+
+
