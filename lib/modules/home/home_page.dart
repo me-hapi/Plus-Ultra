@@ -106,13 +106,13 @@ class _HomePageState extends ConsumerState<HomePage> {
               padding: EdgeInsets.zero,
               child: name == null
                   ? Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
+                      baseColor: Colors.white,
                       highlightColor: Colors.grey[100]!,
                       child: Container(
-                        height: 300,
+                        height: 280,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.grey[300]!,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
