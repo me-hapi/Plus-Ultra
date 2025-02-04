@@ -1,18 +1,19 @@
 import 'dart:ui' as ui;
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lingap/core/utils/test/das_result.dart';
-import 'package:lingap/core/utils/test/das_test.dart';
-import 'package:lingap/core/utils/test/test_intro.dart';
-import 'package:lingap/features/chatbot/chatbot_page.dart';
-import 'package:lingap/features/chatbot/ui/chat_screen.dart';
+
+//CHATBOT
+import 'package:lingap/features/chatbot/ui/chat_screen.dart' as chatbot_screen;
 import 'package:lingap/features/chatbot/ui/landing_page.dart';
+
+//JOURNALING
 import 'package:lingap/features/journaling/ui/journal_collection.dart';
 import 'package:lingap/features/journaling/ui/journal_detail.dart';
 import 'package:lingap/features/journaling/ui/journal_insights.dart';
 import 'package:lingap/features/journaling/ui/journal_stat.dart';
 import 'package:lingap/features/journaling/ui/journal_success.dart';
+
+//PROFESSIONAL TELECONSULT
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
 
 //USER TELECONSULT
@@ -21,9 +22,12 @@ import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart'
 import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
     as professional_profile;
+
+//WEARABLE
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
-import 'package:lingap/modules/pretest/assessment.dart';
-import 'package:lingap/modules/pretest/data_privacy.dart';
+
+//PEER TO PEER
+import 'package:lingap/features/peer_connect/ui/chat_screen.dart' as peer_screen;
 
 //GENERAL MODULE
 import 'package:lingap/modules/profile/ui/profile_page.dart' as module_profile;
@@ -35,6 +39,11 @@ import 'package:lingap/modules/sign-in/signup_page.dart';
 import 'package:lingap/modules/splashscreen/splashscreen.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/modules/home/home_page.dart' as module_home;
+import 'package:lingap/modules/pretest/assessment.dart';
+import 'package:lingap/modules/pretest/data_privacy.dart';
+import 'package:lingap/core/utils/test/das_result.dart';
+import 'package:lingap/core/utils/test/das_test.dart';
+import 'package:lingap/core/utils/test/test_intro.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -135,8 +144,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/chatscreen',
         builder: (context, state) {
-          final sessionID = state.extra as int;
-          return ChatScreen(sessionID: sessionID);
+          final extra = state.extra as Map;
+          final animate = extra['animate'];
+          final sessionID = extra['sessionID'];
+          return chatbot_screen.ChatScreen(sessionID: sessionID, animateText: animate);
         },
       ),
 
@@ -230,6 +241,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               time: extra['time'],
               title: extra['title'],
               journalItems: extra['journalItems']);
+        },
+      ),
+
+      //PEER TO PEER 
+      GoRoute(
+        path: '/peer-chatscreen',
+        builder: (context, state) {
+          final extra = state.extra as Map;
+          final id = extra['id'];
+          final roomId = extra['roomId'];
+          return peer_screen.ChatScreen(roomId: roomId, id: id);
         },
       ),
     ],

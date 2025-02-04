@@ -1,6 +1,6 @@
 class MessageModel {
   final DateTime created_at;
-  final String roomId;
+  final int roomId;
   final String sender;
   final String content;
 
@@ -14,7 +14,7 @@ class MessageModel {
   factory MessageModel.fromMap(Map<String, dynamic> map) {
     return MessageModel(
       created_at: DateTime.parse(map['created_at'] as String),
-      roomId: map['room_id'] as String,
+      roomId: map['room_id'] as int,
       sender: map['sender'] as String,
       content: map['content'] as String,
     );

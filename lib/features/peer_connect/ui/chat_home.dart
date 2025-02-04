@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/peer_connect/data/supabase_db.dart';
@@ -16,7 +17,6 @@ class _ChatHomeState extends State<ChatHome> {
   final SupabaseDB _supabaseDb = SupabaseDB(client);
   final APIService api = APIService();
   bool isMessagesSelected = true;
-  bool _isSearching = false;
 
   Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) {
     return _supabaseDb.fetchConnectedUsers(myUid);
@@ -75,6 +75,10 @@ class _ChatHomeState extends State<ChatHome> {
                     ),
                   ),
                 ),
+
+                SizedBox(
+                  height: 10,
+                ),
                 // Content based on selection
                 Expanded(
                     child: isMessagesSelected
@@ -100,25 +104,30 @@ class _ChatHomeState extends State<ChatHome> {
                                     final name = user['name'];
                                     final avatarUrl = user['imageUrl'];
                                     final roomId = user['roomId'];
+                                    final id = user['id'];
 
                                     return Padding(
                                       padding:
                                           EdgeInsets.symmetric(horizontal: 16),
                                       child: ChatRow(
-                                        avatarUrl:
-                                            'https://via.placeholder.com/150',
+                                        avatarUrl: avatarUrl,
                                         name: name,
                                         lastMessage: 'test',
                                         time: '2:00 PM',
                                         unreadMessages: 1,
                                         onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => ChatScreen(
-                                                roomId: roomId,
-                                              ),
-                                            ),
-                                          );
+                                          context.push('/peer-chatscreen',
+                                              extra: {
+                                                'roomId': roomId,
+                                                'id': id
+                                              });
+                                          // Navigator.of(context).push(
+                                          //   MaterialPageRoute(
+                                          //     builder: (context) => ChatScreen(
+                                          //       roomId: roomId,
+                                          //     ),
+                                          //   ),
+                                          // );
                                         },
                                       ),
                                     );
@@ -169,14 +178,11 @@ class _ChatHomeState extends State<ChatHome> {
                                           await _supabaseDb
                                               .insertRoomParticipant(
                                                   room, userId);
-
-                                          // Navigate to the ChatScreen
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ChatScreen(roomId: roomId),
-                                            ),
-                                          );
+                                          context.push('/peer-chatscreen',
+                                              extra: {
+                                                'roomId': roomId,
+                                                'id': room
+                                              });
                                         } catch (e) {
                                           // Handle errors (e.g., show a snackbar or alert dialog)
                                           print('Error creating room: $e');

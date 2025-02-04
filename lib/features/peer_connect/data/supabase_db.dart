@@ -75,11 +75,11 @@ class SupabaseDB {
     });
   }
 
-  Stream<List<MessageModel>> getMessagesStream(String roomId) {
+  Stream<List<MessageModel>> getMessagesStream(int id) {
     final stream = _client
         .from('messages')
         .stream(primaryKey: ['id'])
-        .eq('room_id', roomId)
+        .eq('room_id', id)
         .map((data) => data.map((e) => MessageModel.fromMap(e)).toList());
 
     return stream;
@@ -187,9 +187,11 @@ class SupabaseDB {
 
         final response = await _client
             .from('room_participant')
-            .select('room(room_id), profile(id, name, status, imageUrl)')
+            .select(
+                'room(id, room_id), profile(id, name, status, imageUrl)')
             .inFilter('room_id', roomIds);
 
+        print(response);
         final List<Map<String, dynamic>> participants = (response as List)
             .where((item) => item['profile']['id'] != myUid)
             .map((item) => {
@@ -197,7 +199,8 @@ class SupabaseDB {
                   'name': item['profile']['name'],
                   'status': item['profile']['status'],
                   'imageUrl': item['profile']['imageUrl'],
-                  'roomId': item['room']['room_id']
+                  'roomId': item['room']['room_id'],
+                  'id': item['room']['id']
                 })
             .toList();
 

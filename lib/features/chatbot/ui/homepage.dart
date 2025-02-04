@@ -61,6 +61,8 @@ class _ChatHomeState extends State<ChatHome> {
                 final chat = snapshot.data![index];
                 String icon = chat['icon'] ?? 'abstract';
                 return ConversationCard(
+                  sessionID: chat['id'],
+                  animate: false,
                   imagePath: 'assets/chatbot/icon/$icon.png',
                   title: chat['title'] ?? 'Unknown Chat',
                   total: '${chat['count'] ?? 0} messages',
@@ -78,7 +80,8 @@ class _ChatHomeState extends State<ChatHome> {
           onPressed: () async {
             int result = await supabase.createSession(uid);
             if (result != 0) {
-              context.push('/chatscreen', extra: result);
+              context.push('/chatscreen',
+                  extra: {'sessionID': result, 'animate': true});
             }
           },
           backgroundColor: mindfulBrown['Brown80'],

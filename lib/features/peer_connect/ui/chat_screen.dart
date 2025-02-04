@@ -9,8 +9,9 @@ import 'package:lingap/features/peer_connect/ui/chat_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
   final String roomId;
+  final int id;
 
-  ChatScreen({required this.roomId});
+  ChatScreen({required this.roomId, required this.id});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -24,13 +25,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _messageStream = MessageController().getMessages(widget.roomId);
+    _messageStream = MessageController().getMessages(widget.id);
   }
 
   void _sendMessage() async {
     if (_messageController.text.trim().isNotEmpty) {
       await MessageController()
-          .sendMessage(_messageController.text.trim(), widget.roomId);
+          .sendMessage(_messageController.text.trim(), widget.id);
       _messageController.clear();
     }
   }
@@ -39,7 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: mindfulBrown['Brown50'],
+        backgroundColor: mindfulBrown['Brown80'],
         toolbarHeight: 50.0, // Reduce the height of the AppBar
         title: Text('Chat',
             style: TextStyle(
@@ -93,7 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       final message = messages[messages.length - 1 - index];
                       return ChatBubble(
                         message: encrypt.decryptMessage(
-                            message.content, widget.roomId),
+                            message.content, widget.id.toString()),
                         isSentByMe: message.sender == uid,
                       );
                     },

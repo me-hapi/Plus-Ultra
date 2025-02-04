@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class ChatRow extends StatelessWidget {
   final String avatarUrl;
@@ -29,10 +30,28 @@ class ChatRow extends StatelessWidget {
         child: Row(
           children: [
             // Avatar
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: NetworkImage(avatarUrl),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white, // White border
+                  width: 3.0, // Border width
+                ),
+              ),
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 25,
+                child: ClipOval(
+                  child: Image.asset(
+                    avatarUrl,
+                    fit: BoxFit.cover,
+                    width: 50, // Match the diameter of the CircleAvatar
+                    height: 50,
+                  ),
+                ),
+              ),
             ),
+
             const SizedBox(width: 12),
             // Name and Last Message
             Expanded(
@@ -75,12 +94,13 @@ class ChatRow extends StatelessWidget {
                 if (unreadMessages > 0)
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Colors.orange,
+                    decoration: BoxDecoration(
+                      color: empathyOrange['Orange40'],
                       shape: BoxShape.circle,
                     ),
                     child: Text(
-                      unreadMessages.toString(),
+                      // unreadMessages.toString(),
+                      '!',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,

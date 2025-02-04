@@ -5,11 +5,16 @@ import 'package:lingap/features/chatbot/ui/animated_text.dart';
 import 'package:lingap/features/chatbot/ui/typing_indicator.dart';
 
 class ChatBubble extends ConsumerWidget {
+  final bool animateText;
   final bool isUser;
   final String message;
   final VoidCallback onTextUpdate; // Add scroll trigger callback
 
-  ChatBubble({required this.isUser, required this.message, required this.onTextUpdate});
+  ChatBubble(
+      {required this.isUser,
+      required this.message,
+      required this.onTextUpdate,
+      required this.animateText});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,7 +47,11 @@ class ChatBubble extends ConsumerWidget {
                   )
                 : message == "Typing..."
                     ? TypingIndicator()
-                    : AnimatedText(message, onTextUpdate: onTextUpdate),
+                    : animateText
+                        ? AnimatedText(message, onTextUpdate: onTextUpdate)
+                        : Text(message,
+                            style: TextStyle(
+                                fontSize: 16, color: mindfulBrown['Brown80'])),
           ),
         ));
   }

@@ -6,8 +6,9 @@ import 'package:lingap/features/chatbot/ui/chat_bubble.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final int sessionID;
+  final bool animateText;
 
-  ChatScreen({required this.sessionID});
+  ChatScreen({super.key, required this.sessionID, required this.animateText});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -72,6 +73,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               itemBuilder: (context, index) {
                 final message = messages[index];
                 return ChatBubble(
+                  animateText: widget.animateText,
                   isUser: message.isUser,
                   message: message.message,
                   onTextUpdate: _scrollToBottom, // Pass scroll trigger
