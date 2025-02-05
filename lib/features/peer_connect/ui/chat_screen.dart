@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/security/encryption.dart';
@@ -49,7 +50,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Colors.white)),
         actions: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              print('clicke');
+              context.push('/meeting-screen',
+                  extra: {'roomId': widget.roomId, 'id': widget.id});
+            },
             child: Image.asset(
               'assets/peer/videocall.png',
               width: 25,
@@ -57,7 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           SizedBox(
-            width: 15,
+            width: 20,
           ),
           GestureDetector(
             onTap: () {},
@@ -127,7 +132,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         borderRadius:
                             BorderRadius.circular(30.0), // Rounded corners
                         borderSide: BorderSide(
-                          color: serenityGreen['Green30']!, // Green border when focused
+                          color: serenityGreen[
+                              'Green30']!, // Green border when focused
                           width: 2.0, // Border width
                         ),
                       ),

@@ -66,21 +66,25 @@ class _ParticipantTileState extends State<ParticipantTile> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: videoStream != null
-          ? RTCVideoView(
-              videoStream?.renderer as RTCVideoRenderer,
-              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-              mirror: true,
-            )
-          : Container(
-              color: Colors.grey.shade800,
-              child: const Center(
-                child: Icon(
-                  Icons.person,
-                  size: 100,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16), // Rounded corners
+        child: videoStream != null
+            ? RTCVideoView(
+                videoStream?.renderer as RTCVideoRenderer,
+                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                mirror: true,
+              )
+            : Container(
+                color: Colors.grey.shade800,
+                child: const Center(
+                  child: Icon(
+                    Icons.person,
+                    size: 100,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
+      ),
     );
   }
 }

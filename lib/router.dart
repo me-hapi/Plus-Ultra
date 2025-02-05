@@ -12,6 +12,8 @@ import 'package:lingap/features/journaling/ui/journal_detail.dart';
 import 'package:lingap/features/journaling/ui/journal_insights.dart';
 import 'package:lingap/features/journaling/ui/journal_stat.dart';
 import 'package:lingap/features/journaling/ui/journal_success.dart';
+import 'package:lingap/features/peer_connect/ui/loading_page.dart';
+import 'package:lingap/features/peer_connect/ui/meeting_screen.dart';
 
 //PROFESSIONAL TELECONSULT
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
@@ -27,7 +29,8 @@ import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
 
 //PEER TO PEER
-import 'package:lingap/features/peer_connect/ui/chat_screen.dart' as peer_screen;
+import 'package:lingap/features/peer_connect/ui/chat_screen.dart'
+    as peer_screen;
 
 //GENERAL MODULE
 import 'package:lingap/modules/profile/ui/profile_page.dart' as module_profile;
@@ -147,7 +150,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map;
           final animate = extra['animate'];
           final sessionID = extra['sessionID'];
-          return chatbot_screen.ChatScreen(sessionID: sessionID, animateText: animate);
+          return chatbot_screen.ChatScreen(
+              sessionID: sessionID, animateText: animate);
         },
       ),
 
@@ -244,7 +248,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      //PEER TO PEER 
+      //PEER TO PEER
       GoRoute(
         path: '/peer-chatscreen',
         builder: (context, state) {
@@ -254,6 +258,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return peer_screen.ChatScreen(roomId: roomId, id: id);
         },
       ),
+
+      GoRoute(
+        path: '/meeting-screen',
+        builder: (context, state) {
+          final extra = state.extra as Map;
+          final id = extra['id'];
+          final roomId = extra['roomId'];
+          return MeetingScreen(roomId: roomId, id: id);
+        },
+      ),
+
+      // GoRoute(
+      //     path: '/match-loading', builder: (context, state) => LoadingDialog()),
     ],
   );
 });

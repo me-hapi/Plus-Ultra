@@ -159,6 +159,7 @@ flutter:
     - assets/peer/videocall.png
     - assets/peer/call.png
     - assets/peer/send.png
+    - assets/peer/search.png
 
     - assets/chatbot/chatbot.png
     - assets/chatbot/limit.png

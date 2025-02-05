@@ -33,9 +33,11 @@ class _GreetingCardState extends State<GreetingCard> {
 
   Future<void> _fetchProfile() async {
     Map<String, dynamic>? result = await supabase.fetchProfile(uid);
-    setState(() {
-      profile = result;
-    });
+    if (mounted) {
+      setState(() {
+        profile = result;
+      });
+    }
   }
 
   Future<void> _loadBackgroundImage() async {
@@ -114,10 +116,8 @@ class _GreetingCardState extends State<GreetingCard> {
               children: [
                 GestureDetector(
                     onTap: () {
-                      context.push('/profile', extra: {
-                        'bg': _backgroundImage,
-                        'profile': profile
-                      });
+                      context.push('/profile',
+                          extra: {'bg': _backgroundImage, 'profile': profile});
                     },
                     child: SizedBox(
                       height: 80,

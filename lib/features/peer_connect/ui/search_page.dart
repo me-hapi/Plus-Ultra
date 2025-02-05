@@ -35,7 +35,7 @@
 //             ElevatedButton(
 //               onPressed: () {
 //                 Navigator.of(context).push(
-//                   MaterialPageRoute(builder: (context) => LoadingPage()),
+//                   MaterialPageRoute(builder: (context) => LoadingDialog()),
 //                 );
 //               },
 //               child: const Text('Start Finding Users'),

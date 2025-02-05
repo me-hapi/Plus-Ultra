@@ -91,6 +91,7 @@ class SupabaseDB {
       'room_id': message.roomId,
       'sender': message.sender,
       'content': message.content,
+      'read' : false
     });
   }
 
@@ -187,11 +188,9 @@ class SupabaseDB {
 
         final response = await _client
             .from('room_participant')
-            .select(
-                'room(id, room_id), profile(id, name, status, imageUrl)')
+            .select('room(id, room_id), profile(id, name, status, imageUrl)')
             .inFilter('room_id', roomIds);
 
-        print(response);
         final List<Map<String, dynamic>> participants = (response as List)
             .where((item) => item['profile']['id'] != myUid)
             .map((item) => {
@@ -204,11 +203,57 @@ class SupabaseDB {
                 })
             .toList();
 
+        print(roomIds);
+        // Fetch the latest messages for each room
+        final List<Map<String, dynamic>> latestMessages =
+            await _fetchLatestMessages(roomIds);
+
+        // Merge latest messages into participants list
+        for (var participant in participants) {
+          final latestMessage = latestMessages.firstWhere(
+              (msg) => msg['roomId'] == participant['id'],
+              orElse: () =>
+                  {'created_at': null, 'content': null, 'read': null});
+
+          participant['lastMessage'] = latestMessage['content'];
+          participant['lastMessageTime'] = latestMessage['created_at'];
+          participant['read'] = latestMessage['read'];
+        }
+
+        print(participants);
         yield participants;
       }
     } catch (error) {
       print('Error fetching participants: $error');
       yield [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchLatestMessages(
+      List<int> roomIds) async {
+    if (roomIds.isEmpty) return [];
+
+    try {
+      final response = await _client
+          .from('messages')
+          .select('room_id, created_at, content, read')
+          .inFilter('room_id', roomIds)
+          .order('created_at',
+              ascending: false) // Get the latest messages first
+          .limit(1); // Fetch only the latest message per room
+
+
+      return (response as List)
+          .map((msg) => {
+                'roomId': msg['room_id'],
+                'created_at': msg['created_at'],
+                'content': msg['content'],
+                'read': msg['read']
+              })
+          .toList();
+    } catch (error) {
+      print('Error fetching latest messages: $error');
+      return [];
     }
   }
 }

@@ -6,14 +6,15 @@ import 'package:lingap/features/peer_connect/data/supabase_db.dart';
 class Matchmaking {
   final SupabaseDB _supabaseDB = SupabaseDB(client);
 
-  Future<String?> findRoom(String uid) async {
+  Future<Map> findRoom(String uid) async {
     final userScore = await _supabaseDB.fetchMHScore(uid);
     if (userScore == null) {
-      return null;
+      return {};
     }
 
     final allRooms = await _supabaseDB.fetchAvailableRooms();
     String? roomId;
+    int? id;
     double minDistance = double.infinity;
 
     for (final room in allRooms) {
@@ -29,10 +30,11 @@ class Matchmaking {
       if (distance < minDistance) {
         minDistance = distance;
         roomId = room['room_id'];
+        id = room['id'];
       }
     }
 
-    return roomId;
+    return {'roomId': roomId, 'id': id};
   }
 
   double calculateEuclideanDistance(

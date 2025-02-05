@@ -33,7 +33,7 @@ class ChatBubble extends StatelessWidget {
           child: Text(
             message,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               color: isSentByMe ? Colors.white : mindfulBrown['Brown80'],
             ),
           ),

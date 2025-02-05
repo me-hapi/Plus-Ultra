@@ -6,7 +6,7 @@ class ChatRow extends StatelessWidget {
   final String name;
   final String lastMessage;
   final String time;
-  final int unreadMessages;
+  final bool read;
   final VoidCallback onTap; // Add onTap callback
 
   const ChatRow({
@@ -15,8 +15,8 @@ class ChatRow extends StatelessWidget {
     required this.name,
     required this.lastMessage,
     required this.time,
-    required this.unreadMessages,
-    required this.onTap, // Pass the onTap callback
+    required this.onTap,
+    required this.read, // Pass the onTap callback
   }) : super(key: key);
 
   @override
@@ -60,18 +60,19 @@ class ChatRow extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      fontWeight: read ? FontWeight.w300 : FontWeight.w700,
                       fontSize: 16,
-                      color: Color(0xFF473c38),
+                      color: mindfulBrown['Brown80'],
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     lastMessage,
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: read ? optimisticGray['Gray50'] : mindfulBrown['Brown80'] ,
                       fontSize: 14,
+                      fontWeight: read ? FontWeight.w300 : FontWeight.w700,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -85,30 +86,29 @@ class ChatRow extends StatelessWidget {
               children: [
                 Text(
                   time,
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style: TextStyle(
+                    color: mindfulBrown['Brown80'],
                     fontSize: 12,
                   ),
                 ),
-                if (unreadMessages > 0) const SizedBox(height: 8),
-                if (unreadMessages > 0)
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: empathyOrange['Orange40'],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      // unreadMessages.toString(),
-                      '!',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                // if (unreadMessages > 0) const SizedBox(height: 8),
+                // if (unreadMessages > 0)
+                //   Container(
+                //     padding: const EdgeInsets.all(6),
+                //     decoration: BoxDecoration(
+                //       color: empathyOrange['Orange40'],
+                //       shape: BoxShape.circle,
+                //     ),
+                //     child: Text(
+                //       // unreadMessages.toString(),
+                //       '!',
+                //       style: const TextStyle(
+                //         color: Colors.white,
+                //         fontSize: 12,
+                //         fontWeight: FontWeight.w500,
+                //       ),
+                //     ),
+                //   ),
               ],
             ),
           ],

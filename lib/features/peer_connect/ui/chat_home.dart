@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/utils/security/encryption.dart';
 import 'package:lingap/features/peer_connect/data/supabase_db.dart';
 import 'package:lingap/features/peer_connect/services/api_service.dart';
 import 'package:lingap/features/peer_connect/ui/chat_rows.dart';
 import 'package:lingap/features/peer_connect/ui/chat_screen.dart';
 import 'package:lingap/features/peer_connect/ui/connection_row.dart';
+import 'package:lingap/features/peer_connect/ui/loading_page.dart';
 
 class ChatHome extends StatefulWidget {
   @override
@@ -17,6 +20,7 @@ class _ChatHomeState extends State<ChatHome> {
   final SupabaseDB _supabaseDb = SupabaseDB(client);
   final APIService api = APIService();
   bool isMessagesSelected = true;
+  final Encryption encrypt = Encryption();
 
   Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) {
     return _supabaseDb.fetchConnectedUsers(myUid);
@@ -105,6 +109,12 @@ class _ChatHomeState extends State<ChatHome> {
                                     final avatarUrl = user['imageUrl'];
                                     final roomId = user['roomId'];
                                     final id = user['id'];
+                                    final lastMessage = user['lastMessage'];
+                                    final messageTime = DateFormat('h:mm a')
+                                        .format(DateTime.parse(
+                                                user['lastMessageTime'])
+                                            .toLocal());
+                                    final read = user['read'];
 
                                     return Padding(
                                       padding:
@@ -112,9 +122,10 @@ class _ChatHomeState extends State<ChatHome> {
                                       child: ChatRow(
                                         avatarUrl: avatarUrl,
                                         name: name,
-                                        lastMessage: 'test',
-                                        time: '2:00 PM',
-                                        unreadMessages: 1,
+                                        lastMessage: encrypt.decryptMessage(
+                                            lastMessage, id.toString()),
+                                        time: messageTime,
+                                        read: read,
                                         onTap: () {
                                           context.push('/peer-chatscreen',
                                               extra: {
@@ -195,6 +206,37 @@ class _ChatHomeState extends State<ChatHome> {
                             },
                           ))
               ],
+            ),
+            Positioned(
+              right: 16,
+              bottom: 90,
+              child: FloatingActionButton(
+                onPressed: () {
+                  
+                  
+                  showDialog(
+                    context: context,
+                    barrierDismissible:
+                        false, // Prevent closing by tapping outside
+                    builder: (context) => Dialog(
+                      backgroundColor: Colors
+                          .transparent, // Makes dialog background transparent
+                      child: LoadingDialog(),
+                    ),
+                  );
+                },
+                elevation: 0,
+                backgroundColor: mindfulBrown['Brown80'],
+                shape: CircleBorder(),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/chatbot/icon/search.png',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
             ),
             Positioned(
               bottom: 20, // Distance from the bottom

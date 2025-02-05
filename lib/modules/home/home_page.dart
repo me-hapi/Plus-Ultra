@@ -62,10 +62,12 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _fetchProfile() async {
     Map<String, dynamic>? result = await supabase.fetchProfile(uid);
-    setState(() {
-      name = result!['name'];
-      imageUrl = result['imageUrl'];
-    });
+    if (mounted) {
+      setState(() {
+        name = result!['name'];
+        imageUrl = result['imageUrl'];
+      });
+    }
   }
 
   final List<FlSpot> sleepData = [
