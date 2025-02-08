@@ -13,13 +13,13 @@ class DASInterpreter {
   }
 
   String _interpretDepression(int score) {
-    if (score <= 9) {
+    if (score <= 2) {
       return "Normal";
-    } else if (score <= 12) {
+    } else if (score <= 4) {
       return "Mild";
-    } else if (score <= 20) {
+    } else if (score <= 6) {
       return "Moderate";
-    } else if (score <= 27) {
+    } else if (score <= 9) {
       return "Severe";
     } else {
       return "Extremely Severe";
@@ -27,13 +27,13 @@ class DASInterpreter {
   }
 
   String _interpretAnxiety(int score) {
-    if (score <= 6) {
+    if (score <= 0) {
       return "Normal";
-    } else if (score <= 9) {
+    } else if (score <= 1) {
       return "Mild";
-    } else if (score <= 14) {
+    } else if (score <= 3) {
       return "Moderate";
-    } else if (score <= 19) {
+    } else if (score <= 5) {
       return "Severe";
     } else {
       return "Extremely Severe";
@@ -41,13 +41,13 @@ class DASInterpreter {
   }
 
   String _interpretStress(int score) {
-    if (score <= 10) {
+    if (score <= 3) {
       return "Normal";
-    } else if (score <= 18) {
+    } else if (score <= 5) {
       return "Mild";
-    } else if (score <= 26) {
+    } else if (score <= 7) {
       return "Moderate";
-    } else if (score <= 34) {
+    } else if (score <= 9) {
       return "Severe";
     } else {
       return "Extremely Severe";

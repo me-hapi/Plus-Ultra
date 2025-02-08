@@ -81,7 +81,7 @@ class _ChatHomeState extends State<ChatHome> {
             int result = await supabase.createSession(uid);
             if (result != 0) {
               context.push('/chatscreen',
-                  extra: {'sessionID': result, 'animate': true});
+                  extra: {'sessionID': result, 'animate': true, 'intro' : true});
             }
           },
           backgroundColor: mindfulBrown['Brown80'],

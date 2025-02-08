@@ -42,6 +42,21 @@ class SupabaseDB {
     }
   }
 
+  Future<void> insertMhScore({
+    required String uid,
+    required int depression,
+    required int anxiety,
+    required int stress,
+  }) async {
+    final response = await _client.from('mh_score').insert({
+      'uid': uid,
+      'created_at': DateTime.now().toIso8601String(),
+      'depression': depression,
+      'anxiety': anxiety,
+      'stress': stress,
+    });
+  }
+
   Stream<List<Map<String, dynamic>>> streamChatbotConversations(
       String sessionID) {
     return _client
@@ -75,11 +90,11 @@ class SupabaseDB {
     }
   }
 
-  Future<bool> updateCount(int sessionID, int count) async {
+  Future<bool> updateCount(int sessionID, int count, String emotion) async {
     try {
       final response = await _client
           .from('session')
-          .update({'count': count}).eq('id', sessionID);
+          .update({'count': count, 'emotion': emotion}).eq('id', sessionID);
 
       return true;
     } catch (e) {

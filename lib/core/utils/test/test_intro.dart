@@ -22,7 +22,7 @@ class TestIntro extends StatelessWidget {
                         height: 50,
                       ),
                       Text(
-                        'DAS-21 \nPre-Assessment Tool',
+                        'DAS-12 \nPre-Assessment Tool',
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,

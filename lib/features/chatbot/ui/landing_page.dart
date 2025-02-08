@@ -56,7 +56,10 @@ class _ChatbotLandingState extends State<ChatbotLanding> {
                       if (result != 0) {
                         context.go('/bottom-nav', extra: 1);
                         Future.microtask(() {
-                          context.go('/chatscreen', extra: result);
+                          context.go('/chatscreen', extra: {
+                            'animate' : true,
+                            'sessionID' : result
+                          });
                         });
                       }
                     },

@@ -38,15 +38,15 @@ class _DASTestState extends ConsumerState<DASTest> {
     "I felt that I had nothing to look forward to.",
     "I found myself getting agitated.",
     "I found it difficult to relax.",
-    "I felt down-hearted and blue.",
-    "I was intolerant of anything that kept me from getting on with what I was doing.",
-    "I felt I was close to panic.",
-    "I was unable to become enthusiastic about anything.",
-    "I felt I wasn't worth much as a person.",
-    "I felt that I was rather touchy.",
-    "I was aware of the action of my heart in the absence of physical exertion.",
-    "I felt scared without any good reason.",
-    "I felt that life was meaningless."
+    // "I felt down-hearted and blue.",
+    // "I was intolerant of anything that kept me from getting on with what I was doing.",
+    // "I felt I was close to panic.",
+    // "I was unable to become enthusiastic about anything.",
+    // "I felt I wasn't worth much as a person.",
+    // "I felt that I was rather touchy.",
+    // "I was aware of the action of my heart in the absence of physical exertion.",
+    // "I felt scared without any good reason.",
+    // "I felt that life was meaningless."
   ];
 
   void _nextQuestion(int response) {
@@ -75,31 +75,25 @@ class _DASTestState extends ConsumerState<DASTest> {
     final responses = ref.read(responsesProvider);
 
     // Depression: Questions 3, 5, 10, 13, 16, 17, 21
-    int depressionScore = responses[2] +
+    int depressionScore = 
         responses[4] +
-        responses[9] +
-        responses[12] +
-        responses[15] +
-        responses[16] +
-        responses[20];
+        responses[7] +
+        responses[8] +
+        responses[11];
 
     // Anxiety: Questions 2, 4, 7, 9, 15, 19, 20
-    int anxietyScore = responses[1] +
+    int anxietyScore = 
+        responses[1] +
         responses[3] +
-        responses[6] +
-        responses[8] +
-        responses[14] +
-        responses[18] +
-        responses[19];
+        responses[9] +
+        responses[10];
 
     // Stress: Questions 1, 6, 8, 11, 12, 14, 18
-    int stressScore = responses[0] +
+    int stressScore = 
+        responses[0] +
+        responses[2] +
         responses[5] +
-        responses[7] +
-        responses[10] +
-        responses[11] +
-        responses[13] +
-        responses[17];
+        responses[6];
 
     _supabase.insertMhScore(
         uid: _client.auth.currentUser!.id,
@@ -175,7 +169,7 @@ class _DASTestState extends ConsumerState<DASTest> {
                     height: 60,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _nextQuestion(index + 1),
+                      onPressed: () => _nextQuestion(index),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: mindfulBrown['Brown80'],
                         shape: RoundedRectangleBorder(

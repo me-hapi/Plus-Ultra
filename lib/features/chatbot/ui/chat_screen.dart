@@ -7,8 +7,13 @@ import 'package:lingap/features/chatbot/ui/chat_bubble.dart';
 class ChatScreen extends ConsumerStatefulWidget {
   final int sessionID;
   final bool animateText;
+  final bool? intro;
 
-  ChatScreen({super.key, required this.sessionID, required this.animateText});
+  ChatScreen(
+      {super.key,
+      required this.sessionID,
+      required this.animateText,
+      this.intro});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -16,11 +21,30 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
+  bool _hasRunIntroduction = false;
+  final Set<int> _animatedMessageIndexes = {};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_hasRunIntroduction) {
+        _introduction();
+        _hasRunIntroduction = true;
+      }
+    });
+  }
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _introduction() {
+    if (widget.intro != null && widget.intro == true) {
+      ref.read(chatbotProvider(widget.sessionID).notifier).introduction();
+    }
   }
 
   void _scrollToBottom() {
@@ -72,11 +96,66 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
+
+                bool shouldAnimate = !_animatedMessageIndexes.contains(index);
+
                 return ChatBubble(
-                  animateText: widget.animateText,
+                  animateText:
+                      widget.animateText ? shouldAnimate : widget.animateText,
                   isUser: message.isUser,
                   message: message.message,
-                  onTextUpdate: _scrollToBottom, // Pass scroll trigger
+                  onTextUpdate: _scrollToBottom,
+                  emotion: message.emotion,
+                  onCompleted: () {
+                    // Ensure that this is only triggered once per message.
+                    if (!_animatedMessageIndexes.contains(index)) {
+                      _animatedMessageIndexes.add(index);
+
+                      switch (message.emotion.toLowerCase()) {
+                        case 'cheerful':
+                        case 'happy':
+                          ref
+                              .read(chatbotProvider(widget.sessionID).notifier)
+                              .postAssessment();
+                          break;
+
+                        case 'script':
+                          ref
+                              .read(chatbotProvider(widget.sessionID).notifier)
+                              .askQuestion();
+                          break;
+
+                        case 'dass':
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            ref
+                                .read(
+                                    chatbotProvider(widget.sessionID).notifier)
+                                .sendOption();
+                          });
+                          break;
+
+                        case 'interpretation':
+                          ref
+                              .read(chatbotProvider(widget.sessionID).notifier)
+                              .closeSession();
+                          break;
+
+                        default:
+                          break;
+                      }
+                    }
+                  },
+                  onOptionSelected: (selectedOption) {
+                    if (message.emotion.toLowerCase() == 'option') {
+                      ref
+                          .read(chatbotProvider(widget.sessionID).notifier)
+                          .getScore(selectedOption);
+                    }
+
+                    if (message.emotion.toLowerCase() == 'close') {
+                      print('CLOSE');
+                    }
+                  },
                 );
               },
             ),

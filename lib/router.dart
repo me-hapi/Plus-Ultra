@@ -150,8 +150,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map;
           final animate = extra['animate'];
           final sessionID = extra['sessionID'];
+          final intro = extra['intro'];
           return chatbot_screen.ChatScreen(
-              sessionID: sessionID, animateText: animate);
+              sessionID: sessionID, animateText: animate, intro: intro,);
         },
       ),
 

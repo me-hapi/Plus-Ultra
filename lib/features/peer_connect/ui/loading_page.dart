@@ -49,7 +49,6 @@ class _LoadingDialogState extends State<LoadingDialog>
         }
       }
 
-      print('created');
       if (mounted) {
         
       print('mounted');
