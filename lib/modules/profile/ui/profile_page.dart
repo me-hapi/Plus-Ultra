@@ -7,10 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/utils/shared/shared_pref.dart';
 
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/services/database/global_supabase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'dart:ui' as ui;
@@ -76,12 +78,28 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _checkProfessionalStatus();
+    _loadProfessionalStatus();
   }
 
   void _checkProfessionalStatus() async {
     bool result = await supabase.isProfessional(uid);
     setState(() {
       isProfessional = result;
+    });
+  }
+
+  Future<void> _loadProfessionalStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isProfessionalOn = prefs.getBool('isProfessional') ?? false;
+    });
+  }
+
+  Future<void> _updateProfessionalStatus(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isProfessional', value);
+    setState(() {
+      _isProfessionalOn = value;
     });
   }
 
@@ -166,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 60), // Space below the avatar
             Text(
-             widget.profile['name'],
+              widget.profile['name'],
               style: TextStyle(
                 fontSize: 32,
                 color: mindfulBrown['Brown80']!,
@@ -273,14 +291,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ? Switch(
                           value: _isProfessionalOn,
                           onChanged: (value) {
-                            setState(() {
-                              _isProfessionalOn = value;
-                              if (_isProfessionalOn) {
-                                accountType = 'Professional';
-                              } else {
-                                accountType = 'Patient';
-                              }
-                            });
+                            _updateProfessionalStatus(value);
                           },
                           activeColor: Colors.green,
                           inactiveThumbColor: Colors.grey,

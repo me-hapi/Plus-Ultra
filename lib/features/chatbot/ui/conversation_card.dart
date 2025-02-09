@@ -9,26 +9,31 @@ class ConversationCard extends StatelessWidget {
   final String title;
   final String total;
   final String emotion;
+  final bool isSessionOpen;
 
-  const ConversationCard({
-    Key? key,
-    required this.imagePath,
-    required this.title,
-    required this.total,
-    required this.emotion,
-    required this.sessionID,
-    required this.animate,
-  }) : super(key: key);
+  const ConversationCard(
+      {Key? key,
+      required this.imagePath,
+      required this.title,
+      required this.total,
+      required this.emotion,
+      required this.sessionID,
+      required this.animate,
+      required this.isSessionOpen})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push('/chatscreen',
-            extra: {'sessionID': sessionID, 'animate': false});
+        context.push('/chatscreen', extra: {
+          'sessionID': sessionID,
+          'animate': false,
+          'open': isSessionOpen
+        });
       },
       child: Card(
-        color: Colors.white,
+        color: isSessionOpen ? Colors.white : optimisticGray['Gray50'],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
@@ -76,21 +81,29 @@ class ConversationCard extends StatelessWidget {
                       children: [
                         Text(
                           total,
-                          style: TextStyle(color: optimisticGray['Gray60']),
+                          style: TextStyle(
+                              color: isSessionOpen
+                                  ? optimisticGray['Gray60']
+                                  : optimisticGray['Gray30']),
                         ),
                         const SizedBox(width: 6),
                         Container(
                           width: 6,
                           height: 6,
                           decoration: BoxDecoration(
-                            color: optimisticGray['Gray60'],
+                            color: isSessionOpen
+                                ? optimisticGray['Gray60']
+                                : optimisticGray['Gray30'],
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 6),
                         Text(
                           emotion,
-                          style: TextStyle(color: optimisticGray['Gray60']),
+                          style: TextStyle(
+                              color: isSessionOpen
+                                  ? optimisticGray['Gray60']
+                                  : optimisticGray['Gray30']),
                         ),
                       ],
                     ),
@@ -102,7 +115,7 @@ class ConversationCard extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios,
                 size: 20,
-                color: Colors.grey,
+                color: isSessionOpen ? optimisticGray['Gray50'] : Colors.white,
               ),
             ],
           ),

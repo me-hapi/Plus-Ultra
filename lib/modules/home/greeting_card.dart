@@ -36,6 +36,7 @@ class _GreetingCardState extends State<GreetingCard> {
     if (mounted) {
       setState(() {
         profile = result;
+        profileConst = result!;
       });
     }
   }
@@ -44,6 +45,7 @@ class _GreetingCardState extends State<GreetingCard> {
     final image = await preloadImage('assets/profileIcon/bg.png');
     setState(() {
       _backgroundImage = image;
+      bgCons = image;
     });
   }
 

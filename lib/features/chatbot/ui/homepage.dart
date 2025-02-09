@@ -67,6 +67,7 @@ class _ChatHomeState extends State<ChatHome> {
                   title: chat['title'] ?? 'Unknown Chat',
                   total: '${chat['count'] ?? 0} messages',
                   emotion: chat['emotion'] ?? 'Neutral',
+                  isSessionOpen: chat['open'],
                 );
               },
             );
@@ -80,8 +81,12 @@ class _ChatHomeState extends State<ChatHome> {
           onPressed: () async {
             int result = await supabase.createSession(uid);
             if (result != 0) {
-              context.push('/chatscreen',
-                  extra: {'sessionID': result, 'animate': true, 'intro' : true});
+              context.push('/chatscreen', extra: {
+                'sessionID': result,
+                'animate': true,
+                'intro': true,
+                'open': true
+              });
             }
           },
           backgroundColor: mindfulBrown['Brown80'],

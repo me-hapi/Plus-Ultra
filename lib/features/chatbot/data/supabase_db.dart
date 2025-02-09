@@ -18,7 +18,7 @@ class SupabaseDB {
     try {
       final response = await _client
           .from('session')
-          .insert({'uid': uid})
+          .insert({'uid': uid, 'open': true})
           .select('id') // Fetch the inserted id
           .single();
 
@@ -101,5 +101,20 @@ class SupabaseDB {
       print('Error updating session: $e');
       return false;
     }
+  }
+
+  Future<void> closeSession(int sessionID) async {
+    final response = await _client
+        .from('session')
+        .update({'open': false}).eq('id', sessionID);
+  }
+
+  Stream<Map<String, dynamic>?> listenToSession(int sessionID) {
+    return _client
+        .from('session')
+        .stream(primaryKey: ['id']) // Use 'id' if it's the primary key
+        .eq('id', sessionID) // Filter by sessionID
+        .map((data) =>
+            data.isNotEmpty ? data.first : null); // Handle empty state
   }
 }

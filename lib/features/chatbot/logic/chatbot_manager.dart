@@ -22,7 +22,7 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
   final DASInterpreter interpreter = DASInterpreter();
   int index = 0;
   List responses = [];
-  String emotion = 'Neutral';
+  String emotion = 'Not available yet';
   final List<String> questions = [
     "I found it hard to wind down.",
     "I was aware of dryness of my mouth.",
@@ -215,7 +215,6 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
       "Applied to me very much or most of the time"
     ];
 
-    print(index);
     // Find the index of the selected option
     int optionIndex = options.indexOf(option);
 
@@ -232,12 +231,19 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
       )
     ];
 
-    await supabaseDB.insertMessages(sessionID, option, true);
+    List<String> history = state
+        .map((msg) =>
+            msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
+        .toList();
+    int count = history.length;
 
+    await supabaseDB.insertMessages(sessionID, option, true);
+    await supabaseDB.updateCount(sessionID, count, emotion);
     index++;
     if (index <= 11) {
       askQuestion();
     } else {
+      index = 0;
       sendInterpretation();
     }
   }
@@ -260,7 +266,7 @@ Here are the scores:
 - Stress: $stress ($stressScore)
 
 Offer a compassionate analysis of these results, helping the user understand what they might indicate. 
-Conclude by asking: "Would you like to continue talking with Lingap mental health assistant, or would you like to end the session?" 
+Conclude by asking if they already want to end the session? 
 Ensure the response is a close ended question.
 ''';
 
@@ -291,15 +297,90 @@ Ensure the response is a close ended question.
         emotion: 'interpretation',
       )
     ];
+
+    history = state
+        .map((msg) =>
+            msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
+        .toList();
+
+    await supabaseDB.insertMessages(sessionID, responseText, false);
+    await supabaseDB.updateCount(sessionID, history.length, emotion);
+  }
+
+  Stream<Map<String, dynamic>?> isOpen() {
+    return supabaseDB.listenToSession(sessionID);
+  }
+
+  void askSession() {
+    state = [
+      ...state,
+      Message(isUser: true, message: "close", emotion: 'close')
+    ];
+  }
+
+  Future<void> checkSession(String option) async {
+    if (option == 'Oo') {
+      state = [
+        ...state.sublist(0, state.length - 1),
+        Message(
+          isUser: true,
+          message: 'Oo',
+        )
+      ];
+      List<String> history = state
+          .map((msg) =>
+              msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
+          .toList();
+
+      await supabaseDB.insertMessages(sessionID, 'Oo', true);
+      await supabaseDB.updateCount(sessionID, history.length, emotion);
+
+      closeSession();
+    } else {
+      state = [
+        ...state.sublist(0, state.length - 1),
+        Message(
+          isUser: true,
+          message: 'Hindi',
+        )
+      ];
+      List<String> history = state
+          .map((msg) =>
+              msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
+          .toList();
+
+      await supabaseDB.insertMessages(sessionID, 'Hindi', true);
+      await supabaseDB.updateCount(sessionID, history.length, emotion);
+      staySession();
+    }
   }
 
   void closeSession() {
+    supabaseDB.closeSession(sessionID);
+  }
+
+  Future<void> staySession() async {
     state = [
       ...state,
       Message(
-        isUser: true,
-        message: "close",
-        emotion: 'close'
+        isUser: false,
+        message: "Typing...",
+      )
+    ];
+
+    List<String> history = state
+        .map((msg) =>
+            msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
+        .toList();
+
+    Map response = await chatbot.createResponse('Hindi', history);
+    String responseText = response['response'];
+
+    state = [
+      ...state.sublist(0, state.length - 1),
+      Message(
+        isUser: false,
+        message: responseText,
       )
     ];
   }
@@ -335,5 +416,5 @@ class Message {
   String emotion;
 
   Message(
-      {required this.isUser, required this.message, this.emotion = 'neutral'});
+      {required this.isUser, required this.message, this.emotion = 'not available'});
 }

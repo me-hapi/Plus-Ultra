@@ -12,6 +12,7 @@ class ChatBubble extends ConsumerWidget {
   String emotion;
   final VoidCallback? onCompleted;
   final Function(String)? onOptionSelected; // <-- New callback
+  final VoidCallback? onSessionClose;
 
   ChatBubble({
     required this.isUser,
@@ -20,7 +21,8 @@ class ChatBubble extends ConsumerWidget {
     required this.animateText,
     this.emotion = 'neutral',
     this.onCompleted,
-    this.onOptionSelected, // <-- Initialize callback
+    this.onOptionSelected,
+    this.onSessionClose, // <-- Initialize callback
   });
 
   @override
@@ -70,7 +72,11 @@ class ChatBubble extends ConsumerWidget {
                   ? message == 'close'
                       ? Column(
                           children: [
-                            _buildOptionButton("Oo", onOptionSelected),
+                            _buildOptionButton("Oo", (selectedOption) {
+                              onOptionSelected?.call(selectedOption);
+                              onSessionClose
+                                  ?.call(); // Notify parent to close session
+                            }),
                             SizedBox(
                               height: 5,
                             ),

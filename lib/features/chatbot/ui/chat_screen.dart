@@ -8,11 +8,13 @@ class ChatScreen extends ConsumerStatefulWidget {
   final int sessionID;
   final bool animateText;
   final bool? intro;
+  bool isSessionOpen;
 
   ChatScreen(
       {super.key,
       required this.sessionID,
       required this.animateText,
+      required this.isSessionOpen,
       this.intro});
 
   @override
@@ -39,6 +41,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _updateSessionState(bool isOpen) {
+    setState(() {
+      widget.isSessionOpen = isOpen;
+    });
   }
 
   void _introduction() {
@@ -112,8 +120,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       _animatedMessageIndexes.add(index);
 
                       switch (message.emotion.toLowerCase()) {
+                        case 'neutral':
                         case 'cheerful':
                         case 'happy':
+                          print(message.emotion.toLowerCase());
                           ref
                               .read(chatbotProvider(widget.sessionID).notifier)
                               .postAssessment();
@@ -137,7 +147,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         case 'interpretation':
                           ref
                               .read(chatbotProvider(widget.sessionID).notifier)
-                              .closeSession();
+                              .askSession();
                           break;
 
                         default:
@@ -153,7 +163,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     }
 
                     if (message.emotion.toLowerCase() == 'close') {
-                      print('CLOSE');
+                      ref
+                          .read(chatbotProvider(widget.sessionID).notifier)
+                          .checkSession(selectedOption);
+
+                      if (selectedOption.toLowerCase() == "oo") {
+                        _updateSessionState(
+                            false); // Close session when "Oo" is selected
+                      }
                     }
                   },
                 );
@@ -161,72 +178,81 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: ref
-                        .read(chatbotProvider(widget.sessionID).notifier)
-                        .messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message',
-                      hintStyle: TextStyle(
-                        color: mindfulBrown['Brown80'],
+              padding: const EdgeInsets.all(8.0),
+              child: widget.isSessionOpen
+                  ? _buildInputField(context)
+                  : const Center(
+                      child: Text(
+                        'Session Ended',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: serenityGreen['Green30']!,
-                          width: 2.0,
-                        ),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 20.0,
-                        vertical: 10.0,
-                      ),
-                    ),
-                    style: TextStyle(
-                      color: mindfulBrown['Brown80'],
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                GestureDetector(
-                  onTap: () {
-                    ref
-                        .read(chatbotProvider(widget.sessionID).notifier)
-                        .sendMessage();
-                    _scrollToBottom(); // Scroll to bottom after sending
-                  },
-                  child: Container(
-                    width: 40.0,
-                    height: 40.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: serenityGreen['Green50'],
-                    ),
-                    child: Center(
-                      child: Image.asset(
-                        'assets/peer/send.png',
-                        width: 20.0,
-                        height: 20.0,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                    )),
           SizedBox(height: 10),
         ],
       ),
+    );
+  }
+
+  Widget _buildInputField(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: ref
+                .read(chatbotProvider(widget.sessionID).notifier)
+                .messageController,
+            decoration: InputDecoration(
+              hintText: 'Type a message',
+              hintStyle: TextStyle(
+                color: mindfulBrown['Brown80'],
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: BorderSide(
+                  color: serenityGreen['Green30']!,
+                  width: 2.0,
+                ),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 10.0,
+              ),
+            ),
+            style: TextStyle(
+              color: mindfulBrown['Brown80'],
+            ),
+          ),
+        ),
+        SizedBox(width: 10),
+        GestureDetector(
+          onTap: () {
+            ref.read(chatbotProvider(widget.sessionID).notifier).sendMessage();
+            _scrollToBottom(); // Scroll to bottom after sending
+          },
+          child: Container(
+            width: 40.0,
+            height: 40.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: serenityGreen['Green50'],
+            ),
+            child: Center(
+              child: Image.asset(
+                'assets/peer/send.png',
+                width: 20.0,
+                height: 20.0,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -151,8 +151,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final animate = extra['animate'];
           final sessionID = extra['sessionID'];
           final intro = extra['intro'];
+          final isSessionOpen = extra['open'];
           return chatbot_screen.ChatScreen(
-              sessionID: sessionID, animateText: animate, intro: intro,);
+            sessionID: sessionID,
+            animateText: animate,
+            intro: intro,
+            isSessionOpen: isSessionOpen,
+          );
         },
       ),
 

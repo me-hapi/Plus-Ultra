@@ -11,6 +11,7 @@ import 'package:lingap/modules/home/home_page.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
 import 'package:lingap/features/journaling/journal_page.dart';
 import 'package:lingap/features/peer_connect/peer_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
@@ -26,17 +27,25 @@ class _BottomNavState extends State<BottomNav> {
   late int _currentIndex;
   final SupabaseDB supabase = SupabaseDB(client);
   bool hasSession = false;
+  bool _isProfessionalOn = false;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.currentIndex;
     hasConversation();
+    _loadProfessionalStatus();
+  }
+
+  Future<void> _loadProfessionalStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isProfessionalOn = prefs.getBool('isProfessional') ?? false;
+    });
   }
 
   void hasConversation() async {
     bool result = await supabase.hasSession(uid);
-    print('debug $result');
     if (result) {
       hasSession = result;
     }
@@ -47,7 +56,7 @@ class _BottomNavState extends State<BottomNav> {
       HomePage(),
       hasSession ? ChatHome() : ChatbotLanding(),
       JournalPage(),
-      accountType == "Patient" ? UserPage() : ProfessionalPage(),
+      _isProfessionalOn ? UserPage() : ProfessionalPage(),
       PeerConnectPage(),
     ];
   }
