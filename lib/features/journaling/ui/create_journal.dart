@@ -15,6 +15,7 @@ class CreateJournalPage extends StatefulWidget {
 
 class _CreateJournalPageState extends State<CreateJournalPage> {
   late CreateJournalLogic _logic;
+  String mergedAudio = '';
 
   @override
   void initState() {
@@ -55,6 +56,16 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (mergedAudio != '')
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: AudioCard(
+                        audioPath: mergedAudio,
+                        onDelete: () => setState(() {
+                          _logic.removeAudio(mergedAudio);
+                        }),
+                      ),
+                    ),
                   // Title Field
                   TextField(
                     controller: _logic.titleController,
@@ -174,18 +185,18 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                   SizedBox(
                     height: 60,
                     child: GestureDetector(
-                      onTap: () {
-                        context.go('/journal-success', extra: {
-                          'emotion': 'Neutral',
-                          'date': DateTime.now().toString(),
-                          'time': DateTime.now()
-                              .toLocal()
-                              .toIso8601String()
-                              .split('T')[1]
-                              .substring(0, 5),
-                          'title': _logic.titleController.text,
-                          'journalItems': _logic.journalItems
-                        });
+                      onTap: () async {
+                        // context.go('/journal-success', extra: {
+                        //   'emotion': 'Neutral',
+                        //   'date': DateTime.now().toString(),
+                        //   'time': DateTime.now()
+                        //       .toLocal()
+                        //       .toIso8601String()
+                        //       .split('T')[1]
+                        //       .substring(0, 5),
+                        //   'title': _logic.titleController.text,
+                        //   'journalItems': _logic.journalItems
+                        // });
                       },
                       child: Image.asset('assets/journal/save.png'),
                     ),

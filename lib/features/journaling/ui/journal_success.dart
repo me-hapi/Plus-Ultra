@@ -63,16 +63,19 @@ class _JournalSuccessPageState extends State<JournalSuccessPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  context.go('/journal-details', extra: {
-                    'emotion': 'Neutral',
-                    'date': DateTime.now().toString(),
-                    'time': DateTime.now()
-                        .toLocal()
-                        .toIso8601String()
-                        .split('T')[1]
-                        .substring(0, 5),
-                    'title': widget.title,
-                    'journalItems': widget.journalItems
+                  context.go('/bottom-nav', extra: 2);
+                  Future.microtask(() {
+                    context.push('/journal-details', extra: {
+                      'emotion': 'Neutral',
+                      'date': DateTime.now().toString(),
+                      'time': DateTime.now()
+                          .toLocal()
+                          .toIso8601String()
+                          .split('T')[1]
+                          .substring(0, 5),
+                      'title': widget.title,
+                      'journalItems': widget.journalItems
+                    });
                   });
                 },
                 style: ElevatedButton.styleFrom(

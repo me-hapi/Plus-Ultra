@@ -8,7 +8,7 @@ class SupabaseDB {
 
   SupabaseDB(this._client);
 
-  Future<void> insertJournal(
+  Future<int> insertJournal(
       String uid, String title, List<JournalItem> journalItems) async {
     try {
       // Insert into journal table
@@ -18,8 +18,6 @@ class SupabaseDB {
             'uid': uid,
             'title': title,
             'created_at': DateTime.now().toIso8601String(),
-            'classification': 'positive',
-            'emotion': 'neutral'
           })
           .select('id')
           .single();
@@ -65,9 +63,11 @@ class SupabaseDB {
           'position': position,
         });
       }
+
+      return journalId;
     } catch (error) {
       print('Error inserting journal: $error');
-      rethrow;
+      return 0;
     }
   }
 

@@ -23,17 +23,13 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  bool _hasRunIntroduction = false;
   final Set<int> _animatedMessageIndexes = {};
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_hasRunIntroduction) {
-        _introduction();
-        _hasRunIntroduction = true;
-      }
+      ref.read(chatbotProvider(widget.sessionID).notifier).introduction();
     });
   }
 
@@ -47,12 +43,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     setState(() {
       widget.isSessionOpen = isOpen;
     });
-  }
-
-  void _introduction() {
-    if (widget.intro != null && widget.intro == true) {
-      ref.read(chatbotProvider(widget.sessionID).notifier).introduction();
-    }
   }
 
   void _scrollToBottom() {
@@ -120,9 +110,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       _animatedMessageIndexes.add(index);
 
                       switch (message.emotion.toLowerCase()) {
-                        case 'neutral':
-                        case 'cheerful':
-                        case 'happy':
+                        case 'progress':
                           print(message.emotion.toLowerCase());
                           ref
                               .read(chatbotProvider(widget.sessionID).notifier)

@@ -15,6 +15,7 @@ final chatbotProvider =
 });
 
 class ChatbotNotifier extends StateNotifier<List<Message>> {
+  bool _hasIntroduced = false;
   final Chatbot chatbot = Chatbot();
   final int sessionID;
   final SupabaseDB supabaseDB;
@@ -72,27 +73,18 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     });
   }
 
+  bool _sessionUpdated = false;
+
   void sendMessage() async {
     String userInput = messageController.text.trim();
     if (userInput.isEmpty) return;
 
     state = [
       ...state,
-      Message(
-        isUser: true,
-        message: userInput,
-      )
+      Message(isUser: true, message: userInput),
+      Message(isUser: false, message: "Typing..."),
     ];
     messageController.clear();
-
-    // Add "Typing..." message
-    state = [
-      ...state,
-      Message(
-        isUser: false,
-        message: "Typing...",
-      )
-    ];
 
     List<String> history = state
         .map((msg) =>
@@ -102,33 +94,30 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     Map response = await chatbot.createResponse(userInput, history);
 
     String responseText = response['response'];
+    emotion = response['emotion'];
     String title = response['title'];
     String icon = response['icon'];
-    emotion = response['emotion'];
-    int count = history.length;
 
-    print('title: $title \n icon: $icon \n emotion: $emotion, history: $count');
+    print('EMOTION: $emotion');
 
     await supabaseDB.insertMessages(sessionID, userInput, true);
     await supabaseDB.insertMessages(sessionID, responseText, false);
-    await supabaseDB.updateCount(sessionID, count, emotion);
+    await supabaseDB.updateCount(sessionID, history.length, emotion);
 
-    if (history.length <= 3) {
+    if (history.length <= 3 && !_sessionUpdated) {
+      _sessionUpdated = true;
       supabaseDB.updateSession(sessionID, title, emotion, icon);
     }
 
-    // Replace "Typing..." with the actual response and animate it
     state = [
-      ...state.sublist(0, state.length - 1),
-      Message(
-        isUser: false,
-        message: responseText,
-        emotion: emotion,
-      )
+      ...state.where((msg) => msg.message != "Typing..."),
+      Message(isUser: false, message: responseText, emotion: emotion),
     ];
   }
 
   Future<void> introduction() async {
+    if (_hasIntroduced) return;
+
     List<String> botIntroductions = [
       "Hi! Ako si Lingap, ang iyong mental health assistant. Nandito ako para makinig at sumuporta sa’yo. Pwede tayong mag-usap tungkol sa nararamdaman mo, mag-reflect sa emotions mo, at maghanap ng paraan para mas gumaan ang pakiramdam mo. Handa ka na bang magsimula?",
       "Hey! 👋 Ako si Lingap, ang iyong mental health buddy. Kamusta ka today? Kung gusto mo lang maglabas ng thoughts, or may gusto kang itanong tungkol sa mental health, nandito ako anytime para tumulong!",
@@ -151,6 +140,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     await supabaseDB.insertMessages(
         sessionID, botIntroductions[randomIndex], false);
     await supabaseDB.updateCount(sessionID, 1, emotion);
+
+    _hasIntroduced = true;
   }
 
   Future<void> postAssessment() async {
@@ -416,5 +407,7 @@ class Message {
   String emotion;
 
   Message(
-      {required this.isUser, required this.message, this.emotion = 'not available'});
+      {required this.isUser,
+      required this.message,
+      this.emotion = 'not available'});
 }
