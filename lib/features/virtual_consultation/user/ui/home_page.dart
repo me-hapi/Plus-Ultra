@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/appointment_history.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/issue_row.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 final searchProvider = StateProvider<String>((ref) => '');
 
@@ -24,6 +26,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+    getUserLocation();
     searchController = TextEditingController();
     getProfessionals();
   }
@@ -51,7 +54,33 @@ class _HomePageState extends ConsumerState<HomePage> {
     List<Map<String, dynamic>> result = await supabaseDB.fetchProfessionals();
     setState(() {
       professionals = result;
+      print(professionals);
     });
+  }
+
+  Future<void> getUserLocation() async {
+    // Check location permission using permission_handler
+    PermissionStatus status = await Permission.location.request();
+
+    if (status.isDenied) {
+      print("Location permission denied.");
+      return;
+    }
+
+    if (status.isPermanentlyDenied) {
+      print(
+          "Location permission is permanently denied. Please enable it in settings.");
+      openAppSettings(); // Opens app settings to manually enable location
+      return;
+    }
+
+    if (status.isGranted) {
+      // Get current position using geolocator
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      print("Latitude: ${position.latitude}, Longitude: ${position.longitude}");
+    }
   }
 
   @override
@@ -181,7 +210,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 6,),
+              SizedBox(
+                height: 6,
+              ),
               professionals.isNotEmpty
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

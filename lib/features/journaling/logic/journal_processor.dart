@@ -43,6 +43,12 @@ class JournalProcessor {
     Directory tempDir = await getTemporaryDirectory();
     String outputPath = '${tempDir.path}/merged_audio.m4a';
 
+    // Delete the old merged file before merging
+    File mergedFile = File(outputPath);
+    if (await mergedFile.exists()) {
+      await mergedFile.delete();
+    }
+
     // Create a file list for FFmpeg input
     String fileListPath = '${tempDir.path}/audio_list.txt';
     File fileList = File(fileListPath);
@@ -55,7 +61,7 @@ class JournalProcessor {
         '-f concat -safe 0 -i "$fileListPath" -c:a aac -b:a 192k "$outputPath"');
 
     // Verify if the file was created successfully
-    if (File(outputPath).existsSync()) {
+    if (await mergedFile.exists()) {
       return outputPath;
     } else {
       print("❌ Failed to merge audio files.");

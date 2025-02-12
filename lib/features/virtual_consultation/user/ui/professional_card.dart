@@ -17,10 +17,12 @@ class ProfessionalCard extends StatelessWidget {
 
     final String name = professionalData['name'] ?? '';
     final String job = professionalData['job'] ?? '';
-    final String imageUrl = professionalData['imageUrl'] ?? '';
-    final String location = professionalData['location'] ?? '';
+    final String imageUrl = professionalData['profileUrl'] ?? '';
+    final String location = professionalData['professional_clinic']['clinic_address'] ?? '';
     final String distance = professionalData['distance'] ?? '';
-    final String? clinicName = professionalData['clinic_name'];
+    final String? clinicName = professionalData['professional_clinic']['clinic_name'];
+    final double? clinic_lat = professionalData['professional_clinic']['clinic_lat'];
+    final double? clinic_long = professionalData['professional_clinic']['clinic_long'];
 
     return GestureDetector(
       onTap: () {
@@ -47,21 +49,22 @@ class ProfessionalCard extends StatelessWidget {
               // Picture on the left
               ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
-                child: Image.asset(
-                  'assets/doctor.jpg',
-                  width: 70,
-                  height: 70,
-                )
+                child: 
+                // Image.asset(
+                //   'assets/doctor.jpg',
+                //   width: 70,
+                //   height: 70,
+                // )
                 
-                // Image.network(
-                //   imageUrl,
-                //   width: 60, // Adjust size for responsiveness
-                //   height: 60,
-                //   fit: BoxFit.cover,
-                //   errorBuilder: (context, error, StackTrace) {
-                //     return const Icon(Icons.person, size: 50);
-                //   },
-                // ),
+                Image.network(
+                  imageUrl,
+                  width: 70, // Adjust size for responsiveness
+                  height: 70,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, StackTrace) {
+                    return const Icon(Icons.person, size: 50);
+                  },
+                ),
               ),
               const SizedBox(width: 8),
               // Text details

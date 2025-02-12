@@ -110,9 +110,11 @@ class _ChatHomeState extends State<ChatHome> {
                                     final roomId = user['roomId'];
                                     final id = user['id'];
                                     final lastMessage = user['lastMessage'];
-                                    final messageTime = DateFormat('h:mm a')
+                                    final messageTime = 
+                                    
+                                    DateFormat('h:mm a')
                                         .format(DateTime.parse(
-                                                user['lastMessageTime'])
+                                                user['lastMessageTime']) 
                                             .toLocal());
                                     final read = user['read'];
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/features/virtual_consultation/professional/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/professional/ui/steps/successful_modal.dart';
 
@@ -65,6 +66,7 @@ class ApplicationLogic {
   }
 
   Future<void> submitApplication() async {
+    LoadingScreen.show(context);
     await supabaseDB.uploadLicense(
       userId: uid,
       frontImage: stepData['verification']['frontImage'],
@@ -79,6 +81,7 @@ class ApplicationLogic {
     await supabaseDB.insertAvailabilityDetails(
         uid: uid, stepData: stepData['availability']);
 
+    LoadingScreen.hide(context);
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent closing by tapping outside

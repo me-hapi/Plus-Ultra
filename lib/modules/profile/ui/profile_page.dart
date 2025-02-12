@@ -10,6 +10,7 @@ import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
 
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
+import 'package:lingap/features/virtual_consultation/professional/ui/steps/successful_modal.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,6 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isProfessionalOn = prefs.getBool('isProfessional') ?? false;
+      professional = _isProfessionalOn;
     });
   }
 
@@ -100,6 +102,7 @@ class _ProfilePageState extends State<ProfilePage> {
     await prefs.setBool('isProfessional', value);
     setState(() {
       _isProfessionalOn = value;
+      professional = _isProfessionalOn;
     });
   }
 
@@ -420,30 +423,43 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Card(
-                color: presentRed['Red20'],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: ListTile(
-                  leading: Image.asset('assets/profileIcon/close.png'),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  title: Text(
-                    'Close Account',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: mindfulBrown['Brown80'],
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: GestureDetector(
+                  onTap: () {
+                    // showDialog(
+                    //   context: context,
+                    //   barrierDismissible:
+                    //       false, // Prevent closing by tapping outside
+                    //   builder: (context) => Dialog(
+                    //     backgroundColor: Colors
+                    //         .transparent, // Makes dialog background transparent
+                    //     child: SuccessfulModal(),
+                    //   ),
+                    // );
+                  },
+                  child: Card(
+                    color: presentRed['Red20'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: ListTile(
+                      leading: Image.asset('assets/profileIcon/close.png'),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      title: Text(
+                        'Close Account',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: mindfulBrown['Brown80'],
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward,
+                        color: mindfulBrown['Brown80'],
+                      ),
                     ),
                   ),
-                  trailing: Icon(
-                    Icons.arrow_forward,
-                    color: mindfulBrown['Brown80'],
-                  ),
-                ),
-              ),
-            ),
+                )),
             const SizedBox(height: 25),
             Align(
               alignment: Alignment.centerLeft,

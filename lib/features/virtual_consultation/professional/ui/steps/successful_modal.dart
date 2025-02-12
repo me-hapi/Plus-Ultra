@@ -67,7 +67,8 @@ class SuccessfulModal extends StatelessWidget {
                     onPressed: () {
                       context.go('/bottom-nav');
                       Future.microtask(() {
-                        context.push('/profile');
+                        context.push('/profile',
+                            extra: {'bg': bgCons, 'profile': profileConst});
                       });
                     },
                     style: TextButton.styleFrom(

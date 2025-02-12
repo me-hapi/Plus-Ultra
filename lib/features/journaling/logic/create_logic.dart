@@ -37,34 +37,47 @@ class CreateJournalLogic {
     journalItems.removeWhere((item) => item.audioPath == audioPath);
   }
 
-  Future<void> saveJournal() async {
+  Future<String> saveJournal() async {
     int id =
         await supabase.insertJournal(uid, titleController.text, journalItems);
     Map<String, dynamic> result =
         await journalProcessor.processJournal(journalItems);
 
-    await uploadAudio(id.toString(), result['audio']);
+    String response =
+        await uploadAudio(id.toString(), result['text'], result['audio']);
+
+    // Use RegExp to extract the value after 'emotion: '
+    RegExp regex = RegExp(r'emotion:\s*(\w+)');
+    Match? match = regex.firstMatch(response);
+
+    // Extract the matched group (emotion)
+    String? emotion = match?.group(1);
+    return emotion!;
   }
 
-  Future<void> uploadAudio(String uid, String audioPath) async {
+  Future<String> uploadAudio(String id, String text, String audioPath) async {
     try {
-      // Server endpoint
-      String url = 'https://lingap-rag.onrender.com/upload-audio';
+      // Print debug info
+      print("Uploading audio from: $audioPath");
 
-      // Prepare file
+      // Validate file existence
       File audioFile = File(audioPath);
       if (!audioFile.existsSync()) {
         throw Exception("Audio file not found at: $audioPath");
       }
 
+      // API URL
+      String url = 'https://lingap-rag.onrender.com/classify-emotion';
+
       // Create FormData
       FormData formData = FormData.fromMap({
-        'uid': uid,
-        'file': await MultipartFile.fromFile(audioPath,
-            filename: 'merged_audio.m4a'),
+        'id': id,
+        'text': text,
+        'audio': await MultipartFile.fromFile(audioPath,
+            filename: 'merged_audio.m4a'), // Ensure correct format
       });
 
-      // Send POST request
+      // Configure Dio
       Dio dio = Dio();
       Response response = await dio.post(
         url,
@@ -77,15 +90,18 @@ class CreateJournalLogic {
         ),
       );
 
-      // Check response
+      // Handle response
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("Audio uploaded successfully: ${response.data}");
+        return response.data.classification;
       } else {
         print(
             "Failed to upload audio: ${response.statusCode} - ${response.data}");
+        return "error";
       }
     } catch (e) {
       print("Error uploading audio: $e");
+      return "error";
     }
   }
 

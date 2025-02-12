@@ -41,6 +41,7 @@ class _BottomNavState extends State<BottomNav> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isProfessionalOn = prefs.getBool('isProfessional') ?? false;
+      professional = _isProfessionalOn;
     });
   }
 
@@ -56,7 +57,7 @@ class _BottomNavState extends State<BottomNav> {
       HomePage(),
       hasSession ? ChatHome() : ChatbotLanding(),
       JournalPage(),
-      _isProfessionalOn ? UserPage() : ProfessionalPage(),
+      professional ? ProfessionalPage() : UserPage(),
       PeerConnectPage(),
     ];
   }

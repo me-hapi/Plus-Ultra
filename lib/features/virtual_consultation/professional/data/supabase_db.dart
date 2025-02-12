@@ -56,22 +56,52 @@ class SupabaseDB {
     required Map<String, dynamic> stepData,
   }) async {
     try {
+      final profileImage = stepData['profile'];
       final title = stepData['title'] ?? '';
       final fullName = stepData['fullName'] ?? '';
       final jobTitle = stepData['jobTitle'] ?? '';
       final bio = stepData['bio'] ?? '';
       final mobile = stepData['mobile'] ?? '';
       final email = stepData['email'] ?? '';
-
+      final specialtyList = stepData['specialty'] ?? [];
+      final experienceList = stepData['experience'] ?? [];
       final name = "$title $fullName";
 
-      final response = await _client.from('professional').update({
+      final profilePath = '$uid.jpg';
+
+      final uploadResponses = await Future.wait([
+        _client.storage
+            .from('professional_profile')
+            .upload(profilePath, profileImage),
+      ]);
+
+      final profilePublicUrl = _client.storage
+          .from('professional_profile')
+          .getPublicUrl(profilePath);
+
+      await _client.from('professional').update({
         'name': name,
         'job': jobTitle,
         'bio': bio,
         'number': mobile,
         'email': email,
+        'profileUrl': profilePublicUrl
       }).eq('uid', uid);
+
+      await _client.from('specialty').insert({
+        'professional_uid': uid,
+        'specialty': specialtyList, // This should be an array of text
+      });
+
+      for (var experienceData in experienceList) {
+        await _client.from('experience').insert({
+          'uid': uid, // Use the same UID to link experiences
+          'institution': experienceData['institution']!.text,
+          'date': experienceData['date']!.text,
+          'description':
+              experienceData['experience']!.text, // Maps to experience key
+        });
+      }
 
       print('Professional record updated successfully.');
     } catch (e) {

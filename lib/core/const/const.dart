@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 // String accountType = 'Patient';
 
+bool professional = false;
+
 String testBG = 'bg1';
 
 bool isConnected = false;

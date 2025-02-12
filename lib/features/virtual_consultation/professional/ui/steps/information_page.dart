@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/features/virtual_consultation/professional/logic/information_logic.dart';
 
 class InformationPage extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
@@ -12,6 +15,7 @@ class InformationPage extends StatefulWidget {
 }
 
 class _InformationPageState extends State<InformationPage> {
+  late InformationLogic _logic;
   String? selectedTitle;
   String? selectedJob;
   final TextEditingController fullNameController = TextEditingController();
@@ -29,6 +33,7 @@ class _InformationPageState extends State<InformationPage> {
 
   void _triggerDataChanged() {
     widget.onDataChanged({
+      'profile': _logic.frontImage,
       'title': selectedTitle,
       'fullName': fullNameController.text,
       'jobTitle': selectedJob,
@@ -68,6 +73,11 @@ class _InformationPageState extends State<InformationPage> {
   @override
   void initState() {
     super.initState();
+    _logic = InformationLogic(onDataChanged: (data) {
+      setState(() {});
+      widget.onDataChanged(data);
+    });
+
     fullNameController.addListener(_triggerDataChanged);
     bioController.addListener(_triggerDataChanged);
     mobileController.addListener(_triggerDataChanged);
@@ -83,6 +93,39 @@ class _InformationPageState extends State<InformationPage> {
     super.dispose();
   }
 
+  Widget _buildImageContainer(File? imageFile) {
+    return GestureDetector(
+      onTap: () async {
+        await _logic.pickImage(context);
+      },
+      child: Container(
+        width: 200,
+        height: 200,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: mindfulBrown['Brown80']!, width: 2),
+          color: Colors.white,
+        ),
+        child: imageFile != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Image.file(
+                  imageFile,
+                  fit: BoxFit.cover,
+                ),
+              )
+            : Center(
+                child: Text(
+                  'Upload Profile',
+                  style:
+                      TextStyle(fontSize: 16, color: mindfulBrown['Brown80']),
+                ),
+              ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -93,6 +136,9 @@ class _InformationPageState extends State<InformationPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: _buildImageContainer(_logic.frontImage),
+              ),
               // Title Dropdown
               Text(
                 'Title',

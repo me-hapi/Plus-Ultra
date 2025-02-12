@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/features/journaling/logic/create_logic.dart';
 import 'package:lingap/features/journaling/logic/insert_audio.dart';
 import 'package:lingap/features/journaling/logic/insert_image.dart';
@@ -186,21 +187,29 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                     height: 60,
                     child: GestureDetector(
                       onTap: () async {
-                        // context.go('/journal-success', extra: {
-                        //   'emotion': 'Neutral',
-                        //   'date': DateTime.now().toString(),
-                        //   'time': DateTime.now()
-                        //       .toLocal()
-                        //       .toIso8601String()
-                        //       .split('T')[1]
-                        //       .substring(0, 5),
-                        //   'title': _logic.titleController.text,
-                        //   'journalItems': _logic.journalItems
-                        // });
+                        // Show loading screen
+                        LoadingScreen.show(context);
+
+                        // Call the saveJournal function
+                        String emotion = await _logic.saveJournal();
+                        LoadingScreen.hide(context);
+
+                        context.go('/journal-success', extra: {
+                          'emotion': emotion,
+                          'date': DateTime.now().toString(),
+                          'time': DateTime.now()
+                              .toLocal()
+                              .toIso8601String()
+                              .split('T')[1]
+                              .substring(0, 5),
+                          'title': _logic.titleController.text,
+                          'journalItems': _logic.journalItems
+                        });
                       },
                       child: Image.asset('assets/journal/save.png'),
                     ),
                   ),
+
                   // ElevatedButton(
                   //   onPressed: () {
                   //     // Save journal logic
