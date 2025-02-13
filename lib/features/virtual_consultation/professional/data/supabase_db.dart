@@ -118,7 +118,7 @@ class SupabaseDB {
       final isFreeConsultation = stepData['isFreeConsultation'] ?? false;
       final consultationFee =
           isFreeConsultation ? '0' : stepData['consultationFee'] ?? '';
-      final gcashQr = isFreeConsultation ? null : stepData['gcashQr'];
+      final gcashQr = isFreeConsultation ? 'none' : stepData['gcashQr'];
 
       final response = await _client.from('professional_payment').insert({
         'uid': uid,
@@ -142,16 +142,16 @@ class SupabaseDB {
       final teleconsultationOnly = stepData['teleconsultationOnly'] ?? false;
 
       // If teleconsultation is selected, set all fields to null
-      final clinicName = teleconsultationOnly ? null : stepData['clinicName'];
+      final clinicName = teleconsultationOnly ? 'teleconsultation' : stepData['clinicName'];
       final clinicAddress =
-          teleconsultationOnly ? null : stepData['clinicAddress'];
+          teleconsultationOnly ? 'teleconsultation' : stepData['clinicAddress'];
       final selectedLocation =
           teleconsultationOnly ? null : stepData['selectedLocation'];
 
       final clinicLat =
-          selectedLocation != null ? selectedLocation['lat'] : null;
+          selectedLocation != null ? selectedLocation['lat'] : 0;
       final clinicLong =
-          selectedLocation != null ? selectedLocation['lng'] : null;
+          selectedLocation != null ? selectedLocation['lng'] : 0;
 
       // Insert data into the professional_clinic table
       final response = await _client.from('professional_clinic').insert({

@@ -77,27 +77,49 @@ class _ProfilePageState extends State<ProfilePage> {
     final String imageUrl = widget.professionalData['profileUrl'] ?? '';
     final String name = widget.professionalData['name'] ?? '';
     final String job = widget.professionalData['job'] ?? '';
-    final sessionFee = widget.professionalData['professional_payment']
+    int sessionFee = 0;
+    List specialty = [];
+    List experiences = [];
+
+    sessionFee = widget.professionalData['professional_payment']
             ['consultation_fee'] ??
         'Free';
-    final List specialty = widget.professionalData['specialty'][0]['specialty'];
-    final List experiences = widget.professionalData['experience'];
+    specialty = widget.professionalData['specialty'][0]['specialty'];
+    experiences = widget.professionalData['experience'];
     final String completedSessions =
         widget.professionalData['completedSessions'] ?? '25';
     final String personalBio = widget.professionalData['bio'] ??
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin id arcu aliquet, elementum nisi quis, condimentum nibh.';
-    final String location =
-        widget.professionalData['professional_clinic']['clinic_address'] ?? '';
-    final String? clinicName =
-        widget.professionalData['professional_clinic']['clinic_name'];
-    final double? clinicLat =
-        widget.professionalData['professional_clinic']['clinic_lat'] ?? 0;
-    final double? clinicLong =
-        widget.professionalData['professional_clinic']['clinic_long'] ?? 0;
-    final String distance =
-        calculateDistance(userLat, userLong, clinicLat!, clinicLong!)
-            .toStringAsFixed(2);
-    print(experiences);
+    String location = '';
+    String? clinicName = '';
+    String distance = '';
+
+    if (widget.professionalData['professional_clinic'] != null) {
+      location = widget.professionalData['professional_clinic']
+              ['clinic_address'] ??
+          '';
+      clinicName =
+          widget.professionalData['professional_clinic']['clinic_name'];
+      final double? clinicLat =
+          widget.professionalData['professional_clinic']['clinic_lat'] ?? 0;
+      final double? clinicLong =
+          widget.professionalData['professional_clinic']['clinic_long'] ?? 0;
+      distance = calculateDistance(userLat, userLong, clinicLat!, clinicLong!)
+          .toStringAsFixed(2);
+    }
+
+    // final String location =
+    //     widget.professionalData['professional_clinic']['clinic_address'] ?? '';
+    // final String? clinicName =
+    //     widget.professionalData['professional_clinic']['clinic_name'];
+    // final double? clinicLat =
+    //     widget.professionalData['professional_clinic']['clinic_lat'] ?? 0;
+    // final double? clinicLong =
+    //     widget.professionalData['professional_clinic']['clinic_long'] ?? 0;
+    // final String distance =
+    //     calculateDistance(userLat, userLong, clinicLat!, clinicLong!)
+    //         .toStringAsFixed(2);
+    // print(experiences);
     Map<String, String> filteredCategories = categories.entries
         .where((entry) => specialty.contains(entry.key))
         .fold<Map<String, String>>({}, (map, entry) {
@@ -495,7 +517,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       }).toList(),
                     )),
-                    SizedBox(height: 50,)
+                SizedBox(
+                  height: 50,
+                )
               ],
             ),
           ],

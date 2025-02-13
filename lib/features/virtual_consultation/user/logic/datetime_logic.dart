@@ -64,7 +64,7 @@ class DateTimeLogic {
         if (!breakTimes.contains(formattedTime)) {
           generatedTimeSlots.add(formattedTime);
         }
-        currentTime = currentTime.add(Duration(minutes: 30));
+        currentTime = currentTime.add(Duration(minutes: 60));
       }
     }
 

@@ -87,43 +87,16 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Future<File?> _compressImage(File imageFile) async {
-    final compressedFile = await FlutterImageCompress.compressWithFile(
-      imageFile.path,
-      minWidth: 800, // Adjust based on your needs
-      minHeight: 800, // Adjust based on your needs
-      quality: 85,
-      format: CompressFormat.jpeg,
-    );
-
-    if (compressedFile == null) return null;
-
-    final compressedImageFile = File('${imageFile.path}_compressed.jpg');
-    await compressedImageFile.writeAsBytes(compressedFile);
-
-    if (compressedImageFile.lengthSync() > 1000000) {
-      return _compressImage(compressedImageFile);
-    }
-
-    return compressedImageFile;
-  }
-
   // Helper to process the image
   Future<void> _processImage(ImageSource source) async {
     final XFile? pickedFile = await _picker.pickImage(source: source);
-    // if (pickedFile != null) {
-    //   final compressedImage = await _compressImage(File(pickedFile.path));
-    //   setState(() {
-    //     _gcashQrImage = compressedImage;
-    //     _triggerDataChanged();
-    //   });
-    // }
     if (pickedFile != null) {
       try {
         Result? result = await decoder.decodeFile(pickedFile);
         String? qrCodeData = result.toString();
         setState(() {
           _decodedQR = qrCodeData;
+          _triggerDataChanged();
         });
       } catch (e) {
         setState(() {

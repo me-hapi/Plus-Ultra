@@ -44,6 +44,23 @@ class SupabaseDB {
     }
   }
 
+  Future<void> insertRoom(
+      {required String uid,
+      required String professionalUid,
+      required String roomId}) async {
+    try {
+      final response = await _client.from('consultation_room').insert({
+        'room_id': roomId,
+        'professional_uid': professionalUid,
+        'user_uid': uid
+      });
+
+      print('room inserted successfully!');
+    } catch (e) {
+      print('Error inserting room: $e');
+    }
+  }
+
   Future<void> insertAppointment({
     required String uid,
     required String professionalUid,
@@ -88,6 +105,22 @@ class SupabaseDB {
       final response = await _client
           .from('appointment')
           .select()
+          .eq('uid', uid)
+          .maybeSingle();
+
+      return response;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchReservedProfessional(String uid) async {
+    try {
+      final response = await _client
+          .from('professional')
+          .select(
+              '*, professional_payment(*), professional_clinic(*), professional_availability(*), specialty(*), experience(*)')
           .eq('uid', uid)
           .maybeSingle();
 

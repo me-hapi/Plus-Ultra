@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
+import 'package:lingap/features/virtual_consultation/user/services/api_service.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 
 class BookingLogic {
@@ -22,18 +24,19 @@ class BookingLogic {
     required this.supabase,
   });
 
-  void nextPage(BuildContext context, VoidCallback onUpdateIndex) {
-    // if (index == 0 && !_validateUserDetails()) {
-    //   _showValidationError(context,
-    //       'Please fill in all required fields correctly in User Details.');
-    //   return;
-    // }
+  Future<void> nextPage(
+      BuildContext context, VoidCallback onUpdateIndex) async {
+    if (index == 0 && !_validateUserDetails()) {
+      _showValidationError(context,
+          'Please fill in all required fields correctly in User Details.');
+      return;
+    }
 
-    // if (index == 1 && !_validateDateTime()) {
-    //   _showValidationError(
-    //       context, 'Please select a valid date and time slot.');
-    //   return;
-    // }
+    if (index == 1 && !_validateDateTime()) {
+      _showValidationError(
+          context, 'Please select a valid date and time slot.');
+      return;
+    }
 
     if (index < 2) {
       index++;
@@ -41,12 +44,19 @@ class BookingLogic {
       onUpdateIndex();
     } else {
       print(stepData);
+
+      LoadingScreen.show(context);
       supabase.insertAppointment(
           uid: uid,
           status: 'pending',
           stepData: stepData,
           professionalUid: professionalData['uid']);
 
+      String roomId = await APIService().createRoomId();
+      supabase.insertRoom(
+          uid: uid, professionalUid: professionalData['uid'], roomId: roomId);
+
+      LoadingScreen.hide(context);
       context.push('/bottom-nav', extra: 3);
     }
   }

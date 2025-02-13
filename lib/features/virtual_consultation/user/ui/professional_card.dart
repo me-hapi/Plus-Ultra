@@ -41,21 +41,25 @@ class ProfessionalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Getting screen size to make font sizes adaptive
     final screenWidth = MediaQuery.of(context).size.width;
-
+    print(professionalData);
     final String name = professionalData['name'] ?? '';
     final String job = professionalData['job'] ?? '';
     final String imageUrl = professionalData['profileUrl'] ?? '';
-    final String location =
-        professionalData['professional_clinic']['clinic_address'] ?? '';
-    final String? clinicName =
-        professionalData['professional_clinic']['clinic_name'];
-    final double? clinicLat =
-        professionalData['professional_clinic']['clinic_lat'] ?? 0;
-    final double? clinicLong =
-        professionalData['professional_clinic']['clinic_long'] ?? 0;
-    final String distance =
-        calculateDistance(userLat, userLong, clinicLat!, clinicLong!)
-            .toStringAsFixed(2);
+    String location = '';
+    String? clinicName = '';
+    String distance = '';
+
+    if (professionalData['professional_clinic'] != null) {
+      location =
+          professionalData['professional_clinic']['clinic_address'] ?? '';
+      clinicName = professionalData['professional_clinic']['clinic_name'];
+      final double? clinicLat =
+          professionalData['professional_clinic']['clinic_lat'] ?? 0;
+      final double? clinicLong =
+          professionalData['professional_clinic']['clinic_long'] ?? 0;
+      distance = calculateDistance(userLat, userLong, clinicLat!, clinicLong!)
+          .toStringAsFixed(2);
+    }
 
     return GestureDetector(
       onTap: () {

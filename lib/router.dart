@@ -21,6 +21,7 @@ import 'package:lingap/features/virtual_consultation/professional/ui/application
 //USER TELECONSULT
 import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart'
     as user_home;
+import 'package:lingap/features/virtual_consultation/user/ui/instruction_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
     as professional_profile;
@@ -183,6 +184,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/findpage',
         builder: (context, state) => user_home.HomePage(),
       ),
+
+      GoRoute(
+        path: '/instruction',
+        builder: (context, state) => InstructionsPage(),
+      ),
+
       GoRoute(
         path: '/professional_profile',
         builder: (context, state) {

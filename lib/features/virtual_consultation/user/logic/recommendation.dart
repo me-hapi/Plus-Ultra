@@ -12,6 +12,8 @@ class Recommender {
     final professionalData = await supabaseDB.fetchProfessionals();
     final fetchIssue = await supabaseDB.fetchIssue(uid);
 
+    // print('mhscore: $mhScore \n issue: $fetchIssue \n professionals : $professionalData');
+
     // Define suitable professions based on MH score
     List<String> suitableProfessions = _getSuitableProfessions(mhScore!);
 

@@ -57,7 +57,10 @@ class _BookingPageState extends State<BookingPage> {
         breakTime: widget.professionalData['professional_availability']
             ['break_time'],
       ),
-      PaymentPage(),
+      PaymentPage(
+        qr_code: widget.professionalData['professional_payment']['payment_qr'] ?? "none",
+        fee: widget.professionalData['professional_payment']['consultation_fee'] ?? 0,
+      ),
     ];
   }
 

@@ -24,14 +24,15 @@ class _HomePageState extends ConsumerState<HomePage> {
   late TextEditingController searchController;
   SupabaseDB supabaseDB = SupabaseDB(client);
   List<Map<String, dynamic>> professionals = [];
+  Map<String, dynamic> recommendation = {};
 
   @override
   void initState() {
     super.initState();
     getUserLocation();
     searchController = TextEditingController();
+    getRecommendation();
     getProfessionals();
-    recommender.recommendProfessional(userLat, userLong);
   }
 
   @override
@@ -53,11 +54,18 @@ class _HomePageState extends ConsumerState<HomePage> {
     "Sleep": "assets/consultation/sleep.png",
   };
 
+  void getRecommendation() async {
+    final result = await recommender.recommendProfessional(userLat, userLong);
+    setState(() {
+      recommendation = result;
+      print('RECO: $recommendation');
+    });
+  }
+
   void getProfessionals() async {
     List<Map<String, dynamic>> result = await supabaseDB.fetchProfessionals();
     setState(() {
       professionals = result;
-      print(professionals);
     });
   }
 
@@ -206,6 +214,32 @@ class _HomePageState extends ConsumerState<HomePage> {
               SizedBox(
                 height: 16,
               ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Text(
+                  'Recommendation',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80']),
+                ),
+              ),
+
+              Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 2.0,
+                      horizontal: 0), // Reduce horizontal padding
+                  child: recommendation.isNotEmpty
+                      ? ProfessionalCard(
+                          professionalData: recommendation,
+                        )
+                      : Center(child: CircularProgressIndicator())),
+
+              SizedBox(
+                height: 16,
+              ),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Text(

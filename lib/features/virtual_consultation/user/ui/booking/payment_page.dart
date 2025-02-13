@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class PaymentPage extends StatelessWidget {
-  const PaymentPage({Key? key}) : super(key: key);
+  final String qr_code;
+  final int fee;
+
+  const PaymentPage({Key? key, required this.qr_code, required this.fee})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,29 +17,17 @@ class PaymentPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: 16),
-          Text(
-            'Payment',
-            style: TextStyle(
-                  color: mindfulBrown['Brown80'],
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 24),
-          Container(
-            height: 200,
-            width: 200,
-            color: Colors.grey[300], // Placeholder for QR code
-            child: Center(
-              child: Text(
-                'QR Code Here',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
+          if (fee != 0)
+            Text(
+              'Payment',
+              style: TextStyle(
+                color: mindfulBrown['Brown80'],
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
+          SizedBox(height: 24),
+          if (fee != 0) _buildImageContainer(qr_code),
           SizedBox(height: 32),
           Divider(color: mindfulBrown['Brown30']),
           SizedBox(height: 16),
@@ -44,13 +37,13 @@ class PaymentPage extends StatelessWidget {
               Text(
                 'Session Fee',
                 style: TextStyle(
-                  color: optimisticGray['Gray50'],
+                  color: mindfulBrown['Brown80'],
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
-                'P 500',
+                fee == 0 ? 'Free' : 'P $fee',
                 style: TextStyle(
                   color: mindfulBrown['Brown80'],
                   fontSize: 24,
@@ -62,5 +55,26 @@ class PaymentPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildImageContainer(String qr) {
+    return Center(
+        child: Container(
+            width: 300,
+            height: 300,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: mindfulBrown['Brown80']!, width: 2),
+              color: Colors.white,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: QrImageView(
+                data: qr,
+                version: QrVersions.auto,
+                size: 300.0,
+              ),
+            )));
   }
 }

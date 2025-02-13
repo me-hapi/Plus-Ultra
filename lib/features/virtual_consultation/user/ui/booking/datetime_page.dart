@@ -35,7 +35,12 @@ class _DateTimePageState extends State<DateTimePage> {
       availableDays: widget.availableDays,
       breakTime: widget.breakTime,
     );
-    _logic.generateTimeSlots(context);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _logic.generateTimeSlots(context); // Move here to avoid FlutterError
   }
 
   void _triggerDataChanged() {

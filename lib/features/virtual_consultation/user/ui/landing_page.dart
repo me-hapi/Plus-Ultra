@@ -4,6 +4,7 @@ import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -14,6 +15,7 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   Map<String, dynamic>? appointment;
+  Map<String, dynamic>? professional;
   SupabaseDB supabaseDB = SupabaseDB(client);
 
   @override
@@ -28,6 +30,20 @@ class _LandingPageState extends State<LandingPage> {
     if (mounted) {
       setState(() {
         appointment = result;
+        if (result != null) {
+          getProfessional(result['professional_id']);
+        }
+      });
+    }
+  }
+
+  Future<void> getProfessional(String uid) async {
+    Map<String, dynamic>? result =
+        await supabaseDB.fetchReservedProfessional(uid);
+
+    if (mounted) {
+      setState(() {
+        professional = result;
       });
     }
   }
@@ -43,7 +59,9 @@ class _LandingPageState extends State<LandingPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(16.0),
             child: Image.asset(
-              'assets/consultation/no_appointment.png',
+              appointment == null
+                  ? 'assets/consultation/no_appointment.png'
+                  : 'assets/consultation/upcoming.png',
               width: double.infinity,
               height: 280.0,
               fit: BoxFit.cover,
@@ -51,21 +69,30 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 20.0),
           Text(
-            'You have no therapist appointment',
+            appointment == null
+                ? 'You have no therapist appointment'
+                : 'You have an upcoming appointment',
             style: TextStyle(
                 fontWeight: FontWeight.w700,
-                fontSize: 36.0,
+                fontSize: 30.0,
                 color: mindfulBrown['Brown80']),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 40.0),
 
+          if (professional != null)
+            ProfessionalCard(professionalData: professional!),
+          const SizedBox(height: 40.0),
           SizedBox(
             height: 55,
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                context.push('/findpage');
+                if (appointment == null) {
+                  context.push('/findpage');
+                } else {
+                  context.push('/instruction');
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: mindfulBrown['Brown80'],
@@ -73,8 +100,8 @@ class _LandingPageState extends State<LandingPage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text(
-                'Schedule Appointment',
+              child: Text(
+                appointment == null ? 'Schedule Appointment' : 'Join call',
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.white,
