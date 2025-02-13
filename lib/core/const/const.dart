@@ -8,6 +8,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 bool professional = false;
 
+double userLat=0;
+double userLong=0;
+
 String testBG = 'bg1';
 
 bool isConnected = false;

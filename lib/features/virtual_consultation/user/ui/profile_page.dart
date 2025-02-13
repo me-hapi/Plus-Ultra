@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/booking_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -15,24 +18,92 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final List<Map<String, String>> experiencestest = [
+    {
+      'id': '1',
+      'uid': '3d5badb2-9a5f-427d-a6a0-32ea86d1559c',
+      'date': '2021-2025',
+      'description': 'Bachelor of Science in Social Science',
+      'institution': 'Don Mariano Marcos Memorial State University'
+    },
+    {
+      'id': '2',
+      'uid': 'abcd-1234',
+      'date': '2017-2021',
+      'description': 'High School Diploma',
+      'institution': 'XYZ High School'
+    }
+  ];
+  double calculateDistance(
+      double userLat, double userLong, double clinicLat, double clinicLong) {
+    print('userlat: $userLat, $userLong \n cliniclat: $clinicLat, $clinicLong');
+    const double earthRadius = 6371; // Radius of the Earth in km
+
+    double dLat = _degreesToRadians(clinicLat - userLat);
+    double dLon = _degreesToRadians(clinicLong - userLong);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degreesToRadians(userLat)) *
+            cos(_degreesToRadians(clinicLat)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return earthRadius * c; // Distance in km
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * (pi / 180);
+  }
+
+  final Map<String, String> categories = {
+    "Addiction": "assets/consultation/addiction.png",
+    "Anxiety": "assets/consultation/anxiety.png",
+    "Children": "assets/consultation/children.png",
+    "Depression": "assets/consultation/depression.png",
+    "Food": "assets/consultation/food.png",
+    "Grief": "assets/consultation/grief.png",
+    "LGBTQ": "assets/consultation/lgbtq.png",
+    "Psychosis": "assets/consultation/psychosis.png",
+    "Sleep": "assets/consultation/sleep.png",
+    "Relationship": "assets/consultation/relationship.png",
+  };
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    final String imageUrl = widget.professionalData['imageUrl'] ?? '';
+    final String imageUrl = widget.professionalData['profileUrl'] ?? '';
     final String name = widget.professionalData['name'] ?? '';
     final String job = widget.professionalData['job'] ?? '';
-    final String location = widget.professionalData['location'] ?? '';
-    final String distance = widget.professionalData['distance'] ?? '';
     final sessionFee = widget.professionalData['professional_payment']
             ['consultation_fee'] ??
         'Free';
+    final List specialty = widget.professionalData['specialty'][0]['specialty'];
+    final List experiences = widget.professionalData['experience'];
     final String completedSessions =
         widget.professionalData['completedSessions'] ?? '25';
     final String personalBio = widget.professionalData['bio'] ??
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin id arcu aliquet, elementum nisi quis, condimentum nibh.';
+    final String location =
+        widget.professionalData['professional_clinic']['clinic_address'] ?? '';
     final String? clinicName =
         widget.professionalData['professional_clinic']['clinic_name'];
+    final double? clinicLat =
+        widget.professionalData['professional_clinic']['clinic_lat'] ?? 0;
+    final double? clinicLong =
+        widget.professionalData['professional_clinic']['clinic_long'] ?? 0;
+    final String distance =
+        calculateDistance(userLat, userLong, clinicLat!, clinicLong!)
+            .toStringAsFixed(2);
+    print(experiences);
+    Map<String, String> filteredCategories = categories.entries
+        .where((entry) => specialty.contains(entry.key))
+        .fold<Map<String, String>>({}, (map, entry) {
+      map[entry.key] = entry.value;
+      return map;
+    });
 
     return Scaffold(
       backgroundColor: mindfulBrown['Brown10'],
@@ -53,17 +124,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(25.0),
                       child: Container(
-                          width: screenWidth,
-                          height: screenWidth,
-                          child: Image.asset('assets/doctor.jpg')
-                          // Image.network(
-                          //   imageUrl,
-                          //   fit: BoxFit.cover,
-                          //   errorBuilder: (context, error, StackTrace) {
-                          //     return const Icon(Icons.person, size: 50);
-                          //   },
-                          // ),
-                          ),
+                        width: screenWidth,
+                        height: screenWidth,
+                        child:
+                            // Image.asset('assets/doctor.jpg')
+                            Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, StackTrace) {
+                            return const Icon(Icons.person, size: 50);
+                          },
+                        ),
+                      ),
                     ),
                     // Positioned Card
                     Positioned(
@@ -97,6 +169,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               clinicName != null
                                   ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(Icons.location_on,
                                             size: screenWidth * 0.04,
@@ -292,6 +366,45 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
 
                 Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: filteredCategories.entries.map((entry) {
+                      final String category = entry.key;
+                      final String imagePath = entry.value;
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              imagePath,
+                              height: 25,
+                              width: 25,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              category,
+                              style: TextStyle(
+                                color: mindfulBrown['Brown80'],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+                Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16.0, vertical: 8.0),
                     child: Row(
@@ -303,9 +416,86 @@ class _ProfilePageState extends State<ProfilePage> {
                               fontSize: 16.0,
                               fontWeight: FontWeight.w700),
                         ),
-                        
                       ],
                     )),
+
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      children: experiences.asMap().entries.map((entry) {
+                        final int index = entry.key;
+                        final Map<String, dynamic> experience = entry.value;
+                        final bool isLast = index == experiences.length - 1;
+
+                        return LayoutBuilder(
+                          builder: (context, constraints) {
+                            return IntrinsicHeight(
+                              // Makes sure the row adapts to text height
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    children: [
+                                      // Green Dot
+                                      Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: serenityGreen['Green50'],
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      if (!isLast)
+                                        Expanded(
+                                          child: Container(
+                                            width: 2,
+                                            color: serenityGreen['Green50'],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          experience['institution']!,
+                                          style: TextStyle(
+                                              color: mindfulBrown['Brown80'],
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          experience['description']!,
+                                          style: TextStyle(
+                                              color: mindfulBrown['Brown80'],
+                                              fontSize: 12),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          experience['date']!,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: optimisticGray['Gray50']),
+                                        ),
+                                        if (!isLast)
+                                          SizedBox(
+                                              height:
+                                                  16), // Add spacing except for the last item
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    )),
+                    SizedBox(height: 50,)
               ],
             ),
           ],

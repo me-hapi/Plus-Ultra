@@ -15,7 +15,7 @@ final chatbotProvider =
 });
 
 class ChatbotNotifier extends StateNotifier<List<Message>> {
-  bool _hasIntroduced = false;
+  // bool _hasIntroduced = false;
   final Chatbot chatbot = Chatbot();
   final int sessionID;
   final SupabaseDB supabaseDB;
@@ -97,12 +97,14 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     emotion = response['emotion'];
     String title = response['title'];
     String icon = response['icon'];
+    String issue = response['issue'];
 
-    print('EMOTION: $emotion');
+    print('ISSUE: $issue');
 
     await supabaseDB.insertMessages(sessionID, userInput, true);
     await supabaseDB.insertMessages(sessionID, responseText, false);
     await supabaseDB.updateCount(sessionID, history.length, emotion);
+    await supabaseDB.updateIssue(sessionID, issue);
 
     if (history.length <= 3 && !_sessionUpdated) {
       _sessionUpdated = true;
@@ -116,7 +118,7 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
   }
 
   Future<void> introduction() async {
-    if (_hasIntroduced) return;
+    if (await supabaseDB.hasIntro(sessionID)) return;
 
     List<String> botIntroductions = [
       "Hi! Ako si Lingap, ang iyong mental health assistant. Nandito ako para makinig at sumuporta sa’yo. Pwede tayong mag-usap tungkol sa nararamdaman mo, mag-reflect sa emotions mo, at maghanap ng paraan para mas gumaan ang pakiramdam mo. Handa ka na bang magsimula?",
@@ -141,7 +143,7 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
         sessionID, botIntroductions[randomIndex], false);
     await supabaseDB.updateCount(sessionID, 1, emotion);
 
-    _hasIntroduced = true;
+    supabaseDB.updateIntro(sessionID);
   }
 
   Future<void> postAssessment() async {

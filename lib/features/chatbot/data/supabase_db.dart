@@ -14,6 +14,22 @@ class SupabaseDB {
     return response.isNotEmpty;
   }
 
+  Future<bool> hasIntro(int id) async {
+    final response = await _client
+        .from('session')
+        .select('introduction')
+        .eq('id', id)
+        .limit(1);
+    print(response);
+    return response[0]['introduction'] ?? false;
+  }
+
+  Future<void> updateIntro(int id) async {
+    final response = await _client
+        .from('session')
+        .update({'introduction': true}).eq('id', id);
+  }
+
   Future<int> createSession(String uid) async {
     try {
       final response = await _client
@@ -82,6 +98,19 @@ class SupabaseDB {
           .from('session')
           .update({'title': title, 'emotion': emotion, 'icon': icon}).eq(
               'id', sessionID);
+
+      return true;
+    } catch (e) {
+      print('Error updating session: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updateIssue(int sessionID, String issue) async {
+    try {
+      final response = await _client
+          .from('session')
+          .update({'issue': issue}).eq('id', sessionID);
 
       return true;
     } catch (e) {

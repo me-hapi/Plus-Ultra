@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
+import 'package:lingap/features/virtual_consultation/user/logic/recommendation.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/appointment_history.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/issue_row.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
@@ -19,6 +20,7 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  final Recommender recommender = Recommender();
   late TextEditingController searchController;
   SupabaseDB supabaseDB = SupabaseDB(client);
   List<Map<String, dynamic>> professionals = [];
@@ -29,6 +31,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     getUserLocation();
     searchController = TextEditingController();
     getProfessionals();
+    recommender.recommendProfessional(userLat, userLong);
   }
 
   @override
@@ -80,6 +83,10 @@ class _HomePageState extends ConsumerState<HomePage> {
         desiredAccuracy: LocationAccuracy.high,
       );
       print("Latitude: ${position.latitude}, Longitude: ${position.longitude}");
+      setState(() {
+        userLat = position.latitude;
+        userLong = position.longitude;
+      });
     }
   }
 

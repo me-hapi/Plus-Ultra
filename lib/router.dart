@@ -172,6 +172,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/application_page',
         builder: (context, state) => ApplicationPage(),
       ),
+
+      
       //User
       GoRoute(
         path: '/landing_page',

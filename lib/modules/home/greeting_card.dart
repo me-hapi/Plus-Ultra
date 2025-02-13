@@ -43,10 +43,12 @@ class _GreetingCardState extends State<GreetingCard> {
 
   Future<void> _loadBackgroundImage() async {
     final image = await preloadImage('assets/profileIcon/bg.png');
-    setState(() {
-      _backgroundImage = image;
-      bgCons = image;
-    });
+    if (mounted) {
+      setState(() {
+        _backgroundImage = image;
+        bgCons = image;
+      });
+    }
   }
 
   Future<ui.Image> preloadImage(String assetPath) async {

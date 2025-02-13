@@ -5,11 +5,36 @@ class SupabaseDB {
 
   SupabaseDB(this._client);
 
+  Future<Map<String, dynamic>?> fetchMHScore(String uid) async {
+    final response = await _client
+        .from('mh_score')
+        .select()
+        .eq('uid', uid)
+        .order('created_at', ascending: false)
+        .limit(1)
+        .single();
+
+    return response;
+  }
+
+  Future<String?> fetchIssue(String uid) async {
+    final response = await _client
+        .from('session')
+        .select('issue')
+        .eq('uid', uid) // Filter by UID
+        .eq('open', false) // Filter where open is false
+        .order('created_at', ascending: false) // Order by latest created_at
+        .limit(1) // Limit to 1 row
+        .maybeSingle(); // Return single row or null if not found
+
+    return response?['issue'] as String?;
+  }
+
   Future<List<Map<String, dynamic>>> fetchProfessionals() async {
     try {
       // Perform the join query using Supabase
       final response = await _client.from('professional').select(
-          '*, professional_payment(*), professional_clinic(*), professional_availability(*)');
+          '*, professional_payment(*), professional_clinic(*), professional_availability(*), specialty(*), experience(*)');
 
       // Parse and return the data
       return List<Map<String, dynamic>>.from(response);
@@ -45,7 +70,7 @@ class SupabaseDB {
         'email': userDetails['email'],
         'mobile': userDetails['mobile'],
         'gender': userDetails['gender'],
-        'age' : userDetails['age'],
+        'age': userDetails['age'],
         'comment': userDetails['comments'],
         // Date and timeslot
         'appointment_date': appointmentDate, // Use ISO8601 string
