@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/security/encryption.dart';
+import 'package:lingap/features/peer_connect/data/supabase_db.dart';
 import 'package:lingap/features/peer_connect/ui/meeting_screen.dart';
 import 'package:lingap/features/peer_connect/logic/message_controller.dart';
 import 'package:lingap/features/peer_connect/models/message_model.dart';
@@ -11,8 +12,9 @@ import 'package:lingap/features/peer_connect/ui/chat_bubble.dart';
 class ChatScreen extends StatefulWidget {
   final String roomId;
   final int id;
+  final String name;
 
-  ChatScreen({required this.roomId, required this.id});
+  ChatScreen({required this.roomId, required this.id, required this.name});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -22,11 +24,13 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   late Stream<List<MessageModel>> _messageStream;
   final Encryption encrypt = Encryption();
+  final SupabaseDB supabase = SupabaseDB(client);
 
   @override
   void initState() {
     super.initState();
     _messageStream = MessageController().getMessages(widget.id);
+    supabase.markMessageAsRead(widget.id);
   }
 
   void _sendMessage() async {
@@ -43,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: mindfulBrown['Brown80'],
         toolbarHeight: 50.0, // Reduce the height of the AppBar
-        title: Text('Chat',
+        title: Text(widget.name,
             style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w500,

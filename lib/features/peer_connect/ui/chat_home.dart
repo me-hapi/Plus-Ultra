@@ -22,6 +22,12 @@ class _ChatHomeState extends State<ChatHome> {
   bool isMessagesSelected = true;
   final Encryption encrypt = Encryption();
 
+  @override
+  void initState() {
+    super.initState();
+    fetchConnectedUsers(uid);
+  }
+
   Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) {
     return _supabaseDb.fetchConnectedUsers(myUid);
   }
@@ -109,13 +115,12 @@ class _ChatHomeState extends State<ChatHome> {
                                     final avatarUrl = user['imageUrl'];
                                     final roomId = user['roomId'];
                                     final id = user['id'];
-                                    final lastMessage = user['lastMessage'];
-                                    final messageTime = 
-                                    
-                                    DateFormat('h:mm a')
-                                        .format(DateTime.parse(
-                                                user['lastMessageTime']) 
-                                            .toLocal());
+                                    final lastMessage = user['last_message'];
+                                    final dateTime =
+                                        DateTime.parse(user['time']).toUtc();
+                                    final messageTime =
+                                        DateFormat('h:mm a').format(dateTime);
+
                                     final read = user['read'];
 
                                     return Padding(
@@ -132,7 +137,8 @@ class _ChatHomeState extends State<ChatHome> {
                                           context.push('/peer-chatscreen',
                                               extra: {
                                                 'roomId': roomId,
-                                                'id': id
+                                                'id': id,
+                                                'name': name
                                               });
                                           // Navigator.of(context).push(
                                           //   MaterialPageRoute(
@@ -182,15 +188,9 @@ class _ChatHomeState extends State<ChatHome> {
                                           // Show a loading indicator or handle feedback if necessary
                                           String roomId =
                                               await api.createRoomId();
-                                          final room =
-                                              await _supabaseDb.insertRoom(
-                                                  roomId,
-                                                  'unavailable',
-                                                  2,
-                                                  uid);
-                                          await _supabaseDb
-                                              .insertRoomParticipant(
-                                                  room, userId);
+                                          final room = await _supabaseDb
+                                              .insertToPeerRoom(
+                                                  roomId, uid, userId);
                                           context.push('/peer-chatscreen',
                                               extra: {
                                                 'roomId': roomId,
@@ -214,8 +214,6 @@ class _ChatHomeState extends State<ChatHome> {
               bottom: 90,
               child: FloatingActionButton(
                 onPressed: () {
-                  
-                  
                   showDialog(
                     context: context,
                     barrierDismissible:

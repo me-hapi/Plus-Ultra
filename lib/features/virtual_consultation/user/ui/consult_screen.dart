@@ -12,8 +12,14 @@ import 'package:videosdk/videosdk.dart';
 
 class ConsultScreen extends StatefulWidget {
   final String roomId;
+  final String professionalName;
+  final int appointmentId;
 
-  const ConsultScreen({super.key, required this.roomId});
+  const ConsultScreen(
+      {super.key,
+      required this.roomId,
+      required this.professionalName,
+      required this.appointmentId});
 
   @override
   State<ConsultScreen> createState() => _MeetingScreenState();
@@ -80,6 +86,7 @@ class _MeetingScreenState extends State<ConsultScreen> {
 
     room.on(Events.roomLeft, () {
       participants.clear();
+      context.push('/finish', extra: widget.appointmentId);
     });
   }
 
@@ -100,7 +107,7 @@ class _MeetingScreenState extends State<ConsultScreen> {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Text(
-            'Anonymous',
+            widget.professionalName,
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -124,8 +131,8 @@ class _MeetingScreenState extends State<ConsultScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    width: 140,
-                    height: 180,
+                    width: 150,
+                    height: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
@@ -152,6 +159,8 @@ class _MeetingScreenState extends State<ConsultScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: MeetingController(
+                  micEnabled: micEnabled, // Pass the mic state
+                  camEnabled: camEnabled, // Pass the camera state
                   onToggleMicButtonPressed: () {
                     setState(() {
                       micEnabled ? room.muteMic() : room.unmuteMic();
@@ -165,7 +174,6 @@ class _MeetingScreenState extends State<ConsultScreen> {
                     });
                   },
                   onLeaveButtonPressed: () => room.leave(),
-                  onSwitchCameraButtonPressed: () {},
                 ),
               ),
             ),

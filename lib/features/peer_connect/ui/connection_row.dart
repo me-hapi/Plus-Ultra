@@ -49,7 +49,8 @@ class ConnectionRow extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
+                  color: mindfulBrown['Brown80'],
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -60,7 +61,7 @@ class ConnectionRow extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.waving_hand,
-                color: mindfulBrown['Brown80'],
+                color: zenYellow['Yellow50'],
                 size: 30,
               ),
               onPressed: () {

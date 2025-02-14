@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class InstructionsPage extends StatelessWidget {
-  const InstructionsPage({super.key});
+  final String roomId;
+  final String name;
+  final int appointmentId;
+  const InstructionsPage(
+      {super.key,
+      required this.roomId,
+      required this.name,
+      required this.appointmentId});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +54,11 @@ class InstructionsPage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    
+                    context.push('/consultation-room', extra: {
+                      'roomId': roomId,
+                      'name': name,
+                      'appointmentId': appointmentId
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: mindfulBrown['Brown80'],

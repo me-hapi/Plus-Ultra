@@ -30,6 +30,7 @@ class _LandingPageState extends State<LandingPage> {
     if (mounted) {
       setState(() {
         appointment = result;
+        print(appointment);
         if (result != null) {
           getProfessional(result['professional_id']);
         }
@@ -44,6 +45,7 @@ class _LandingPageState extends State<LandingPage> {
     if (mounted) {
       setState(() {
         professional = result;
+        print(result);
       });
     }
   }
@@ -91,7 +93,11 @@ class _LandingPageState extends State<LandingPage> {
                 if (appointment == null) {
                   context.push('/findpage');
                 } else {
-                  context.push('/instruction');
+                  context.push('/instruction', extra: {
+                    'roomId': appointment!['consultation_room'][0]['room_id'],
+                    'name': professional!['name'],
+                    'appointmentId': appointment!['id']
+                  });
                 }
               },
               style: ElevatedButton.styleFrom(

@@ -5,6 +5,12 @@ class SupabaseDB {
 
   SupabaseDB(this._client);
 
+  Future<void> updateAppointment(int appointmentId) async {
+    final response = await _client
+        .from('appointment')
+        .update({'status': 'completed'}).eq('id', appointmentId);
+  }
+
   Future<Map<String, dynamic>?> fetchMHScore(String uid) async {
     final response = await _client
         .from('mh_score')
@@ -47,12 +53,14 @@ class SupabaseDB {
   Future<void> insertRoom(
       {required String uid,
       required String professionalUid,
-      required String roomId}) async {
+      required String roomId,
+      required int appointmenId}) async {
     try {
       final response = await _client.from('consultation_room').insert({
         'room_id': roomId,
         'professional_uid': professionalUid,
-        'user_uid': uid
+        'user_uid': uid,
+        'appointment_id': appointmenId
       });
 
       print('room inserted successfully!');
@@ -61,7 +69,7 @@ class SupabaseDB {
     }
   }
 
-  Future<void> insertAppointment({
+  Future<int> insertAppointment({
     required String uid,
     required String professionalUid,
     required String status,
@@ -92,11 +100,13 @@ class SupabaseDB {
         // Date and timeslot
         'appointment_date': appointmentDate, // Use ISO8601 string
         'time_slot': timeDate['selectedTimeSlot'],
-      });
+      }).select('id');
 
       print('Appointment inserted successfully!');
+      return response[0]['id'];
     } catch (e) {
       print('Error inserting appointment: $e');
+      return 0;
     }
   }
 
@@ -104,8 +114,9 @@ class SupabaseDB {
     try {
       final response = await _client
           .from('appointment')
-          .select()
+          .select('*, consultation_room(*)')
           .eq('uid', uid)
+          .eq('status', 'pending')
           .maybeSingle();
 
       return response;
@@ -137,7 +148,7 @@ class SupabaseDB {
     try {
       // Fetch appointments with related professional details
       final response = await supabase.from('appointment').select(
-          'appointment_date, status, professional:professional_id(name, uid)');
+          'appointment_date, status, professional:professional_id(name, uid, profileUrl, job)');
 
       final appointments = response as List;
 
@@ -147,12 +158,16 @@ class SupabaseDB {
       for (var appointment in appointments) {
         final professional = appointment['professional'];
         final professionalName = professional['name'];
+        final profileUrl = professional['profileUrl'];
+        final job = professional['job'];
         final date = appointment['appointment_date'];
         final status = appointment['status'];
 
         if (!groupedData.containsKey(professionalName)) {
           // Initialize a new group for the professional
           groupedData[professionalName] = {
+            'profile': profileUrl,
+            'job': job,
             'name': professionalName,
             'dates': [
               {'date': date, 'status': status}
@@ -168,6 +183,8 @@ class SupabaseDB {
       // Prepare final merged result
       final List<Map<String, dynamic>> mergedResults = groupedData.entries
           .map((entry) => {
+                'job': entry.value['job'],
+                'profile': entry.value['profile'],
                 'name': entry.value['name'],
                 'dates': entry.value['dates'], // List of dates and statuses
               })

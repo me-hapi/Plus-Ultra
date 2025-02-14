@@ -17,6 +17,7 @@ import 'package:lingap/features/peer_connect/ui/meeting_screen.dart';
 
 //PROFESSIONAL TELECONSULT
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/consult_screen.dart';
 
 //USER TELECONSULT
 import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart'
@@ -25,6 +26,7 @@ import 'package:lingap/features/virtual_consultation/user/ui/instruction_page.da
 import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
     as professional_profile;
+import 'package:lingap/features/virtual_consultation/user/ui/session_end.dart';
 
 //WEARABLE
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
@@ -174,7 +176,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ApplicationPage(),
       ),
 
-      
       //User
       GoRoute(
         path: '/landing_page',
@@ -186,9 +187,42 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
-        path: '/instruction',
-        builder: (context, state) => InstructionsPage(),
-      ),
+          path: '/instruction',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final roomId = extra['roomId'];
+            final name = extra['name'];
+            final appointmentId = extra['appointmentId'];
+
+            return InstructionsPage(
+              roomId: roomId,
+              name: name,
+              appointmentId: appointmentId,
+            );
+          }),
+
+      GoRoute(
+          path: '/consultation-room',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final roomId = extra['roomId'];
+            final name = extra['name'];
+            final appointmentId = extra['appointmentId'];
+            return ConsultScreen(
+              roomId: roomId,
+              professionalName: name,
+              appointmentId: appointmentId,
+            );
+          }),
+
+      GoRoute(
+          path: '/finish',
+          builder: (context, state) {
+            final extra = state.extra as int;
+            return SessionEndedPage(
+              appointmentId: extra,
+            );
+          }),
 
       GoRoute(
         path: '/professional_profile',
@@ -270,7 +304,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map;
           final id = extra['id'];
           final roomId = extra['roomId'];
-          return peer_screen.ChatScreen(roomId: roomId, id: id);
+          final name = extra['name'];
+          return peer_screen.ChatScreen(roomId: roomId, id: id, name: name);
         },
       ),
 

@@ -46,7 +46,7 @@ class BookingLogic {
       print(stepData);
 
       LoadingScreen.show(context);
-      supabase.insertAppointment(
+      int id = await supabase.insertAppointment(
           uid: uid,
           status: 'pending',
           stepData: stepData,
@@ -54,7 +54,10 @@ class BookingLogic {
 
       String roomId = await APIService().createRoomId();
       supabase.insertRoom(
-          uid: uid, professionalUid: professionalData['uid'], roomId: roomId);
+          uid: uid,
+          professionalUid: professionalData['uid'],
+          roomId: roomId,
+          appointmenId: id);
 
       LoadingScreen.hide(context);
       context.push('/bottom-nav', extra: 3);

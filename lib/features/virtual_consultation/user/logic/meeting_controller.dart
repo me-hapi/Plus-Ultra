@@ -1,43 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class MeetingController extends StatelessWidget {
-  final void Function() onToggleMicButtonPressed;
-  final void Function() onToggleCameraButtonPressed;
-  final void Function() onLeaveButtonPressed;
-  final void Function() onSwitchCameraButtonPressed;
+  final bool micEnabled;
+  final bool camEnabled;
+  final VoidCallback onToggleMicButtonPressed;
+  final VoidCallback onToggleCameraButtonPressed;
+  final VoidCallback onLeaveButtonPressed;
 
   const MeetingController({
     Key? key,
+    required this.micEnabled,
+    required this.camEnabled,
     required this.onToggleMicButtonPressed,
     required this.onToggleCameraButtonPressed,
     required this.onLeaveButtonPressed,
-    required this.onSwitchCameraButtonPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        IconButton(
-          icon: const Icon(Icons.call_end, color: Colors.red),
-          onPressed: onLeaveButtonPressed,
-          tooltip: 'Leave Call',
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: mindfulBrown['Brown80'],
+          child: IconButton(
+            icon: Icon(
+              micEnabled ? LucideIcons.mic : LucideIcons.micOff,
+              color: Colors.white,
+            ),
+            onPressed: onToggleMicButtonPressed,
+            tooltip: 'Mute/Unmute',
+          ),
         ),
-        IconButton(
-          icon: const Icon(Icons.mic_off),
-          onPressed: onToggleMicButtonPressed,
-          tooltip: 'Mute/Unmute',
+        CircleAvatar(
+          radius: 40,
+          backgroundColor: empathyOrange['Orange50'],
+          child: IconButton(
+            icon: const Icon(
+              LucideIcons.phoneOff,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: onLeaveButtonPressed,
+            tooltip: 'Leave Call',
+          ),
         ),
-        IconButton(
-          icon: const Icon(Icons.switch_camera),
-          onPressed: onSwitchCameraButtonPressed,
-          tooltip: 'Switch Front/Rear Camera',
-        ),
-        IconButton(
-          icon: const Icon(Icons.videocam_off),
-          onPressed: onToggleCameraButtonPressed,
-          tooltip: 'Video/No Video',
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: mindfulBrown['Brown80'],
+          child: IconButton(
+            icon: Icon(
+              camEnabled ? LucideIcons.video : LucideIcons.videoOff,
+              color: Colors.white,
+            ),
+            onPressed: onToggleCameraButtonPressed,
+            tooltip: 'Video/No Video',
+          ),
         ),
       ],
     );

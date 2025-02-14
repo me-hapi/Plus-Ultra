@@ -11,7 +11,7 @@ class MessageController {
   final Encryption encrypt = Encryption();
 
   Stream<List<MessageModel>> getMessages(int id) {
-    return _supabaseDb.getMessagesStream(id);
+    return _supabaseDb.getPeerMessagesStream(id);
   }
 
   // Method to send a message
@@ -22,7 +22,7 @@ class MessageController {
           roomId: id,
           sender: uid,
           content: encrypt.encryptMessage(content, id.toString()));
-      await _supabaseDb.insertMessage(message);
+      await _supabaseDb.insertPeerMessage(message);
     } catch (e) {
       throw Exception('Failed to send message: $e');
     }

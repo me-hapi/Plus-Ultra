@@ -121,7 +121,8 @@ class _AppointmentHistoryState extends State<AppointmentHistory> {
                       }
 
                       return AppointmentCard(
-                        imageUrl: appointment['imageUrl'] ?? '',
+                        job: appointment['job'] ?? '',
+                        imageUrl: appointment['profile'] ?? '',
                         name: appointment['name'] ?? '',
                         dates: appointment['dates'] ?? '',
                       );

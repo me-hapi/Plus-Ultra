@@ -9,16 +9,34 @@ class SupabaseDB {
   SupabaseDB(this._client);
 
   Future<List<Map<String, dynamic>>> fetchAvailableRooms() async {
-    final response = await _client.from('room').select('''
-            id, room_id, 
-            room_participant!inner(
-              profile!inner(
-                id, 
-                mh_score!inner(depression, anxiety, stress)
-              )
-            )
-            ''').eq('status', 'available');
+   final response = await _client
+    .from('match_room')
+    .select('id, room_id, status, sender, receiver')
+    .eq('status', 'available')
+    .not('sender', 'is', null) // Ensures sender is not null
+    .not('receiver', 'is', null, 'or') // OR ensures receiver is not null
+    .order('id', ascending: false); // Sort match_room by latest first
 
+// Fetch the latest mh_score for each match
+for (var match in response) {
+  String? userId = match['sender'] ?? match['receiver']; // Get non-null sender/receiver
+  if (userId != null) {
+    final mhScoreResponse = await _client
+        .from('mh_score')
+        .select('uid, depression, anxiety, stress')
+        .eq('uid', userId)
+        .order('created_at', ascending: false)
+        .limit(1)
+        .maybeSingle(); // Get the latest mh_score entry
+    
+    if (mhScoreResponse != null) {
+      match['mh_score'] = mhScoreResponse; // Attach latest mh_score
+    }
+  }
+}
+
+    // Limit to 1 latest mh_score row per match
+    print('DATA: $response');
     final data = response as List<dynamic>;
     return data
         .map((e) {
@@ -75,9 +93,21 @@ class SupabaseDB {
     });
   }
 
-  Stream<List<MessageModel>> getMessagesStream(int id) {
+  Future<void> markMessageAsRead(int roomId) async {
+    final supabase = Supabase.instance.client;
+
+    try {
+      final response = await supabase
+          .from('peer_messages')
+          .update({'read': true}).match({'room_id': roomId});
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Stream<List<MessageModel>> getPeerMessagesStream(int id) {
     final stream = _client
-        .from('messages')
+        .from('peer_messages')
         .stream(primaryKey: ['id'])
         .eq('room_id', id)
         .map((data) => data.map((e) => MessageModel.fromMap(e)).toList());
@@ -85,13 +115,13 @@ class SupabaseDB {
     return stream;
   }
 
-  Future<void> insertMessage(MessageModel message) async {
-    final response = await _client.from('messages').insert({
+  Future<void> insertPeerMessage(MessageModel message) async {
+    final response = await _client.from('peer_messages').insert({
       'created_at': message.created_at.toIso8601String(),
       'room_id': message.roomId,
       'sender': message.sender,
       'content': message.content,
-      'read' : false
+      'read': false
     });
   }
 
@@ -108,6 +138,16 @@ class SupabaseDB {
         .single();
 
     await insertRoomParticipant(response['id'] as int, uid);
+    return response['id'] as int;
+  }
+
+  Future<int> insertToPeerRoom(String roomId, String uid, String userId) async {
+    final response = await _client
+        .from('peer_room')
+        .insert({'room_id': roomId, 'sender': uid, 'receiver': userId})
+        .select('id')
+        .single();
+
     return response['id'] as int;
   }
 
@@ -144,87 +184,81 @@ class SupabaseDB {
   }
 
   Stream<List<Map<String, dynamic>>> fetchUnknownUsers(String uid) async* {
-    try {
-      final connectedUsersStream = fetchConnectedUsers(uid);
+    // Fetch all matched user IDs from peer_rooms where the current uid is involved
+    final matchedUsersResponse = await _client
+        .from('peer_room')
+        .select('sender, receiver')
+        .or('sender.eq.$uid, receiver.eq.$uid');
 
-      final allUsersStream =
-          _client.from('profile').stream(primaryKey: ['id']).neq('id', uid);
-
-      Set<String> connectedUserIds = {};
-
-      await for (final connectedUsers in connectedUsersStream) {
-        connectedUserIds =
-            connectedUsers.map((user) => user['uid'] as String).toSet();
-
-        await for (final allUsersSnapshot in allUsersStream) {
-          final filteredUnknownUsers = allUsersSnapshot.where((user) {
-            return !connectedUserIds.contains(user['id'] as String);
-          }).toList();
-
-          yield filteredUnknownUsers;
-        }
-      }
-    } catch (e) {
-      print('Error: $e');
-      yield [];
+    // Collect matched user IDs
+    final Set<String> matchedUserIds = {};
+    for (var row in matchedUsersResponse) {
+      matchedUserIds.add(row['sender'] as String);
+      matchedUserIds.add(row['receiver'] as String);
     }
+
+    // Remove the current user from the set
+    matchedUserIds.remove(uid);
+
+    // Stream all profiles and filter out matched ones manually
+    yield* _client
+        .from('profile')
+        .stream(primaryKey: ['id'])
+        .neq('id', uid) // Ensure the current user is excluded
+        .map((profiles) => profiles
+            .where((profile) => !matchedUserIds.contains(profile['id']))
+            .map((p) => p)
+            .toList());
   }
 
   Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) async* {
     try {
-      // Listen to changes in the 'room_participant' table.
-      final subscription = _client
-          .from('room_participant')
-          .stream(primaryKey: ['id']).eq('uid', myUid);
+      yield* _client
+          .from('peer_room')
+          .select('''
+          id, room_id, sender, receiver, 
+          peer_messages(created_at, room_id, sender, content, read),
+          sender_profile:profile!peer_room_sender_fkey(name, imageUrl), 
+          receiver_profile:profile!peer_room_receiver_fkey(name, imageUrl)
+        ''')
+          .or('sender.eq.$myUid,receiver.eq.$myUid')
+          .asStream()
+          .map((data) => List<Map<String, dynamic>>.from(data.map((room) {
+                bool isSender = room['sender'] == myUid;
+                String otherUserId =
+                    isSender ? room['receiver'] : room['sender'];
 
-      await for (final data in subscription) {
-        final List<int> roomIds =
-            data.map((item) => item['room_id'] as int).toList();
+                Map<String, dynamic> otherUserProfile = isSender
+                    ? room['receiver_profile']
+                    : room['sender_profile'];
 
-        if (roomIds.isEmpty) {
-          yield [];
-          continue;
-        }
+                List<dynamic> messages = List.from(room['peer_messages'] ?? []);
 
-        final response = await _client
-            .from('room_participant')
-            .select('room(id, room_id), profile(id, name, status, imageUrl)')
-            .inFilter('room_id', roomIds);
+// Sort messages by latest timestamp (descending order)
+                messages
+                    .sort((a, b) => b['created_at'].compareTo(a['created_at']));
 
-        final List<Map<String, dynamic>> participants = (response as List)
-            .where((item) => item['profile']['id'] != myUid)
-            .map((item) => {
-                  'uid': item['uid'],
-                  'name': item['profile']['name'],
-                  'status': item['profile']['status'],
-                  'imageUrl': item['profile']['imageUrl'],
-                  'roomId': item['room']['room_id'],
-                  'id': item['room']['id']
-                })
-            .toList();
-
-        print(roomIds);
-        // Fetch the latest messages for each room
-        final List<Map<String, dynamic>> latestMessages =
-            await _fetchLatestMessages(roomIds);
-
-        // Merge latest messages into participants list
-        for (var participant in participants) {
-          final latestMessage = latestMessages.firstWhere(
-              (msg) => msg['roomId'] == participant['id'],
-              orElse: () =>
-                  {'created_at': null, 'content': null, 'read': null});
-
-          participant['lastMessage'] = latestMessage['content'];
-          participant['lastMessageTime'] = latestMessage['created_at'];
-          participant['read'] = latestMessage['read'];
-        }
-
-        print(participants);
-        yield participants;
-      }
-    } catch (error) {
-      print('Error fetching participants: $error');
+// Get the most recent message (regardless of sender)
+                Map<String, dynamic> lastMessage = messages.isNotEmpty
+                    ? messages.first
+                    : <String, dynamic>{
+                        'content': null,
+                        'created_at': null,
+                        'read': null
+                      };
+                print('ROOM: $room');
+                return {
+                  'id': room['id'],
+                  'roomId': room['room_id'],
+                  'name': otherUserProfile['name'],
+                  'imageUrl': otherUserProfile['imageUrl'],
+                  'last_message': lastMessage!['content'],
+                  'time': lastMessage['created_at'],
+                  'read': lastMessage['read'],
+                };
+              })));
+    } catch (e) {
+      print('ERROR: $e');
       yield [];
     }
   }
@@ -241,7 +275,6 @@ class SupabaseDB {
           .order('created_at',
               ascending: false) // Get the latest messages first
           .limit(1); // Fetch only the latest message per room
-
 
       return (response as List)
           .map((msg) => {

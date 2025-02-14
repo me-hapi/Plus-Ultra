@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class AppointmentCard extends StatefulWidget {
+  final String job;
   final String imageUrl;
   final String name;
-  final List<Map<String, String>> dates;
+  final List<Map<String, dynamic>> dates;
 
   const AppointmentCard({
     Key? key,
     required this.imageUrl,
     required this.name,
     required this.dates,
+    required this.job,
   }) : super(key: key);
 
   @override
@@ -22,15 +25,15 @@ class _AppointmentCardState extends State<AppointmentCard> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        return Colors.green;
+        return reflectiveBlue['Blue50']!;
       case 'declined':
-        return Colors.red;
+        return presentRed['Red50']!;
       case 'canceled':
-        return Colors.orange;
+        return empathyOrange['Orange']!;
       case 'completed':
-        return Colors.blue;
+        return serenityGreen['Green50']!;
       case 'pending':
-        return Colors.yellow;
+        return zenYellow['Yellow50']!;
       default:
         return Colors.grey;
     }
@@ -39,22 +42,23 @@ class _AppointmentCardState extends State<AppointmentCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      color: Colors.white,
+      elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(25),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 // Image with rounded corners
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(20),
                   child: Image.network(
                     widget.imageUrl,
                     width: 60,
@@ -70,19 +74,33 @@ class _AppointmentCardState extends State<AppointmentCard> {
 
                 // Name
                 Expanded(
-                  child: Text(
-                    widget.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.name,
+                      style: TextStyle(
+                        color: mindfulBrown['Brown80'],
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ),
+                    Text(
+                      widget.job,
+                      style: TextStyle(
+                        color: optimisticGray['Gray50'],
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                )),
 
                 // Expand/Collapse Icon
                 if (widget.dates.length > 1)
                   IconButton(
-                    icon: Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
+                    icon: Icon(
+                        _isExpanded ? Icons.expand_less : Icons.expand_more),
                     onPressed: () {
                       setState(() {
                         _isExpanded = !_isExpanded;
@@ -98,7 +116,9 @@ class _AppointmentCardState extends State<AppointmentCard> {
             if (!_isExpanded)
               Row(
                 children: [
-                  Icon(Icons.circle, size: 12, color: _getStatusColor(widget.dates[0]['status']!)),
+                  Icon(Icons.circle,
+                      size: 12,
+                      color: _getStatusColor(widget.dates[0]['status']!)),
                   const SizedBox(width: 8),
                   Text(
                     widget.dates[0]['date']!,
@@ -107,10 +127,13 @@ class _AppointmentCardState extends State<AppointmentCard> {
                   const SizedBox(width: 4),
                   Text(
                     widget.dates[0]['status']!,
-                    style: TextStyle(fontSize: 14, color: _getStatusColor(widget.dates[0]['status']!)),
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: _getStatusColor(widget.dates[0]['status']!)),
                   ),
                   if (widget.dates.length > 1)
-                    const Text('  ...', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    const Text('  ...',
+                        style: TextStyle(fontSize: 14, color: Colors.grey)),
                 ],
               )
             else
@@ -121,7 +144,9 @@ class _AppointmentCardState extends State<AppointmentCard> {
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Row(
                       children: [
-                        Icon(Icons.circle, size: 12, color: _getStatusColor(dateInfo['status']!)),
+                        Icon(Icons.circle,
+                            size: 12,
+                            color: _getStatusColor(dateInfo['status']!)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -131,7 +156,9 @@ class _AppointmentCardState extends State<AppointmentCard> {
                         ),
                         Text(
                           dateInfo['status']!,
-                          style: TextStyle(fontSize: 14, color: _getStatusColor(dateInfo['status']!)),
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: _getStatusColor(dateInfo['status']!)),
                         ),
                       ],
                     ),
