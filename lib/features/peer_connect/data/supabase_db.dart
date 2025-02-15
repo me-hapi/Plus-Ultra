@@ -9,58 +9,54 @@ class SupabaseDB {
   SupabaseDB(this._client);
 
   Future<List<Map<String, dynamic>>> fetchAvailableRooms() async {
-   final response = await _client
-    .from('match_room')
-    .select('id, room_id, status, sender, receiver')
-    .eq('status', 'available')
-    .not('sender', 'is', null) // Ensures sender is not null
-    .not('receiver', 'is', null, 'or') // OR ensures receiver is not null
-    .order('id', ascending: false); // Sort match_room by latest first
+    final response = await _client
+        .from('match_room')
+        .select('id, room_id, status, sender, receiver')
+        .eq('status', 'available')
+        .not('sender', 'is', null) // Ensures sender is not null
+        .order('id', ascending: false); // Sort match_room by latest first
 
-// Fetch the latest mh_score for each match
-for (var match in response) {
-  String? userId = match['sender'] ?? match['receiver']; // Get non-null sender/receiver
-  if (userId != null) {
-    final mhScoreResponse = await _client
-        .from('mh_score')
-        .select('uid, depression, anxiety, stress')
-        .eq('uid', userId)
-        .order('created_at', ascending: false)
-        .limit(1)
-        .maybeSingle(); // Get the latest mh_score entry
-    
-    if (mhScoreResponse != null) {
-      match['mh_score'] = mhScoreResponse; // Attach latest mh_score
+    List<Map<String, dynamic>> formattedData = [];
+
+    for (var match in response) {
+      String? senderId = match['sender']; // Sender UID
+      String? receiverId = match['receiver']; // Receiver UID
+
+      Map<String, dynamic>? mhScore;
+      Map<String, dynamic>? senderProfile;
+
+      if (senderId != null) {
+        // Fetch the latest mh_score for the sender
+        mhScore = await _client
+            .from('mh_score')
+            .select('uid, depression, anxiety, stress')
+            .eq('uid', senderId)
+            .order('created_at', ascending: false)
+            .limit(1)
+            .maybeSingle();
+
+        // Fetch sender profile details
+        senderProfile = await _client
+            .from('profile')
+            .select('name, anonymous')
+            .eq('id', senderId)
+            .maybeSingle();
+      }
+
+      formattedData.add({
+        'id': match['id'],
+        'room_id': match['room_id'],
+        'depression': mhScore?['depression'] ?? 0, // Default to 0 if null
+        'anxiety': mhScore?['anxiety'] ?? 0,
+        'stress': mhScore?['stress'] ?? 0,
+        'name': senderProfile?['name'] ?? 'Unknown', // Default if null
+        'anonymous':
+            senderProfile?['anonymous'] ?? false, // Default to false
+      });
     }
-  }
-}
 
-    // Limit to 1 latest mh_score row per match
-    print('DATA: $response');
-    final data = response as List<dynamic>;
-    return data
-        .map((e) {
-          // Extracting room participant and mh_score, considering they are lists.
-          final roomParticipants = e['room_participant'] as List<dynamic>;
-          if (roomParticipants.isNotEmpty) {
-            final profile = roomParticipants[0]['profile'];
-            final mhScores = profile['mh_score'] as List<dynamic>;
-            if (mhScores.isNotEmpty) {
-              final mhScore = mhScores[0];
-              return {
-                'id': e['id'],
-                'room_id': e['room_id'],
-                'depression': mhScore['depression'],
-                'anxiety': mhScore['anxiety'],
-                'stress': mhScore['stress'],
-              };
-            }
-          }
-          return null; // Handle case where mh_score or room_participant is empty
-        })
-        .where((element) => element != null) // Filter out null values
-        .cast<Map<String, dynamic>>()
-        .toList();
+    print('Formatted Data: $formattedData');
+    return formattedData;
   }
 
   Future<Map<String, dynamic>?> fetchMHScore(String uid) async {
@@ -82,7 +78,7 @@ for (var match in response) {
     final supabase = Supabase.instance.client;
 
     final roomStream = supabase
-        .from('room')
+        .from('match_room')
         .stream(primaryKey: ['room_id']).eq('room_id', roomId);
 
     return roomStream.map((rooms) {
@@ -125,19 +121,18 @@ for (var match in response) {
     });
   }
 
-  Future<int> insertRoom(
-      String roomId, String roomStatus, int participants, String uid) async {
+  Future<int> insertMatchRoom(
+      String roomId, String roomStatus, String uid) async {
     final response = await _client
-        .from('room')
+        .from('match_room')
         .insert({
           'room_id': roomId,
           'status': roomStatus,
-          'participants': participants,
+          'sender': uid,
         })
         .select('id')
         .single();
 
-    await insertRoomParticipant(response['id'] as int, uid);
     return response['id'] as int;
   }
 
@@ -153,13 +148,11 @@ for (var match in response) {
 
   Future<void> updateRoom(String roomId, String roomStatus, String uid) async {
     final response = await _client
-        .from('room')
-        .update({'status': roomStatus})
+        .from('match_room')
+        .update({'status': roomStatus, 'receiver': uid})
         .eq('room_id', roomId)
         .select('id')
         .single();
-
-    await insertRoomParticipant(response['id'] as int, uid);
   }
 
   Future<void> incrementParticipants(String roomId) async {
@@ -175,13 +168,13 @@ for (var match in response) {
     }).eq('room_id', roomId);
   }
 
-  Future<void> insertRoomParticipant(int roomId, String userId) async {
-    final response = await _client.from('room_participant').insert({
-      'room_id': roomId,
-      'uid': userId,
-      'joined_at': DateTime.now().toIso8601String(),
-    });
-  }
+  // Future<void> insertRoomParticipant(int roomId, String userId) async {
+  //   final response = await _client.from('room_participant').insert({
+  //     'room_id': roomId,
+  //     'uid': userId,
+  //     'joined_at': DateTime.now().toIso8601String(),
+  //   });
+  // }
 
   Stream<List<Map<String, dynamic>>> fetchUnknownUsers(String uid) async* {
     // Fetch all matched user IDs from peer_rooms where the current uid is involved
@@ -252,7 +245,7 @@ for (var match in response) {
                   'roomId': room['room_id'],
                   'name': otherUserProfile['name'],
                   'imageUrl': otherUserProfile['imageUrl'],
-                  'last_message': lastMessage!['content'],
+                  'last_message': lastMessage['content'],
                   'time': lastMessage['created_at'],
                   'read': lastMessage['read'],
                 };

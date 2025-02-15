@@ -15,6 +15,8 @@ class Matchmaking {
     final allRooms = await _supabaseDB.fetchAvailableRooms();
     String? roomId;
     int? id;
+    String? name;
+    bool? anonymous;
     double minDistance = double.infinity;
 
     for (final room in allRooms) {
@@ -31,10 +33,12 @@ class Matchmaking {
         minDistance = distance;
         roomId = room['room_id'];
         id = room['id'];
+        name = room['name'];
+        anonymous = room['anonymous'];
       }
     }
 
-    return {'roomId': roomId, 'id': id};
+    return {'roomId': roomId, 'id': id, 'name': name, 'anonymous': anonymous};
   }
 
   double calculateEuclideanDistance(

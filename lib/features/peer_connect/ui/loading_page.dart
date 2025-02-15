@@ -41,7 +41,7 @@ class _LoadingDialogState extends State<LoadingDialog>
     final availRooms = await _supabaseDB.fetchAvailableRooms();
     if (availRooms.isEmpty) {
       String roomId = await api.createRoomId();
-      final id = await _supabaseDB.insertRoom(roomId, 'available', 1, uid);
+      final id = await _supabaseDB.insertMatchRoom(roomId, 'available', uid);
 
       await for (String status in _supabaseDB.isFull(roomId)) {
         if (status == 'unavailable') {
@@ -50,20 +50,22 @@ class _LoadingDialogState extends State<LoadingDialog>
       }
 
       if (mounted) {
-        
-      print('mounted');
+        print('mounted');
         Navigator.pop(context); // Close modal
         context.push('/peer-chatscreen', extra: {'roomId': roomId, 'id': id});
       }
     } else {
       Map result = await match.findRoom(uid);
       await _supabaseDB.updateRoom(result['roomId'], 'unavailable', uid);
-      await _supabaseDB.incrementParticipants(result['roomId']);
-
+      String name = result['anonymous'] ? "Anonymous" : result['name'];
       if (mounted) {
         Navigator.pop(context); // Close modal
-        context.push('/peer-chatscreen',
-            extra: {'roomId': result['roomId'], 'id': result['id']});
+
+        context.push('/peer-chatscreen', extra: {
+          'roomId': result['roomId'],
+          'id': result['id'],
+          'name': name
+        });
       }
     }
   }
