@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/chatbot/logic/chatbot_manager.dart';
 import 'package:lingap/features/chatbot/ui/chat_bubble.dart';
@@ -74,7 +75,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 color: Colors.white)),
         actions: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              context.push('/realtime');
+            },
             child: Image.asset(
               'assets/peer/call.png',
               width: 20,

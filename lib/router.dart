@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lingap/features/chatbot/services/realtime_chatbot.dart';
 
 //CHATBOT
 import 'package:lingap/features/chatbot/ui/chat_screen.dart' as chatbot_screen;
@@ -167,6 +168,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/chatbot-landing',
         builder: (context, state) => ChatbotLanding(),
+      ),
+
+      GoRoute(
+        path: '/realtime',
+        builder: (context, state) => RealtimeChatbot(),
       ),
 
       //VIRTUAL CONSULTATION

@@ -44,6 +44,15 @@ dependencies:
   dio: ^5.8.0+1
   geolocator: ^12.0.0
   lucide_icons: ^0.257.0
+  speech_to_text: ^6.6.0
+  flutter_tts: ^4.2.2
+  web_socket_channel: ^3.0.2
+  flutter_dotenv: ^5.2.1
+  langchain: ^0.7.7+2
+  langchain_pinecone: ^0.1.0+11
+  langchain_openai: ^0.7.3
+  dart_openai: ^5.1.0
+
 
 dev_dependencies:
   flutter_test:
