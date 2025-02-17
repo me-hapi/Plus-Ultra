@@ -42,10 +42,11 @@ class _RealtimeChatbotState extends State<RealtimeChatbot> {
     //   print("Error fetching languages: $e");
     // }
 
-    await for (final response in rag.queryStream(
-        'ang baba ng nakuha kong score sa test kanina huuhuhu', 'No history yet')) {
-      print('RESULT: $response');
-    }
+    // await for (final response in rag.queryStream(
+    //     'ang baba ng nakuha kong score sa test kanina huuhuhu',
+    //     ['No history yet'])) {
+    //   print('RESULT: $response');
+    // }
   }
 
   void _initializeTTS() async {

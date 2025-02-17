@@ -6,7 +6,9 @@ import 'package:http/http.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/const/das_interpretation.dart';
 import 'package:lingap/features/chatbot/data/supabase_db.dart';
+import 'package:lingap/features/chatbot/logic/utils.dart';
 import 'package:lingap/features/chatbot/services/chatbot.dart';
+import 'package:lingap/features/chatbot/services/rag_model.dart';
 
 final chatbotProvider =
     StateNotifierProvider.family<ChatbotNotifier, List<Message>, int>(
@@ -17,6 +19,7 @@ final chatbotProvider =
 class ChatbotNotifier extends StateNotifier<List<Message>> {
   // bool _hasIntroduced = false;
   final Chatbot chatbot = Chatbot();
+  final RAGModel rag = RAGModel();
   final int sessionID;
   final SupabaseDB supabaseDB;
   final TextEditingController messageController = TextEditingController();
@@ -91,7 +94,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
             msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
         .toList();
 
-    Map response = await chatbot.createResponse(userInput, history);
+    String responseQuery = await rag.queryResponse(userInput, history);
+    Map response = Utils().parseResponse(responseQuery);
 
     String responseText = response['response'];
     emotion = response['emotion'];
@@ -278,7 +282,8 @@ Ensure the response is a close ended question.
       )
     ];
 
-    Map response = await chatbot.createResponse(prompt, history);
+    String responseQuery = await rag.queryResponse(prompt, history);
+    Map response = Utils().parseResponse(responseQuery);
 
     String responseText = response['response'];
 
@@ -366,7 +371,9 @@ Ensure the response is a close ended question.
             msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
         .toList();
 
-    Map response = await chatbot.createResponse('Hindi', history);
+    String responseQuery = await rag.queryResponse('Hindi', history);
+    Map response = Utils().parseResponse(responseQuery);
+
     String responseText = response['response'];
 
     state = [

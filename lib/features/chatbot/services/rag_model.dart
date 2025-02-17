@@ -26,8 +26,8 @@ class RAGModel {
     print('RESULT $result');
   }
 
-  String getPrompt(
-      String userQuery, String formattedHistory, String retrievedContext) {
+  String getPrompt(String userQuery, List<String> formattedHistory,
+      String retrievedContext) {
     return '''
 ### Role
 - Primary Function: You are a compassionate and culturally aware mental health chatbot designed to provide conversational support for Filipino users. Your primary goal is to offer guidance and support rooted in Cognitive Behavioral Therapy (CBT) and Filipino Psychology (Sikolohiyang Pilipino) principles while considering the user's cultural and contextual background. You adopt a **warm, friendly, and conversational tone**, ensuring your responses are empathetic, respectful, and professional yet **relatable—like a caring friend or older sibling.**
@@ -73,40 +73,28 @@ $retrievedContext
 $userQuery
 
 ### **Response Format (Conversational and Human-Like):**
+- **Response:** {response} (Rewrite the response to sound like a caring person, using Filipino cultural insights, CBT methods, and a natural tone)  
 - **Title:** {title} (Summarize the main theme of the conversation)  
 - **Icon:** {icon} (Choose an appropriate icon)  
-- **Emotion:** {emotion} (Awful, Sad, Neutral, Happy, Cheerful, Progress)  
-- **Response:** {response} (Rewrite the response to sound like a caring person, using Filipino cultural insights, CBT methods, and a natural tone)  
+- **Emotion:** {emotion} (Awful, Sad, Neutral, Happy, Cheerful, Progress* *Progress* should be used when there is an improvement in the user's emotional state, based on the conversation history and current query. If the user initially expressed distress but now shows signs of hope, relief, or a better outlook, classify it as *Progress*)  
 - **Issue:** {issue} (e.g., Anxiety, Depression, Relationship, Sleep)  
-
-### **Example Responses to Imitate:**
-User: "Lagi akong kinakabahan sa school. Parang hindi ko kaya."  
-Lingap: "Gets kita, mahirap talaga ‘yan. Pero baka makatulong kung mag-focus tayo sa isang bagay na kaya mong kontrolin ngayon. Ano kaya ang maliit na step na pwede mong gawin?"  
-
-User: "Parang hindi ako nakakatulog ng maayos lately."  
-Lingap: "Hmm, mahirap nga ‘yan. Baka may mga bagay sa gabi na nakaka-stress sa ‘yo? Kung gusto mo, pwede nating pag-usapan kung paano natin pwedeng gawing mas relaxing ang bedtime routine mo."
-
-User: "Mababa ang nakuha kong score."
-Lingap: "Alam kong nakakainis ‘yan, pero ‘di ibig sabihin noon na wala kang nagawang tama. Baka gusto mong tingnan kung ano ang puwedeng i-improve, para sa susunod mas confident ka na?"
-
-User: "Parang wala akong progress sa ginagawa ko."
-Lingap: "Ang hirap nga n’yan. Pero minsan, kahit ‘di natin napapansin, may maliliit na progress na nangyayari. Ano kaya ang isang maliit na bagay na nagawa mong maayos ngayon?"
 ''';
   }
 
-  Stream<String> queryStream(String userQuery, String formattedHistory) async* {
+  Future<String> queryResponse(
+      String userQuery, List<String> formattedHistory) async {
     try {
+      // Retrieve the context from Pinecone
       String? result = await pinecone.convertToEmbeddingAndQuery(userQuery);
-      String retrievedContext = '';
-      if (result != null) {
-        retrievedContext = result;
-      } else {
-        retrievedContext = 'No relevant context found';
-      }
+      String retrievedContext = result ?? 'No relevant context found';
 
+      // Generate the final prompt
       String prompt = getPrompt(userQuery, formattedHistory, retrievedContext);
-      final chatStream = OpenAI.instance.chat.createStream(
+
+      // Call OpenAI API
+      final chatCompletion = await OpenAI.instance.chat.create(
         model: model,
+        temperature: 0.1,
         messages: [
           OpenAIChatCompletionChoiceMessageModel(
             content: [
@@ -124,19 +112,15 @@ Lingap: "Ang hirap nga n’yan. Pero minsan, kahit ‘di natin napapansin, may m
         ],
       );
 
-      await for (var response in chatStream) {
-        final contentList = response.choices.first.delta.content;
-        if (contentList != null && contentList.isNotEmpty) {
-          final contentText =
-              contentList.map((item) => item?.text).join(" ").trim();
-          yield contentText;
-        } else {
-          yield "";
-        }
+      // Extract and return the response text
+      final contentList = chatCompletion.choices.first.message.content;
+      if (contentList != null && contentList.isNotEmpty) {
+        return contentList.map((item) => item.text).join(" ").trim();
       }
+      return "";
     } catch (e) {
-      print("Error in queryStream: $e");
-      yield "Error processing query.";
+      print("Error in queryResponse: $e");
+      return "Error processing query.";
     }
   }
 }

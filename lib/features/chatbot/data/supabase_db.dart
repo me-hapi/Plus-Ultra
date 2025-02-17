@@ -45,17 +45,33 @@ class SupabaseDB {
     }
   }
 
-  Future<bool> insertMessages(int sessionID, String message, bool user) async {
+  Future<int> insertMessages(
+      int sessionID, String message, bool user) async {
     try {
-      final response = await _client
-          .from('chatbot_convo')
-          .insert({'sessionID': sessionID, 'content': message, 'user': user});
+      final response = await _client.from('chatbot_convo').insert({
+        'sessionID': sessionID,
+        'content': message,
+        'user': user,
+        'animate': true,
+      }).select('id');
 
-      return true; // Return the inserted id
+      return response[0]['id'];
     } catch (e) {
       print('Error inserting session: $e');
-      return false; // Return null if insertion fails
+      return 0; // Return null if insertion fails
     }
+  }
+
+  Future<void> updateOption(int optionID, String option) async {
+    final response = await _client
+        .from('chatbot_convo')
+        .update({'content': option}).eq('id', optionID);
+  }
+
+  Future<void> updateAnimation(int sessionID) async {
+    final response = await _client
+        .from('chatbot_convo')
+        .update({'animate': false}).eq('sessionID', sessionID);
   }
 
   Future<void> insertMhScore({

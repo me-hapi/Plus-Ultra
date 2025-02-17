@@ -46,6 +46,8 @@ class _AnimatedTextState extends State<AnimatedText>
             if (status == AnimationStatus.completed) {
               // Only call once, and let `onCompleted` handle specific actions
               widget.onCompleted?.call();
+              print('EMOTION');
+              print(widget.emotion);
             }
           });
 
