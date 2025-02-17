@@ -7,6 +7,19 @@ class SignLogic {
 
   SignLogic(this._supabaseClient);
 
+  Future<void> signInAnonymously() async {
+    final response = await _supabaseClient.auth.signInAnonymously();
+
+    // Ensure the user is properly signed in before getting UID
+    final uid = _supabaseClient.auth.currentUser?.id;
+
+    if (uid != null) {
+      print('User ID: $uid');
+    } else {
+      print('User not signed in yet.');
+    }
+  }
+
   /// Signs up a user and sends OTP to the email.
   Future<bool> signUpWithEmail(
       String email, String password, BuildContext context) async {
@@ -93,7 +106,10 @@ class SignLogic {
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: TextStyle(color: Colors.white),),
+        content: Text(
+          message,
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: presentRed['Red40'], // Set the background color to red
       ),
     );

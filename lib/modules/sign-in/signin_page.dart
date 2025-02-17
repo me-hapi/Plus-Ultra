@@ -5,6 +5,7 @@ import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/modules/sign-in/sign_logic.dart';
 import 'package:lingap/services/auth_services/google_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -242,9 +243,9 @@ class _SignInPageState extends State<SignInPage> {
                 ),
                 const SizedBox(width: 20),
                 GestureDetector(
-                  onTap: () {
-                    // Handle Facebook logo tap
-                    print('Facebook logo tapped');
+                  onTap: () async {
+                    await signLogic.signInAnonymously();
+                    context.go('/data');
                   },
                   child: CircleAvatar(
                     radius: 30, // Circle size

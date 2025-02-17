@@ -71,7 +71,9 @@ class ConversationCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: mindfulBrown['Brown80'],
+                        color: isSessionOpen
+                            ? mindfulBrown['Brown80']
+                            : optimisticGray['Gray30'],
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

@@ -50,8 +50,12 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
   }
 
   Future<void> _loadCachedMessages() async {
-    final cached =
-        await client.from('chatbot_convo').select().eq('sessionID', sessionID);
+    final cached = await client
+        .from('chatbot_convo')
+        .select()
+        .eq('sessionID', sessionID)
+        .order('id', ascending: true); // Ensure ordering
+
     state = cached
         .map((row) => Message(
               isUser: row['user'],
@@ -68,6 +72,9 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
                 message: row['content'],
               ))
           .toList();
+
+      // // Ensure messages are sorted by stream_id
+      // newMessages.sort((a, b) => a.stream_id.compareTo(b.stream_id));
 
       // Check if messages are truly new to prevent unnecessary rebuilds
       if (newMessages.length > state.length) {

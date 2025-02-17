@@ -84,13 +84,14 @@ $userQuery
   Future<String> queryResponse(
       String userQuery, List<String> formattedHistory) async {
     try {
+      print('USER QUERY: $userQuery');
       // Retrieve the context from Pinecone
       String? result = await pinecone.convertToEmbeddingAndQuery(userQuery);
       String retrievedContext = result ?? 'No relevant context found';
 
       // Generate the final prompt
       String prompt = getPrompt(userQuery, formattedHistory, retrievedContext);
-
+      print('PROMPT: $prompt');
       // Call OpenAI API
       final chatCompletion = await OpenAI.instance.chat.create(
         model: model,
