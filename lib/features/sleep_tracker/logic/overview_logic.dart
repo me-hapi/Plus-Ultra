@@ -1,45 +1,45 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/const.dart';
-import 'package:lingap/features/mood_tracker/data/supabase_db.dart';
+import 'package:lingap/features/sleep_tracker/data/supabase.dart';
 import 'package:lingap/core/const/colors.dart';
 
 class OverviewLogic {
   final SupabaseDB supabase = SupabaseDB(client);
-  Map<int, int> moodData = {};
-  int weekMood = 0;
+  Map<int, int> sleepData = {};
+  int weeksleep = 0;
 
-  List<Map<String, dynamic>> moodSelection = [
+  List<Map<String, dynamic>> sleepSelection = [
     {
-      'mood': 'cheerful',
+      'sleep': 'cheerful',
       'value': 5,
-      'color': serenityGreen['Green40'],
+      'color': serenityGreen['Green50'],
       'image': 'assets/tracker/darkGreen.png',
       'icon': 'assets/whiteMoods/whiteGreen.png'
     },
     {
-      'mood': 'happy',
+      'sleep': 'happy',
       'value': 4,
       'color': zenYellow['Yellow40'],
       'image': 'assets/tracker/darkYellow.png',
       'icon': 'assets/whiteMoods/whiteYellow.png'
     },
     {
-      'mood': 'neutral',
+      'sleep': 'neutral',
       'value': 3,
-      'color': mindfulBrown['Brown40'],
+      'color': mindfulBrown['Brown50'],
       'image': 'assets/tracker/darkBrown.png',
       'icon': 'assets/whiteMoods/whiteBrown.png'
     },
     {
-      'mood': 'sad',
+      'sleep': 'sad',
       'value': 2,
       'color': empathyOrange['Orange40'],
       'image': 'assets/tracker/darkOrange.png',
       'icon': 'assets/whiteMoods/whiteOrange.png'
     },
     {
-      'mood': 'awful',
+      'sleep': 'awful',
       'value': 1,
       'color': kindPurple['Purple40'],
       'image': 'assets/tracker/darkPurple.png',
@@ -52,10 +52,10 @@ class OverviewLogic {
     return dayLabels[weekday - 1];
   }
 
-  Future<void> fetchMoodData() async {
-    List<Map<String, dynamic>> moods = await supabase.getPastWeekMoods();
+  Future<void> fetchsleepData() async {
+    List<Map<String, dynamic>> sleeps = await supabase.getPastWeeksleeps();
 
-    Map<String, int> moodIndexes = {
+    Map<String, int> sleepIndexes = {
       "cheerful": 0,
       "happy": 1,
       "neutral": 2,
@@ -63,20 +63,20 @@ class OverviewLogic {
       "awful": 4,
     };
 
-    Map<int, int> moodCount = {};
-    moodData.clear();
+    Map<int, int> sleepCount = {};
+    sleepData.clear();
 
-    for (var mood in moods) {
-      int weekday = DateTime.parse(mood['created_at']).weekday;
-      int moodIndex = moodIndexes[mood['mood'].toString().toLowerCase()] ?? -1;
-      if (moodIndex >= 0) {
-        moodData[weekday] = moodIndex;
-        moodCount[moodIndex] = (moodCount[moodIndex] ?? 0) + 1;
+    for (var sleep in sleeps) {
+      int weekday = DateTime.parse(sleep['created_at']).weekday;
+      int sleepIndex = sleepIndexes[sleep['sleep'].toString().toLowerCase()] ?? -1;
+      if (sleepIndex >= 0) {
+        sleepData[weekday] = sleepIndex;
+        sleepCount[sleepIndex] = (sleepCount[sleepIndex] ?? 0) + 1;
       }
     }
 
-    weekMood = moodCount.entries.isNotEmpty
-        ? moodCount.entries.reduce((a, b) => a.value > b.value ? a : b).key
+    weeksleep = sleepCount.entries.isNotEmpty
+        ? sleepCount.entries.reduce((a, b) => a.value > b.value ? a : b).key
         : 0;
   }
 }

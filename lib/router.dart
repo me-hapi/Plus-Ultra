@@ -22,6 +22,8 @@ import 'package:lingap/features/mood_tracker/ui/mood_overview.dart';
 import 'package:lingap/features/mood_tracker/ui/mood_tracker.dart';
 import 'package:lingap/features/peer_connect/ui/loading_page.dart';
 import 'package:lingap/features/peer_connect/ui/meeting_screen.dart';
+import 'package:lingap/features/sleep_tracker/ui/sleep_overview.dart';
+import 'package:lingap/features/sleep_tracker/ui/sleep_tracker.dart';
 
 //PROFESSIONAL TELECONSULT
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
@@ -362,10 +364,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       //SLEEP TRACKER
       GoRoute(
           path: '/sleep-overview',
-          builder: (context, state) => NewExercisePage()),
+          builder: (context, state) => SleepOverview()),
 
       GoRoute(
-          path: '/sleep-track', builder: (context, state) => NewExercisePage()),
+          path: '/sleep-track', builder: (context, state) => SleepTracker()),
 
       //MOOD TRACKER
       GoRoute(

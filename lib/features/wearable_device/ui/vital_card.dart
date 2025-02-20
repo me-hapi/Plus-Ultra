@@ -41,6 +41,9 @@ class VitalCard extends StatelessWidget {
         if (title == 'Mood') {
           context.push('/mood-overview');
         }
+        if (title == 'Sleep') {
+          context.push('/sleep-overview');
+        }
       },
       child: Card(
         margin: EdgeInsets.only(left: 12, right: 12, bottom: 8),
