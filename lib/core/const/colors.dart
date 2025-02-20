@@ -58,7 +58,7 @@ final Map<String, Color> empathyOrange = {
   'Orange90': Color(0xFF7C2D12),
   'Orange80': Color(0xFF9A3412),
   'Orange70': Color(0xFFC2410C),
-  'Orange60': Color(0xFFF07119),
+  'Orange60': Color(0xFFE7590F),
   'Orange50': Color(0xFFF07119),
   'Orange40': Color(0xFFEF8834),
   'Orange30': Color(0xFFFDBA74),

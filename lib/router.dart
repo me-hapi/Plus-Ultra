@@ -14,6 +14,12 @@ import 'package:lingap/features/journaling/ui/journal_detail.dart';
 import 'package:lingap/features/journaling/ui/journal_insights.dart';
 import 'package:lingap/features/journaling/ui/journal_stat.dart';
 import 'package:lingap/features/journaling/ui/journal_success.dart';
+import 'package:lingap/features/mindfulness/ui/homepage.dart';
+import 'package:lingap/features/mindfulness/ui/mindful_overview.dart';
+import 'package:lingap/features/mindfulness/ui/mindful_player.dart';
+import 'package:lingap/features/mindfulness/ui/new_exercise.dart';
+import 'package:lingap/features/mood_tracker/ui/mood_overview.dart';
+import 'package:lingap/features/mood_tracker/ui/mood_tracker.dart';
 import 'package:lingap/features/peer_connect/ui/loading_page.dart';
 import 'package:lingap/features/peer_connect/ui/meeting_screen.dart';
 
@@ -176,7 +182,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => RealtimeChatbot(),
       ),
 
-       GoRoute(
+      GoRoute(
         path: '/call-chatbot',
         builder: (context, state) => CallChatbot(),
       ),
@@ -330,6 +336,43 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           return MeetingScreen(roomId: roomId, id: id);
         },
       ),
+
+      //MINDFULNESS
+      GoRoute(path: '/mindful-home', builder: (context, state) => HomePage()),
+
+      GoRoute(
+          path: '/mindful-overview',
+          builder: (context, state) => MindfulOverview()),
+
+      GoRoute(
+          path: '/new-exercise',
+          builder: (context, state) => NewExercisePage()),
+
+      GoRoute(
+        path: '/mindful-player',
+        builder: (context, state) {
+          final extra = state.extra as Map;
+          final song = extra['song'];
+          final min = extra['min'];
+          final sec = extra['sec'];
+          return MindfulPlayer(songName: song, minutes: min, seconds: sec);
+        },
+      ),
+
+      //SLEEP TRACKER
+      GoRoute(
+          path: '/sleep-overview',
+          builder: (context, state) => NewExercisePage()),
+
+      GoRoute(
+          path: '/sleep-track', builder: (context, state) => NewExercisePage()),
+
+      //MOOD TRACKER
+      GoRoute(
+          path: '/mood-overview', builder: (context, state) => MoodOverview()),
+
+      GoRoute(
+          path: '/mood-track', builder: (context, state) => MoodTracker()),
 
       // GoRoute(
       //     path: '/match-loading', builder: (context, state) => LoadingDialog()),

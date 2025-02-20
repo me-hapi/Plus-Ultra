@@ -220,4 +220,33 @@ flutter:
     - assets/chatbot/icon/time.png
     - assets/chatbot/icon/virus.png
 
+    - assets/mindfulness/bg.png
+    - assets/mindfulness/time.png
+
+    - assets/tracker/darkYellow.png
+    - assets/tracker/darkPurple.png
+    - assets/tracker/darkBlue.png
+    - assets/tracker/darkBrown.png
+    - assets/tracker/darkGreen.png
+    - assets/tracker/darkOrange.png
+    - assets/tracker/moodYellow.png
+    - assets/tracker/moodBlue.png
+    - assets/tracker/moodBrown.png
+    - assets/tracker/moodGreen.png
+    - assets/tracker/moodOrange.png
+    - assets/tracker/set_mood.png
+
+
+    - assets/lightMoods/lightCheerful.png
+    - assets/lightMoods/lightHappy.png
+    - assets/lightMoods/lightNeutral.png
+    - assets/lightMoods/lightSad.png
+    - assets/lightMoods/lightAwful.png
+
+    - assets/whiteMoods/whiteGreen.png
+    - assets/whiteMoods/whiteYellow.png
+    - assets/whiteMoods/whiteBrown.png
+    - assets/whiteMoods/whiteOrange.png
+    - assets/whiteMoods/whiteBlue.png
+
 

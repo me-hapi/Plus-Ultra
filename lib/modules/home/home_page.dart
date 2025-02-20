@@ -196,7 +196,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   Column(
                     children: [
                       Text(
-                        'Mood',
+                        'Mindfulness',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -205,23 +205,27 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                       const SizedBox(height: 5),
                       SizedBox(
-                        height: 220,
-                        child: Card(
-                          elevation: 0,
-                          color: kindPurple['Purple30'],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(30.0),
-                            child: Icon(
-                              Icons.mood, // Use a mood icon
-                              size: 120,
-                              color: Colors.grey[700],
+                          height: 220,
+                          child: GestureDetector(
+                            onTap: () {
+                              context.push('/mindful-home');
+                            },
+                            child: Card(
+                              elevation: 0,
+                              color: reflectiveBlue['Blue40'],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(30.0),
+                                child: Icon(
+                                  Icons.mood, // Use a mood icon
+                                  size: 120,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
+                          )),
                     ],
                   ),
                 ],

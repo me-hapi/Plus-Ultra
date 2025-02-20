@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,49 @@ class _GreetingCardState extends State<GreetingCard> {
   final GlobalSupabase supabase = GlobalSupabase(client);
   ui.Image? _backgroundImage;
   Map<String, dynamic>? profile;
+  late Map<String, dynamic> selectedSuggestion;
+  final List<Map<String, dynamic>> featureSuggestions = [
+    {
+      'message':
+          "Feeling overwhelmed? The chatbot is here to listen and support you.",
+      'button': "Talk to the Chatbot",
+      'location': '/bottom-nav',
+      'extra': 1,
+      'color': mindfulBrown['Brown40']
+    },
+    {
+      'message':
+          "Journaling helps clear the mind. Want to write something today?",
+      'button': "Start Journaling",
+      'location': '/bottom-nav',
+      'extra': 2,
+      'color': zenYellow['Yellow50']
+    },
+    {
+      'message':
+          "Need professional advice? You can talk to a licensed mental health practitioner.",
+      'button': "Book a Consultation",
+      'location': '/bottom-nav',
+      'extra': 3,
+      'color': empathyOrange['Orange50']
+    },
+    {
+      'message':
+          "Would you like to talk to someone who understands? Connect with a peer now.",
+      'button': "Find a Peer",
+      'location': '/bottom-nav',
+      'extra': 4,
+      'color': serenityGreen['Green50']
+    },
+    {
+      'message':
+          "Let’s take a deep breath. A short mindfulness exercise could help today.",
+      'button': "Start Exercise",
+      'location': '/mindful-home',
+      'extra': 0,
+      'color': reflectiveBlue['Blue50']
+    },
+  ];
 
   @override
   void initState() {
@@ -29,6 +73,8 @@ class _GreetingCardState extends State<GreetingCard> {
     _loadBackgroundImage();
 
     _fetchProfile();
+    selectedSuggestion =
+        featureSuggestions[Random().nextInt(featureSuggestions.length)];
   }
 
   Future<void> _fetchProfile() async {
@@ -145,12 +191,18 @@ class _GreetingCardState extends State<GreetingCard> {
                         color: Colors.white,
                       ),
                     ),
-                    Text(
-                      'How was you sleep?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                    SizedBox(
+                      width: 250, // Adjust this width as needed
+                      child: Text(
+                        selectedSuggestion['message']!,
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
                       ),
                     ),
                   ],
@@ -158,15 +210,29 @@ class _GreetingCardState extends State<GreetingCard> {
               ],
             ),
             SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildEmojiButton('Cheerful', 'assets/mood/cheerful.png'),
-                _buildEmojiButton('Happy', 'assets/mood/happy.png'),
-                _buildEmojiButton('Neutral', 'assets/mood/neutral.png'),
-                _buildEmojiButton('Sad', 'assets/mood/sad.png'),
-                _buildEmojiButton('Awful', 'assets/mood/awful.png'),
-              ],
+            SizedBox(
+              height: 55,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  context.push(selectedSuggestion['location'],
+                      extra: selectedSuggestion['extra']);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: selectedSuggestion['color'],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  selectedSuggestion['button'],
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: 16),
           ],

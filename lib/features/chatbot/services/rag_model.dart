@@ -9,7 +9,7 @@ class RAGModel {
       "pcsk_6T6RBw_SPJQunRCtoiSMHZbAUKRSRbsAyAigBg8nJdzpHfqbnSb7feX7WdkTo5uGTDLMkH";
   final String openaiApiKey =
       "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";
-  final String model = "gpt-4o";
+  final String model = "o1-mini";
 
   late final PineconeRetriever pinecone;
 
@@ -21,9 +21,11 @@ class RAGModel {
   }
 
   Future<void> test() async {
-    final result = await pinecone
-        .convertToEmbeddingAndQuery('ang baba ng nakuha kong score kanina');
-    print('RESULT $result');
+    List<OpenAIModelModel> models = await OpenAI.instance.model.list();
+
+    for (var model in models) {
+      print(model.id);
+    }
   }
 
   String getPrompt(String userQuery, List<String> formattedHistory,
@@ -73,11 +75,11 @@ $retrievedContext
 $userQuery
 
 ### **Response Format (Conversational and Human-Like):**
-- **Response:** {response} (Rewrite the response to sound like a caring person, using Filipino cultural insights, CBT methods, and a natural tone)  
+- **Response:** {response} (Rewrite the response to sound like a caring person, using Filipino cultural insights, CBT methods, and a natural tone, do not enclose in quotes)  
 - **Title:** {title} (Summarize the main theme of the conversation)  
-- **Icon:** {icon} (Choose an appropriate icon)  
+- **Icon:** {icon} (Select the best corresponding icon from the given options: abstract, arrowdown, arrowup, bandaid, bell, blood, bulb, calendar, chart, cloud, control, document, drug, ekg, head, healthplus, heartbeat, house, leaf, lock, mask, medal, microscope, performance, phone, piechart, pill, processor, search, shield_health, stethoscope, syringe, time, virus) 
 - **Emotion:** {emotion} (Awful, Sad, Neutral, Happy, Cheerful, Progress* *Progress* should be used when there is an improvement in the user's emotional state, based on the conversation history and current query. If the user initially expressed distress but now shows signs of hope, relief, or a better outlook, classify it as *Progress*)  
-- **Issue:** {issue} (e.g., Anxiety, Depression, Relationship, Sleep)  
+- **Issue:** {issue} [Addiction, Anxiety, Children, Depression, Food, Grief, LGBTQ, Psychosis, Relationship, Sleep]  
 ''';
   }
 
@@ -95,7 +97,6 @@ $userQuery
       // Call OpenAI API
       final chatCompletion = await OpenAI.instance.chat.create(
         model: model,
-        temperature: 0.1,
         messages: [
           OpenAIChatCompletionChoiceMessageModel(
             content: [

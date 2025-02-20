@@ -1,0 +1,82 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/mood_tracker/data/supabase_db.dart';
+import 'package:lingap/core/const/colors.dart';
+
+class OverviewLogic {
+  final SupabaseDB supabase = SupabaseDB(client);
+  Map<int, int> moodData = {};
+  int weekMood = 0;
+
+  List<Map<String, dynamic>> moodSelection = [
+    {
+      'mood': 'cheerful',
+      'value': 5,
+      'color': serenityGreen['Green50'],
+      'image': 'assets/tracker/darkGreen.png',
+      'icon': 'assets/whiteMoods/whiteGreen.png'
+    },
+    {
+      'mood': 'happy',
+      'value': 4,
+      'color': zenYellow['Yellow50'],
+      'image': 'assets/tracker/darkYellow.png',
+      'icon': 'assets/whiteMoods/whiteYellow.png'
+    },
+    {
+      'mood': 'neutral',
+      'value': 3,
+      'color': mindfulBrown['Brown50'],
+      'image': 'assets/tracker/darkBrown.png',
+      'icon': 'assets/whiteMoods/whiteBrown.png'
+    },
+    {
+      'mood': 'sad',
+      'value': 2,
+      'color': empathyOrange['Orange50'],
+      'image': 'assets/tracker/darkOrange.png',
+      'icon': 'assets/whiteMoods/whiteOrange.png'
+    },
+    {
+      'mood': 'awful',
+      'value': 1,
+      'color': kindPurple['Purple50'],
+      'image': 'assets/tracker/darkPurple.png',
+      'icon': 'assets/whiteMoods/whiteBlue.png'
+    },
+  ];
+
+  String getDayLabel(int weekday) {
+    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return dayLabels[weekday - 1];
+  }
+
+  Future<void> fetchMoodData() async {
+    List<Map<String, dynamic>> moods = await supabase.getPastWeekMoods();
+
+    Map<String, int> moodIndexes = {
+      "cheerful": 0,
+      "happy": 1,
+      "neutral": 2,
+      "sad": 3,
+      "awful": 4,
+    };
+
+    Map<int, int> moodCount = {};
+    moodData.clear();
+
+    for (var mood in moods) {
+      int weekday = DateTime.parse(mood['created_at']).weekday;
+      int moodIndex = moodIndexes[mood['mood'].toString().toLowerCase()] ?? -1;
+      if (moodIndex >= 0) {
+        moodData[weekday] = moodIndex;
+        moodCount[moodIndex] = (moodCount[moodIndex] ?? 0) + 1;
+      }
+    }
+
+    weekMood = moodCount.entries.isNotEmpty
+        ? moodCount.entries.reduce((a, b) => a.value > b.value ? a : b).key
+        : 0;
+  }
+}
