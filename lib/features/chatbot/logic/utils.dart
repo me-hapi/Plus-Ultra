@@ -1,6 +1,10 @@
 class Utils {
   Map<String, String> parseResponse(String fullResponse) {
-    RegExp responseRegExp = RegExp(r'\*\*Response:\*\*\s*(.*)');
+    print('FULL: $fullResponse');
+    RegExp responseRegExp = RegExp(
+        r'\*\*Response:\*\*\s*([\s\S]*?)(?=\n\s*- \*\*Title:|\Z)',
+        multiLine: true);
+
     RegExp titleRegExp = RegExp(r'Title\s*:\*\*?\s*([\w\s]+)');
     RegExp iconRegExp = RegExp(r'Icon\s*:\*\*?\s*([\S]+)');
     RegExp emotionRegExp = RegExp(r'Emotion\s*:\*\*?\s*([\w\s]+)');
@@ -11,7 +15,7 @@ class Utils {
     String icon = _extractMatch(iconRegExp, fullResponse);
     String emotion = _extractMatch(emotionRegExp, fullResponse);
     String issue = _extractMatch(issueRegExp, fullResponse);
-
+    print('RESPONSE: $responseText');
     return {
       'response': responseText,
       'title': title,

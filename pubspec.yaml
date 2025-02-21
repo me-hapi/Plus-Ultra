@@ -235,6 +235,7 @@ flutter:
     - assets/tracker/moodGreen.png
     - assets/tracker/moodOrange.png
     - assets/tracker/set_mood.png
+    - assets/tracker/sleep_success.png
 
 
     - assets/lightMoods/lightCheerful.png

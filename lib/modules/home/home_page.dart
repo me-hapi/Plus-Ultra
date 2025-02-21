@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
+import 'package:lingap/features/wearable_device/data/supabase_db.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
+import 'package:lingap/modules/home/home_logic.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -21,18 +23,22 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final GlobalSupabase supabase = GlobalSupabase(client);
+  final SupabaseDB supabaseV = SupabaseDB();
   bool isConnected = false;
   final HealthLogic healthLogic = HealthLogic();
   String? name;
   String? imageUrl;
-
+  final HomeLogic homeLogic = HomeLogic();
   Map<String, dynamic> healthDataMap = {};
-
+  Map<String, dynamic> sleepData = {};
+  Map<String, dynamic> moodData = {};
   @override
   void initState() {
     super.initState();
     _fetchProfile();
     _initializeConnectionStatus();
+    _fetchSleepData();
+    _fetchMoodData();
   }
 
   @override
@@ -54,9 +60,15 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> _fetchHealthData() async {
-    Map<String, dynamic> data = await healthLogic.fetchHealthData();
+    final data = await supabaseV.fetchVitalData();
+    if (data.isEmpty) {
+      print('No health data found.');
+      return;
+    }
+
+    final result = homeLogic.convertData(data);
     setState(() {
-      healthDataMap = data;
+      healthDataMap = result;
     });
   }
 
@@ -70,32 +82,22 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
-  final List<FlSpot> sleepData = [
-    FlSpot(0, 6.5),
-    FlSpot(1, 7),
-    FlSpot(2, 6.8),
-    FlSpot(3, 7.2),
-    FlSpot(4, 6.9),
-  ];
+  Future<void> _fetchSleepData() async {
+    final result = await homeLogic.fetchSleep();
+    setState(() {
+      sleepData = result;
+    });
+  }
 
-  final List<FlSpot> moodData = [
-    FlSpot(0, 4),
-    FlSpot(1, 5),
-    FlSpot(2, 4.5),
-    FlSpot(3, 5.2),
-    FlSpot(4, 4.8),
-  ];
+  Future<void> _fetchMoodData() async {
+    final result = await homeLogic.fetchMood();
+    setState(() {
+      moodData = result;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    String bloodPressureMetric =
-        (healthDataMap['HealthDataType.BLOOD_PRESSURE_SYSTOLIC']?['latest'] ??
-                'N/A') +
-            '/' +
-            (healthDataMap['HealthDataType.BLOOD_PRESSURE_DIASTOLIC']
-                    ?['latest'] ??
-                'N/A');
-
     return Scaffold(
       backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
@@ -252,37 +254,31 @@ class _HomePageState extends ConsumerState<HomePage> {
                 VitalCard(
                   title: "Heart Rate",
                   imageUrl: "assets/vitals/heart.png",
-                  metric: healthDataMap['HealthDataType.HEART_RATE']
-                          ?['latest'] ??
-                      'N/A',
-                  lineGraphData: healthDataMap['HealthDataType.HEART_RATE']
-                          ?['spots'] ??
-                      [],
+                  metric: healthDataMap['HEART_RATE']?['latest'] ?? 'N/A',
+                  lineGraphData: healthDataMap['HEART_RATE']?['spots'] ?? [],
                   graphColor: presentRed['Red50']!,
                 ),
                 VitalCard(
                   title: "Blood Pressure",
                   imageUrl: "assets/vitals/blood.png",
-                  metric: bloodPressureMetric,
+                  metric: healthDataMap['BLOOD_PRESSURE']?['latest'] ?? 'N/A',
                   lineGraphData:
-                      healthDataMap['HealthDataType.BLOOD_PRESSURE_SYSTOLIC']
-                              ?['spots'] ??
-                          [],
+                      healthDataMap['BLOOD_PRESSURE']?['spots'] ?? [],
                   graphColor: empathyOrange['Orange50']!,
                 ),
                 VitalCard(
                   title: "Sleep",
                   imageUrl: "assets/vitals/sleep.png",
-                  metric: '80',
-                  lineGraphData: sleepData,
+                  metric: sleepData['average'].toString(),
+                  lineGraphData: sleepData['spots'] ?? [],
                   graphColor: mindfulBrown['Brown50']!,
                 ),
                 VitalCard(
                   title: "Mood",
                   imageUrl: "assets/vitals/mood.png",
-                  metric: '80',
-                  lineGraphData: moodData,
-                  graphColor: reflectiveBlue['Blue50']!,
+                  metric: moodData['average'].toString(),
+                  lineGraphData: moodData['spots'] ?? [],
+                  graphColor: kindPurple['Purple50']!,
                 ),
               ],
             ),

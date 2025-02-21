@@ -3,9 +3,11 @@ import 'package:health/health.dart';
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
+import 'package:lingap/features/wearable_device/data/supabase_db.dart';
 
 class HealthLogic {
   final Health health;
+  final SupabaseDB supabase = SupabaseDB();
 
   HealthLogic() : health = Health();
 
@@ -54,7 +56,18 @@ class HealthLogic {
     }
   }
 
-  Future<Map<String, dynamic>> fetchHealthData() async {
+// Helper function to extract numeric value from HealthDataPoint.value
+  double _extractNumericValue(dynamic value) {
+    if (value is NumericHealthValue) {
+      return value.numericValue.toDouble();
+    } else if (value is double) {
+      return value;
+    } else {
+      return 0.0; // Default to 0.0 if extraction fails
+    }
+  }
+
+  Future<void> fetchHealthData() async {
     try {
       final now = DateTime.now();
       final weekAgo = now.subtract(const Duration(days: 7));
@@ -71,18 +84,63 @@ class HealthLogic {
       );
 
       if (healthData.isNotEmpty) {
+        Map<String, List<HealthDataPoint>> categorizedData = {};
+        List<Map<String, dynamic>> mergedHistory = []; // Merged history list
+        Map<String, Map<String, dynamic>> bpPairs =
+            {}; // Pair systolic/diastolic
+
         for (var data in healthData) {
-          debugPrint(
-              'Data type: ${data.type}, Value: ${data.value}, Unit: ${data.unit}');
+          String type = data.typeString;
+          String uid = data.uuid;
+          double value = _extractNumericValue(data.value);
+          int intValue = value.round(); // Convert to whole number
+          String date = data.dateFrom.toIso8601String();
+
+          if (!categorizedData.containsKey(type)) {
+            categorizedData[type] = [];
+          }
+          categorizedData[type]!.add(data);
+
+          // Handle Blood Pressure Pairing
+          if (type == "BLOOD_PRESSURE_SYSTOLIC" ||
+              type == "BLOOD_PRESSURE_DIASTOLIC") {
+            if (!bpPairs.containsKey(uid)) {
+              bpPairs[uid] = {
+                "type": "BLOOD_PRESSURE",
+                "date": date,
+                "uid": uid,
+                "systolic": null,
+                "diastolic": null,
+              };
+            }
+            if (type == "BLOOD_PRESSURE_SYSTOLIC") {
+              bpPairs[uid]!["systolic"] = intValue; // Store as integer
+            } else {
+              bpPairs[uid]!["diastolic"] = intValue; // Store as integer
+            }
+          } else {
+            // Add other health data (like Heart Rate) directly
+            mergedHistory.add({
+              "type": type,
+              "date": date,
+              "value": value,
+              "uid": uid,
+            });
+          }
         }
 
-        Map<String, List<HealthDataPoint>> categorizedData = {};
-        for (var data in healthData) {
-          if (!categorizedData.containsKey(data.type.toString())) {
-            categorizedData[data.type.toString()] = [];
+        // Process the merged blood pressure entries
+        bpPairs.forEach((uid, entry) {
+          if (entry["systolic"] != null && entry["diastolic"] != null) {
+            mergedHistory.add({
+              "type": "BLOOD_PRESSURE",
+              "date": entry["date"],
+              "value":
+                  "${entry["systolic"]}/${entry["diastolic"]}", // Ensure no decimals
+              "uid": uid,
+            });
           }
-          categorizedData[data.type.toString()]!.add(data);
-        }
+        });
 
         Map<String, dynamic> result = {};
         categorizedData.forEach((key, value) {
@@ -92,11 +150,11 @@ class HealthLogic {
           // Convert to FlSpot
           List<FlSpot> flSpots = value.map((data) {
             double x = data.dateFrom.millisecondsSinceEpoch.toDouble();
-            // Extract numeric value properly
             double y = _extractNumericValue(data.value);
             return FlSpot(x, y);
           }).toList();
 
+          // Latest metric
           String latestMetric = value.isNotEmpty
               ? _extractNumericValue(value.last.value).toInt().toString()
               : 'N/A';
@@ -107,25 +165,15 @@ class HealthLogic {
           };
         });
 
-        return result;
+        // Add merged history to the result
+        result['history'] = mergedHistory;
+        print('MERGED HISTORY: $mergedHistory');
+        await supabase.insertHealthHistory(mergedHistory);
       } else {
         debugPrint('No health data found.');
-        return {};
       }
     } catch (e) {
       debugPrint('Error fetching health data: $e');
-      return {};
-    }
-  }
-
-// Helper function to extract numeric value from HealthDataPoint.value
-  double _extractNumericValue(dynamic value) {
-    if (value is NumericHealthValue) {
-      return value.numericValue.toDouble();
-    } else if (value is double) {
-      return value;
-    } else {
-      return 0.0; // Default to 0.0 if extraction fails
     }
   }
 }

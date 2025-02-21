@@ -28,7 +28,7 @@ class VitalCard extends StatelessWidget {
       case 'sleep':
         return 'hr/day';
       case 'mood':
-        return 'mood';
+        return '';
       default:
         return ''; // Return an empty string or a default text
     }

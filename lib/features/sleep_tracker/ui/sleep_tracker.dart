@@ -1,165 +1,169 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
-import 'package:lingap/features/mood_tracker/data/supabase_db.dart';
-import 'package:lingap/features/mood_tracker/ui/mood_modal.dart';
+import 'package:lingap/features/sleep_tracker/data/supabase.dart';
+import 'package:lingap/features/sleep_tracker/ui/sleep_modal.dart';
 
 class SleepTracker extends StatefulWidget {
   const SleepTracker({Key? key}) : super(key: key);
 
   @override
-  _DisplayMoodState createState() => _DisplayMoodState();
+  _SleepTrackerState createState() => _SleepTrackerState();
 }
 
-class _DisplayMoodState extends State<SleepTracker> {
+class _SleepTrackerState extends State<SleepTracker> {
   final SupabaseDB supabase = SupabaseDB(client);
-  List<Color> bgcolors = [
-    kindPurple['Purple40']!,
-    empathyOrange['Orange40']!,
-    mindfulBrown['Brown60']!,
-    zenYellow['Yellow40']!,
-    serenityGreen['Green50']!
-  ];
-
-  final List<String> moods = [
-    "Awful",
-    "Sad",
-    "Neutral",
-    "Happy",
-    "Cheerful",
-  ];
-
-  final List<String> emojiPaths = [
-    'assets/lightMoods/lightAwful.png',
-    'assets/lightMoods/lightSad.png',
-    'assets/lightMoods/lightNeutral.png',
-    'assets/lightMoods/lightHappy.png',
-    'assets/lightMoods/lightCheerful.png',
-  ];
-
-  int selectedIndex = 0;
+  double sleepHours = 6;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: bgcolors[selectedIndex],
-        body: Center(
+      body: Center(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 50,
-              ),
-              Text(
-                "How are you feeling today?",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 100),
-              Image.asset(
-                emojiPaths[selectedIndex],
-                height: 150,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Text(
-                "I feel ${moods[selectedIndex]}",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 80),
-              CustomSlider(
-                itemCount: moods.length,
-                onSelected: (index) {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
-                selectedIndex: selectedIndex,
-              ),
-              Spacer(),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  height: 55,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await supabase.insertOrUpdateMood(moods[selectedIndex]);
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 50,
+          ),
+          Center(
+            child: Text(
+              'How many hours did you sleep?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 36,
+                  color: mindfulBrown['Brown80'],
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(
+            height: 100,
+          ),
+          SizedBox(
+            height: 300,
+            width: 300,
+            child: CircularSleepSlider(
+              value: sleepHours,
+              onChanged: (newValue) {
+                setState(() {
+                  sleepHours = newValue;
+                });
+              },
+            ),
+          ),
+          Spacer(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              height: 55,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await supabase.insertOrUpdatesleep(sleepHours);
 
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return MoodModal(mood: moods[selectedIndex]);
-                        },
-                      );
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SleepModal(sleepHours: sleepHours);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      'Set Mood',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: mindfulBrown['Brown80'],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: mindfulBrown['Brown80'],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Set Mood',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              SizedBox(
-                height: 30,
-              )
-            ],
+            ),
           ),
-        ));
+          SizedBox(
+            height: 50,
+          )
+        ],
+      )),
+    );
   }
 }
 
-class CustomSlider extends StatelessWidget {
-  final int itemCount;
-  final int selectedIndex;
-  final Function(int) onSelected;
+class CircularSleepSlider extends StatefulWidget {
+  final double value;
+  final ValueChanged<double> onChanged;
 
-  const CustomSlider({
+  const CircularSleepSlider({
     Key? key,
-    required this.itemCount,
-    required this.onSelected,
-    required this.selectedIndex,
+    required this.value,
+    required this.onChanged,
   }) : super(key: key);
 
   @override
+  _CircularSleepSliderState createState() => _CircularSleepSliderState();
+}
+
+class _CircularSleepSliderState extends State<CircularSleepSlider> {
+  double angle = pi / 2; // Start at bottom (6 o'clock)
+
+  @override
+  void initState() {
+    super.initState();
+    angle = _valueToAngle(widget.value);
+  }
+
+  double _valueToAngle(double value) {
+    return (value - 1) / 11 * 2 * pi; // Normalize to 0 - 2π range
+  }
+
+  double _angleToValue(double angle) {
+    double normalized = angle / (2 * pi);
+    return (normalized * 11 + 1).clamp(1, 12);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      width: 300,
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          RenderBox? box = context.findRenderObject() as RenderBox?;
-          if (box != null) {
-            double dx = details.localPosition.dx;
-            double sliderWidth = box.size.width;
-            int newIndex = (dx / (sliderWidth / itemCount))
-                .clamp(0, itemCount - 1)
-                .toInt();
-            onSelected(newIndex);
-          }
-        },
-        child: CustomPaint(
-          size: Size(double.infinity, 100),
-          painter: SliderPainter(
-            itemCount: itemCount,
-            selectedIndex: selectedIndex,
+    return GestureDetector(
+      onPanUpdate: (details) {
+        RenderBox box = context.findRenderObject() as RenderBox;
+        Offset center = box.size.center(Offset.zero);
+        Offset touchPosition = box.globalToLocal(details.globalPosition);
+        double newAngle = atan2(
+          touchPosition.dy - center.dy,
+          touchPosition.dx - center.dx,
+        );
+        if (newAngle < 0) newAngle += 2 * pi; // Keep angle positive
+
+        setState(() {
+          angle = newAngle;
+          widget.onChanged(_angleToValue(angle).round().toDouble());
+        });
+      },
+      child: CustomPaint(
+        size: const Size(300, 300),
+        painter: CircularSliderPainter(angle, widget.value),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.value.toInt().toString(),
+                style: TextStyle(
+                  fontSize: 70,
+                  fontWeight: FontWeight.bold,
+                  color: mindfulBrown['Brown80'],
+                ),
+              ),
+              Text(
+                "Hours",
+                style: TextStyle(fontSize: 20, color: optimisticGray['Gray40']),
+              ),
+            ],
           ),
         ),
       ),
@@ -167,129 +171,90 @@ class CustomSlider extends StatelessWidget {
   }
 }
 
-class SliderPainter extends CustomPainter {
-  final int itemCount;
-  final int selectedIndex;
+class CircularSliderPainter extends CustomPainter {
+  final double angle;
+  final double value;
 
-  SliderPainter({required this.itemCount, required this.selectedIndex});
+  CircularSliderPainter(this.angle, this.value);
 
   @override
   void paint(Canvas canvas, Size size) {
-    double width = size.width;
-    double height = size.height;
-    double circleRadius = 15;
-    double innerCircleRadius = 5;
-    double arcHeight = height / 2; // Adjust arc height for a convex shape
-    double spacing = width / (itemCount - 1);
-    double lineSpacing = 8; // Space between the lines and the circles
+    Offset center = size.center(Offset.zero);
+    double radius = size.width / 2 - 10;
 
-    Paint linePaint = Paint()..strokeWidth = 10;
-
-    Paint unselectedCirclePaint = Paint()..style = PaintingStyle.fill;
-
-    Paint selectedCirclePaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.white;
-
-    Paint borderPaint = Paint()
+    Paint trackPaint = Paint()
+      ..color = optimisticGray['Gray50']!
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 8;
+      ..strokeWidth = 20
+      ..strokeCap = StrokeCap.round;
 
-    Paint innerCirclePaint = Paint();
+    Paint progressPaint = Paint()
+      ..shader = _getGradientForValue(value)
+          .createShader(Rect.fromCircle(center: center, radius: radius))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 20
+      ..strokeCap = StrokeCap.round;
 
-    // Define a function to get the color for the selected and previous circles
-    Color getColor(int index) {
-      switch (index) {
-        case 0:
-          return kindPurple['Purple30']!;
-        case 1:
-          return empathyOrange['Orange30']!;
-        case 2:
-          return mindfulBrown['Brown30']!;
-        case 3:
-          return zenYellow['Yellow30']!;
-        case 4:
-          return serenityGreen['Green30']!;
-        default:
-          return optimisticGray['Gray30']!;
-      }
+    // Draw track
+    canvas.drawCircle(center, radius, trackPaint);
+
+    // Draw progress
+    double startAngle = -pi / 2; // Start from top
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      startAngle,
+      angle,
+      false,
+      progressPaint,
+    );
+
+    // Draw thumb
+    Offset thumbPosition = Offset(
+      center.dx + radius * cos(angle - pi / 2),
+      center.dy + radius * sin(angle - pi / 2),
+    );
+
+    canvas.drawCircle(
+      thumbPosition,
+      15,
+      Paint()..color = _getThumbColor(value),
+    );
+  }
+
+  Color _getThumbColor(double value) {
+    if (value <= 2) {
+      return kindPurple['Purple50']!;
+    } else if (value >= 3 && value <= 4) {
+      return empathyOrange['Orange50']!;
+    } else if (value == 5) {
+      return mindfulBrown['Brown50']!;
+    } else if (value >= 6 && value <= 7) {
+      return zenYellow['Yellow50']!;
+    } else {
+      return serenityGreen['Green50']!;
     }
+  }
 
-    Color getDarkerColor(int index) {
-      switch (index) {
-        case 0:
-          return kindPurple['Purple50']!;
-        case 1:
-          return empathyOrange['Orange50']!;
-        case 2:
-          return mindfulBrown['Brown50']!;
-        case 3:
-          return zenYellow['Yellow50']!;
-        case 4:
-          return serenityGreen['Green50']!;
-        default:
-          return optimisticGray['Gray50']!;
-      }
-    }
-
-    // Function to calculate the convex arc's Y position
-    double getArcY(double x) {
-      double normalizedX =
-          (x - width / 2) / (width / 2); // Normalize X to range [-1, 1]
-      return arcHeight *
-          (1 - normalizedX * normalizedX); // Concave parabolic equation
-    }
-
-    // Draw the connecting lines
-    for (int i = 0; i < itemCount - 1; i++) {
-      double startX = i * spacing + circleRadius + lineSpacing;
-      double endX = (i + 1) * spacing - circleRadius - lineSpacing;
-      double startY = height / 2 + getArcY(startX);
-      double endY = height / 2 + getArcY(endX);
-
-      linePaint.color = i < selectedIndex
-          ? getColor(selectedIndex)
-          : getDarkerColor(selectedIndex);
-
-      canvas.drawLine(
-        Offset(startX, startY),
-        Offset(endX, endY),
-        linePaint,
-      );
-    }
-
-    // Draw the circles
-    for (int i = 0; i < itemCount; i++) {
-      double centerX = i * spacing;
-      double centerY = height / 2 + getArcY(centerX);
-      Offset center = Offset(centerX, centerY);
-
-      if (i <= selectedIndex) {
-        // Apply the selected or inherited color
-        Color color = getColor(selectedIndex);
-        borderPaint.color = color;
-        innerCirclePaint.color = color;
-
-        // Draw selected or inherited circle with a border
-        canvas.drawCircle(center, 20, selectedCirclePaint);
-        canvas.drawCircle(center, 20, borderPaint);
-      } else {
-        // Draw unselected circle
-        Color darkerColor = getDarkerColor(selectedIndex);
-        unselectedCirclePaint.color = darkerColor;
-        innerCirclePaint.color = getColor(selectedIndex);
-
-        canvas.drawCircle(center, circleRadius, unselectedCirclePaint);
-        canvas.drawCircle(center, innerCircleRadius, innerCirclePaint);
-      }
-
-      // Draw the inner circle for all circles
-      canvas.drawCircle(center, innerCircleRadius, innerCirclePaint);
+  /// Returns a gradient based on sleep hours value
+  LinearGradient _getGradientForValue(double value) {
+    if (value <= 2) {
+      return LinearGradient(
+          colors: [kindPurple['Purple30']!, kindPurple['Purple70']!]);
+    } else if (value >= 3 && value <= 4) {
+      return LinearGradient(
+          colors: [empathyOrange['Orange30']!, empathyOrange['Orange70']!]);
+    } else if (value == 5) {
+      return LinearGradient(
+          colors: [mindfulBrown['Brown30']!, mindfulBrown['Brown70']!]);
+    } else if (value >= 6 && value <= 7) {
+      return LinearGradient(
+          colors: [zenYellow['Yellow30']!, zenYellow['Yellow70']!]);
+    } else {
+      return LinearGradient(
+          colors: [serenityGreen['Green30']!, serenityGreen['Green70']!]);
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }

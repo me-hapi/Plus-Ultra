@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/features/mindfulness/data/supabase.dart';
+import 'package:lingap/features/mindfulness/services/recommender_api.dart';
 
 class NewExercisePage extends StatefulWidget {
   @override
@@ -13,6 +17,8 @@ class _NewExercisePageState extends State<NewExercisePage> {
   int selectedMinutes = 0;
   int selectedSeconds = 0;
   final SupabaseDB supabase = SupabaseDB(client);
+  final RecommenderApi recommenderApi = RecommenderApi();
+  TextEditingController goal = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +32,7 @@ class _NewExercisePageState extends State<NewExercisePage> {
         title: Text(
           'New Exercise',
           style: TextStyle(
+            fontWeight: FontWeight.bold,
             fontSize: 24,
             color: mindfulBrown['Brown80'],
           ),
@@ -33,169 +40,198 @@ class _NewExercisePageState extends State<NewExercisePage> {
         centerTitle: true,
       ),
       backgroundColor: mindfulBrown['Brown10'],
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Text("What's your mindful exercise goal?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: mindfulBrown['Brown80'])),
-            ),
-            SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30), // Rounded corners
-              ),
-              padding: EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 12), // Padding for better spacing
-              child: TextField(
-                style: TextStyle(
-                  color: mindfulBrown['Brown80'],
+      body: LayoutBuilder(builder: (context, constraints) {
+        return SingleChildScrollView(
+            child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: 'Enter your goal...',
-                  hintStyle: TextStyle(
-                    color: mindfulBrown['Brown80'],
-                  ),
-                  border: InputBorder.none, // No border
-                  enabledBorder: InputBorder.none, // No border when not focused
-                  focusedBorder: InputBorder.none, // No border when focused
-                ),
-              ),
-            ),
-            SizedBox(height: 40),
-            Center(
-              child: Text("How many minutes do you need?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: mindfulBrown['Brown80'])),
-            ),
-            SizedBox(height: 8),
-            Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50),
-              ),
-              elevation: 0,
-              child: SizedBox(
-                height: 120,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ClipRect(
-                      child: SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: ListWheelScrollView.useDelegate(
-                          itemExtent: 80,
-                          physics: FixedExtentScrollPhysics(),
-                          onSelectedItemChanged: (index) {
-                            setState(() {
-                              selectedMinutes = index;
-                            });
-                          },
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            builder: (context, index) {
-                              return Center(
-                                child: Text(
-                                  '${index.toString().padLeft(2, '0')}',
-                                  style: TextStyle(
-                                      color: mindfulBrown['Brown80'],
-                                      fontSize: 54,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              );
-                            },
-                            childCount: 60,
-                          ),
-                        ),
+                child: IntrinsicHeight(
+                    child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Text("What's your mindful exercise goal?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: mindfulBrown['Brown80'])),
                       ),
-                    ),
-                    Text(":",
-                        style: TextStyle(
+                      SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.circular(30), // Rounded corners
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12), // Padding for better spacing
+                        child: TextField(
+                          controller: goal,
+                          style: TextStyle(
                             color: mindfulBrown['Brown80'],
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold)),
-                    ClipRect(
-                      child: SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: ListWheelScrollView.useDelegate(
-                          itemExtent: 80,
-                          physics: FixedExtentScrollPhysics(),
-                          onSelectedItemChanged: (index) {
-                            setState(() {
-                              selectedSeconds = index;
-                            });
-                          },
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            builder: (context, index) {
-                              return Center(
-                                child: Text(
-                                  '${index.toString().padLeft(2, '0')}',
-                                  style: TextStyle(
-                                      color: mindfulBrown['Brown80'],
-                                      fontSize: 54,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              );
-                            },
-                            childCount: 60,
+                          ),
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            hintText: 'Enter your goal...',
+                            hintStyle: TextStyle(
+                              color: mindfulBrown['Brown80'],
+                            ),
+                            border: InputBorder.none, // No border
+                            enabledBorder:
+                                InputBorder.none, // No border when not focused
+                            focusedBorder:
+                                InputBorder.none, // No border when focused
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            // Center(
-            //   child: Text(
-            //     "Selected Time: ${selectedMinutes.toString().padLeft(2, '0')}:${selectedSeconds.toString().padLeft(2, '0')}",
-            //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            //   ),
-            // ),
-            Spacer(),
-            SizedBox(
-              height: 55,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  context.push('/mindful-player',
-                      extra: {'song': 'Zen Yoga', 'min': 5, 'sec': 50});
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: mindfulBrown['Brown80'],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                      SizedBox(height: 40),
+                      Center(
+                        child: Text("How many minutes do you need?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: mindfulBrown['Brown80'])),
+                      ),
+                      SizedBox(height: 8),
+                      Card(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        elevation: 0,
+                        child: SizedBox(
+                          height: 120,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ClipRect(
+                                child: SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: ListWheelScrollView.useDelegate(
+                                    itemExtent: 80,
+                                    physics: FixedExtentScrollPhysics(),
+                                    onSelectedItemChanged: (index) {
+                                      setState(() {
+                                        selectedMinutes = index;
+                                      });
+                                    },
+                                    childDelegate:
+                                        ListWheelChildBuilderDelegate(
+                                      builder: (context, index) {
+                                        return Center(
+                                          child: Text(
+                                            '${index.toString().padLeft(2, '0')}',
+                                            style: TextStyle(
+                                                color: mindfulBrown['Brown80'],
+                                                fontSize: 54,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        );
+                                      },
+                                      childCount: 60,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(":",
+                                  style: TextStyle(
+                                      color: mindfulBrown['Brown80'],
+                                      fontSize: 48,
+                                      fontWeight: FontWeight.bold)),
+                              ClipRect(
+                                child: SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: ListWheelScrollView.useDelegate(
+                                    itemExtent: 80,
+                                    physics: FixedExtentScrollPhysics(),
+                                    onSelectedItemChanged: (index) {
+                                      setState(() {
+                                        selectedSeconds = index;
+                                      });
+                                    },
+                                    childDelegate:
+                                        ListWheelChildBuilderDelegate(
+                                      builder: (context, index) {
+                                        return Center(
+                                          child: Text(
+                                            '${index.toString().padLeft(2, '0')}',
+                                            style: TextStyle(
+                                                color: mindfulBrown['Brown80'],
+                                                fontSize: 54,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        );
+                                      },
+                                      childCount: 60,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        height: 55,
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            LoadingScreen.show(context);
+                            final response = await recommenderApi.queryResponse(
+                                goal.text, selectedMinutes);
+                            await supabase.insertMindfulness(
+                                goal.text,
+                                selectedSeconds,
+                                selectedMinutes,
+                                response['recommended_exercise'],
+                                response['id'],
+                                uid);
+
+                            LoadingScreen.hide(context);
+                            print(response);
+
+                            context.go('/bottom-nav');
+                            Future.microtask(() {
+                              context.push('/mindful-player', extra: {
+                                'song': response['sound_name'],
+                                'min': selectedMinutes,
+                                'sec': selectedSeconds,
+                                'url': response['soundtrack_url']
+                              }); // Adds Profile on top of Home
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: mindfulBrown['Brown80'],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text(
+                            'Create',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      )
+                    ],
                   ),
-                ),
-                child: const Text(
-                  'Create',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            )
-          ],
-        ),
-      ),
+                ))));
+      }),
     );
   }
 }

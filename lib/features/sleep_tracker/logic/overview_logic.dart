@@ -6,77 +6,75 @@ import 'package:lingap/core/const/colors.dart';
 
 class OverviewLogic {
   final SupabaseDB supabase = SupabaseDB(client);
-  Map<int, int> sleepData = {};
-  int weeksleep = 0;
+  double avgSleep = 0.0;
+  double sleepDebt = 0.0;
+  int sleepIndex = 0;
 
   List<Map<String, dynamic>> sleepSelection = [
     {
-      'sleep': 'cheerful',
-      'value': 5,
+      'sleep': 'excellent',
       'color': serenityGreen['Green50'],
       'image': 'assets/tracker/darkGreen.png',
       'icon': 'assets/whiteMoods/whiteGreen.png'
     },
     {
-      'sleep': 'happy',
-      'value': 4,
+      'sleep': 'good',
       'color': zenYellow['Yellow40'],
       'image': 'assets/tracker/darkYellow.png',
       'icon': 'assets/whiteMoods/whiteYellow.png'
     },
     {
-      'sleep': 'neutral',
-      'value': 3,
+      'sleep': 'fair',
       'color': mindfulBrown['Brown50'],
       'image': 'assets/tracker/darkBrown.png',
       'icon': 'assets/whiteMoods/whiteBrown.png'
     },
     {
-      'sleep': 'sad',
-      'value': 2,
+      'sleep': 'poor',
       'color': empathyOrange['Orange40'],
       'image': 'assets/tracker/darkOrange.png',
       'icon': 'assets/whiteMoods/whiteOrange.png'
     },
     {
-      'sleep': 'awful',
-      'value': 1,
+      'sleep': 'worst',
       'color': kindPurple['Purple40'],
       'image': 'assets/tracker/darkPurple.png',
       'icon': 'assets/whiteMoods/whiteBlue.png'
     },
   ];
 
-  String getDayLabel(int weekday) {
-    const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return dayLabels[weekday - 1];
-  }
-
-  Future<void> fetchsleepData() async {
-    List<Map<String, dynamic>> sleeps = await supabase.getPastWeeksleeps();
-
-    Map<String, int> sleepIndexes = {
-      "cheerful": 0,
-      "happy": 1,
-      "neutral": 2,
-      "sad": 3,
-      "awful": 4,
-    };
-
-    Map<int, int> sleepCount = {};
-    sleepData.clear();
-
-    for (var sleep in sleeps) {
-      int weekday = DateTime.parse(sleep['created_at']).weekday;
-      int sleepIndex = sleepIndexes[sleep['sleep'].toString().toLowerCase()] ?? -1;
-      if (sleepIndex >= 0) {
-        sleepData[weekday] = sleepIndex;
-        sleepCount[sleepIndex] = (sleepCount[sleepIndex] ?? 0) + 1;
+  Future<void> fetchSleepData() async {
+    try {
+      List<Map<String, dynamic>> pastWeekSleep = await supabase.getPastWeeksleeps();
+      
+      if (pastWeekSleep.isNotEmpty) {
+        double totalSleep = pastWeekSleep.fold(0.0, (sum, row) => sum + (row['sleep_hour'] ?? 0.0));
+        avgSleep = totalSleep / pastWeekSleep.length;
+      } else {
+        avgSleep = 0.0;
       }
-    }
 
-    weeksleep = sleepCount.entries.isNotEmpty
-        ? sleepCount.entries.reduce((a, b) => a.value > b.value ? a : b).key
-        : 0;
+      double recommendedSleep = 8.0; // Recommended sleep hours per day
+      sleepDebt = (recommendedSleep - avgSleep) * pastWeekSleep.length;
+      sleepDebt = sleepDebt < 0 ? 0 : sleepDebt; // Ensure sleepDebt is not negative
+
+      if (avgSleep >= 7 && avgSleep <= 9) {
+        sleepIndex = 0;
+      } else if (avgSleep >= 6 && avgSleep < 7) {
+        sleepIndex = 1;
+      } else if (avgSleep == 5) {
+        sleepIndex = 2;
+      } else if (avgSleep >= 3 && avgSleep <= 4) {
+        sleepIndex = 3;
+      } else {
+        sleepIndex = 4;
+      }
+
+      print('Average Sleep: $avgSleep hours');
+      print('Sleep Debt: $sleepDebt hours');
+      print('Sleep Index: $sleepIndex');
+    } catch (e) {
+      print('Error fetching sleep data: $e');
+    }
   }
 }

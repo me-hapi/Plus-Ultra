@@ -20,7 +20,7 @@ class SupabaseDB {
     return response;
   }
 
-  Future<void> insertOrUpdatesleep(String sleep) async {
+  Future<void> insertOrUpdatesleep(double sleepHours) async {
     try {
       // Get today's date in UTC in YYYY-MM-DD format
       String today = DateTime.now().toUtc().toIso8601String().split('T')[0];
@@ -38,10 +38,10 @@ class SupabaseDB {
         // Update the existing sleep entry
         await _client
             .from('sleep')
-            .update({'sleep': sleep}).eq('id', existingsleep['id']);
+            .update({'sleep_hour': sleepHours}).eq('id', existingsleep['id']);
       } else {
         // Insert a new sleep entry
-        await _client.from('sleep').insert({'uid': uid, 'sleep': sleep});
+        await _client.from('sleep').insert({'uid': uid, 'sleep_hour': sleepHours});
       }
     } catch (e) {
       print('Error inserting/updating sleep: $e');

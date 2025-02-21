@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/mindfulness/services/recommender_api.dart';
 import 'package:lingap/features/mindfulness/ui/mindful_card.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -11,6 +12,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final RecommenderApi recommender = RecommenderApi();
+
   @override
   void initState() {
     super.initState();

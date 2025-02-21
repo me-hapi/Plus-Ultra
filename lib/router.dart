@@ -357,7 +357,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final song = extra['song'];
           final min = extra['min'];
           final sec = extra['sec'];
-          return MindfulPlayer(songName: song, minutes: min, seconds: sec);
+          final url = extra['url'];
+          return MindfulPlayer(
+            songName: song,
+            minutes: min,
+            seconds: sec,
+            url: url,
+          );
         },
       ),
 
@@ -373,8 +379,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/mood-overview', builder: (context, state) => MoodOverview()),
 
-      GoRoute(
-          path: '/mood-track', builder: (context, state) => MoodTracker()),
+      GoRoute(path: '/mood-track', builder: (context, state) => MoodTracker()),
 
       // GoRoute(
       //     path: '/match-loading', builder: (context, state) => LoadingDialog()),

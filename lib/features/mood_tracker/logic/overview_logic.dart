@@ -14,35 +14,35 @@ class OverviewLogic {
       'mood': 'cheerful',
       'value': 5,
       'color': serenityGreen['Green40'],
-      'image': 'assets/tracker/darkGreen.png',
+      'image': 'assets/tracker/moodGreen.png',
       'icon': 'assets/whiteMoods/whiteGreen.png'
     },
     {
       'mood': 'happy',
       'value': 4,
       'color': zenYellow['Yellow40'],
-      'image': 'assets/tracker/darkYellow.png',
+      'image': 'assets/tracker/moodYellow.png',
       'icon': 'assets/whiteMoods/whiteYellow.png'
     },
     {
       'mood': 'neutral',
       'value': 3,
       'color': mindfulBrown['Brown40'],
-      'image': 'assets/tracker/darkBrown.png',
+      'image': 'assets/tracker/moodBrown.png',
       'icon': 'assets/whiteMoods/whiteBrown.png'
     },
     {
       'mood': 'sad',
       'value': 2,
       'color': empathyOrange['Orange40'],
-      'image': 'assets/tracker/darkOrange.png',
+      'image': 'assets/tracker/moodOrange.png',
       'icon': 'assets/whiteMoods/whiteOrange.png'
     },
     {
       'mood': 'awful',
       'value': 1,
       'color': kindPurple['Purple40'],
-      'image': 'assets/tracker/darkPurple.png',
+      'image': 'assets/tracker/moodPurple.png',
       'icon': 'assets/whiteMoods/whiteBlue.png'
     },
   ];

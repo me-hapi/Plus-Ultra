@@ -1,8 +1,10 @@
 import 'dart:ffi';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
+import 'package:lingap/features/wearable_device/data/supabase_db.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 
@@ -16,6 +18,7 @@ class HealthPage extends StatefulWidget {
 class _HealthPageState extends State<HealthPage> {
   late HealthLogic healthLogic;
   AppState appState = AppState.INITIAL;
+  final SupabaseDB supabase = SupabaseDB();
   bool isConnected = false;
 
   Map<String, dynamic> healthDataMap = {};
@@ -54,23 +57,86 @@ class _HealthPageState extends State<HealthPage> {
     }
   }
 
+  double _extractNumericValue(dynamic value) {
+    if (value is num) {
+      return value.toDouble(); // Directly return if it's already numeric
+    }
+
+    if (value is String) {
+      if (value.contains('/')) {
+        // Handle blood pressure (systolic/diastolic format)
+        List<String> parts = value.split('/');
+        double systolic = double.tryParse(parts[0]) ?? 0.0;
+        double diastolic = double.tryParse(parts[1]) ?? 0.0;
+        return systolic - diastolic; // Return Pulse Pressure
+      } else {
+        // Handle single numeric string
+        return double.tryParse(value) ?? 0.0;
+      }
+    }
+
+    return 0.0; // Default fallback
+  }
+
   Future<void> _fetchHealthData() async {
-    Map<String, dynamic> data = await healthLogic.fetchHealthData();
+    final List<Map<String, dynamic>> data = await supabase.fetchVitalData();
+
+    if (data.isEmpty) {
+      print('No health data found.');
+      return;
+    }
+
+    Map<String, List<Map<String, dynamic>>> categorizedData = {};
+
+    for (var entry in data) {
+      String type = entry['type'];
+      DateTime date = DateTime.parse(entry['date']);
+      String rawValue =
+          entry['value'].toString(); // Keep the raw value for latest
+      double numericValue =
+          _extractNumericValue(entry['value']); // Convert only for spots
+
+      if (!categorizedData.containsKey(type)) {
+        categorizedData[type] = [];
+      }
+
+      categorizedData[type]!.add({
+        'date': date,
+        'value': numericValue, // Use numeric value for spots
+        'rawValue': rawValue, // Store raw value separately
+      });
+    }
+
+    Map<String, dynamic> result = {};
+
+    categorizedData.forEach((key, value) {
+      // Sort by time (earliest to latest)
+      value.sort((a, b) => a['date'].compareTo(b['date']));
+
+      // Convert to FlSpot
+      List<FlSpot> flSpots = value.map((data) {
+        double x = data['date'].millisecondsSinceEpoch.toDouble();
+        double y = data['value']; // Use extracted numeric value
+        return FlSpot(x, y);
+      }).toList();
+
+      // Latest metric (most recent value as raw string)
+      String latestMetric = value.isNotEmpty ? value.last['rawValue'] : 'N/A';
+
+      result[key] = {
+        'spots': flSpots,
+        'latest': latestMetric, // Use raw string for latest
+      };
+    });
+
+    print('Transformed Data: $result');
     setState(() {
-      healthDataMap = data;
+      healthDataMap = result;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    String bloodPressureMetric =
-        (healthDataMap['HealthDataType.BLOOD_PRESSURE_SYSTOLIC']?['latest'] ??
-                'N/A') +
-            '/' +
-            (healthDataMap['HealthDataType.BLOOD_PRESSURE_DIASTOLIC']
-                    ?['latest'] ??
-                'N/A');
-
     return Scaffold(
       backgroundColor: mindfulBrown['Brown10'],
       body: Column(
@@ -105,22 +171,16 @@ class _HealthPageState extends State<HealthPage> {
                 VitalCard(
                   title: "Heart Rate",
                   imageUrl: "assets/vitals/heart.png",
-                  metric: healthDataMap['HealthDataType.HEART_RATE']
-                          ?['latest'] ??
-                      'N/A',
-                  lineGraphData: healthDataMap['HealthDataType.HEART_RATE']
-                          ?['spots'] ??
-                      [],
+                  metric: healthDataMap['HEART_RATE']?['latest'] ?? 'N/A',
+                  lineGraphData: healthDataMap['HEART_RATE']?['spots'] ?? [],
                   graphColor: presentRed['Red50']!,
                 ),
                 VitalCard(
                   title: "Blood Pressure",
                   imageUrl: "assets/vitals/blood.png",
-                  metric: bloodPressureMetric,
+                  metric: healthDataMap['BLOOD_PRESSURE']?['latest'] ?? 'N/A',
                   lineGraphData:
-                      healthDataMap['HealthDataType.BLOOD_PRESSURE_SYSTOLIC']
-                              ?['spots'] ??
-                          [],
+                      healthDataMap['BLOOD_PRESSURE']?['spots'] ?? [],
                   graphColor: empathyOrange['Orange50']!,
                 ),
               ]),

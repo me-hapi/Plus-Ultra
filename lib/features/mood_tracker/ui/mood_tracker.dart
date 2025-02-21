@@ -118,7 +118,7 @@ class _DisplayMoodState extends State<MoodTracker> {
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: 50,
               )
             ],
           ),

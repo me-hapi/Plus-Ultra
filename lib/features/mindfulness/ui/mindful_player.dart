@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:just_audio/just_audio.dart';
 import 'package:lingap/core/const/colors.dart';
 
 class MindfulPlayer extends StatefulWidget {
   final String songName;
+  final String url;
   final int minutes;
   final int seconds;
 
@@ -13,6 +14,7 @@ class MindfulPlayer extends StatefulWidget {
     required this.songName,
     required this.minutes,
     required this.seconds,
+    required this.url,
   }) : super(key: key);
 
   @override
@@ -23,6 +25,7 @@ class _MindfulPlayerState extends State<MindfulPlayer>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  late AudioPlayer _audioPlayer;
   Timer? _timer;
   double _progress = 0.0;
   bool _isPlaying = false;
@@ -40,16 +43,40 @@ class _MindfulPlayerState extends State<MindfulPlayer>
       parent: _controller,
       curve: Curves.easeInOut,
     ));
-    _startProgress();
+
+    _audioPlayer = AudioPlayer();
+    _initAudio();
+    _togglePlayPause();
+  }
+
+  Future<void> _initAudio() async {
+    try {
+      await _audioPlayer.setUrl(widget.url);
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            _progress = 1.0;
+            _isPlaying = false;
+          });
+        }
+      });
+    } catch (e) {
+      print("Error loading audio: $e");
+    }
   }
 
   void _togglePlayPause() {
     setState(() {
       _isPlaying = !_isPlaying;
     });
+
     if (_isPlaying) {
+      _audioPlayer.play();
+      _controller.repeat(reverse: true);
       _startProgress();
     } else {
+      _audioPlayer.pause();
+      _controller.stop();
       _timer?.cancel();
     }
   }
@@ -61,6 +88,8 @@ class _MindfulPlayerState extends State<MindfulPlayer>
         if (_progress >= 1.0) {
           _progress = 1.0;
           _isPlaying = false;
+          _audioPlayer.stop();
+          _controller.stop();
           _timer?.cancel();
         }
       });
@@ -77,6 +106,7 @@ class _MindfulPlayerState extends State<MindfulPlayer>
   @override
   void dispose() {
     _controller.dispose();
+    _audioPlayer.dispose();
     _timer?.cancel();
     super.dispose();
   }
@@ -126,15 +156,16 @@ class _MindfulPlayerState extends State<MindfulPlayer>
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 50),
+                    const SizedBox(height: 50),
                     Text(
                       widget.songName,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
@@ -152,7 +183,14 @@ class _MindfulPlayerState extends State<MindfulPlayer>
                             value: _progress,
                             min: 0,
                             max: 1,
-                            onChanged: (value) {},
+                            onChanged: (value) async {
+                              setState(() {
+                                _progress = value;
+                              });
+                              await _audioPlayer.seek(Duration(
+                                  seconds:
+                                      (value * totalTimeInSeconds).toInt()));
+                            },
                             activeColor: Colors.white,
                             inactiveColor: Colors.white30,
                           ),
@@ -165,11 +203,14 @@ class _MindfulPlayerState extends State<MindfulPlayer>
                         IconButton(
                           icon: const Icon(Icons.replay_10,
                               color: Colors.white, size: 36),
-                          onPressed: () {
+                          onPressed: () async {
                             setState(() {
                               _progress = (_progress - 10 / totalTimeInSeconds)
                                   .clamp(0.0, 1.0);
                             });
+                            await _audioPlayer.seek(Duration(
+                                seconds:
+                                    (_progress * totalTimeInSeconds).toInt()));
                           },
                         ),
                         IconButton(
@@ -182,11 +223,14 @@ class _MindfulPlayerState extends State<MindfulPlayer>
                         IconButton(
                           icon: const Icon(Icons.forward_10,
                               color: Colors.white, size: 36),
-                          onPressed: () {
+                          onPressed: () async {
                             setState(() {
                               _progress = (_progress + 10 / totalTimeInSeconds)
                                   .clamp(0.0, 1.0);
                             });
+                            await _audioPlayer.seek(Duration(
+                                seconds:
+                                    (_progress * totalTimeInSeconds).toInt()));
                           },
                         ),
                       ],

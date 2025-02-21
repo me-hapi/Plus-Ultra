@@ -20,26 +20,26 @@ class _sleepOverviewState extends State<SleepOverview> {
   @override
   void initState() {
     super.initState();
-    sleepLogic.fetchsleepData().then((_) {
+    sleepLogic.fetchSleepData().then((_) {
       setState(() {}); // Update UI after data is loaded
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    String sleepWeek = sleepLogic.sleepSelection[sleepLogic.weeksleep]['sleep'];
+    String sleepQuality = sleepLogic.sleepSelection[sleepLogic.sleepIndex]['sleep'];
 
     return Scaffold(
       body: Stack(
         children: [
           Container(
-            color: sleepLogic.sleepSelection[sleepLogic.weeksleep]['color'],
+            color: sleepLogic.sleepSelection[sleepLogic.sleepIndex]['color']
           ),
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    sleepLogic.sleepSelection[sleepLogic.weeksleep]['image']),
+                   sleepLogic.sleepSelection[sleepLogic.sleepIndex]['image']),
                 fit: BoxFit.cover,
               ),
             ),
@@ -63,14 +63,14 @@ class _sleepOverviewState extends State<SleepOverview> {
               SizedBox(height: 30),
               Center(
                 child: Image.asset(
-                  sleepLogic.sleepSelection[sleepLogic.weeksleep]['icon'],
+                 sleepLogic.sleepSelection[sleepLogic.sleepIndex]['icon'],
                   height: 120,
                 ),
               ),
               SizedBox(height: 30),
               Center(
                 child: Text(
-                  'I have a $sleepWeek sleep \n this week',
+                  'I have a $sleepQuality sleep \n this week',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -115,11 +115,11 @@ class _sleepOverviewState extends State<SleepOverview> {
                             children: [
                               _buildCard(
                                   title: 'Average Sleep',
-                                  value: 8.5,
+                                  value: sleepLogic.avgSleep,
                                   color: serenityGreen['Green50']!),
                               _buildCard(
                                   title: 'Sleep Debt',
-                                  value: 2.5,
+                                  value: sleepLogic.sleepDebt,
                                   color: empathyOrange['Orange50']!)
                             ],
                           )),
