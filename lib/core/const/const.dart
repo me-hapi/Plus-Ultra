@@ -17,11 +17,14 @@ bool isConnected = false;
 
 String globalName = '';
 
+bool isAnonymous = true;
+
 // File? profile ;
 
 final client = Supabase.instance.client;
 
 final uid = client.auth.currentUser!.id;
+final currentUser = client.auth.currentUser;
 
 bool postAssessment = false;
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lingap/core/const/colors.dart';
 
 class AppointmentCard extends StatefulWidget {
+  final String room_id;
   final String name;
   final String date;
   final String timeSlot;
@@ -29,6 +31,7 @@ class AppointmentCard extends StatefulWidget {
     required this.onApprove,
     required this.onDecline,
     required this.onJoinCall,
+    required this.room_id,
   }) : super(key: key);
 
   @override
@@ -50,14 +53,18 @@ class _AppointmentCardState extends State<AppointmentCard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Decline Appointment'),
+          backgroundColor: Colors.white,
+          title: Text(
+            'Decline Appointment',
+            style: TextStyle(color: mindfulBrown['Brown80']),
+          ),
           content: TextField(
             onChanged: (value) {
               declineReason = value;
             },
-            decoration: const InputDecoration(
-              hintText: 'Enter reason for declining',
-            ),
+            decoration: InputDecoration(
+                hintText: 'Enter reason for declining',
+                hintStyle: TextStyle(color: optimisticGray['Gray50'])),
             maxLines: 3,
           ),
           actions: [
@@ -65,6 +72,10 @@ class _AppointmentCardState extends State<AppointmentCard> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(presentRed['Red50']),
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+              ),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
@@ -72,6 +83,11 @@ class _AppointmentCardState extends State<AppointmentCard> {
                 widget.onDecline(declineReason);
                 Navigator.of(context).pop();
               },
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all(serenityGreen['Green50']),
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+              ),
               child: const Text('Submit'),
             ),
           ],
@@ -95,7 +111,8 @@ class _AppointmentCardState extends State<AppointmentCard> {
     return GestureDetector(
       onTap: _toggleCard,
       child: Card(
-        elevation: 4,
+        color: Colors.white,
+        elevation: 1,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         child: Column(
@@ -103,31 +120,71 @@ class _AppointmentCardState extends State<AppointmentCard> {
             ListTile(
               title: Text(
                 widget.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 18,
+                    color: mindfulBrown['Brown80'],
+                    fontWeight: FontWeight.bold),
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_formatDate(widget.date)),
-                  Text(_formatTime(widget.timeSlot)),
+                  Text(
+                    _formatDate(widget.date),
+                    style: TextStyle(color: optimisticGray['Gray50']),
+                  ),
+                  Text(
+                    _formatTime(widget.timeSlot),
+                    style: TextStyle(color: optimisticGray['Gray50']),
+                  ),
                 ],
               ),
             ),
             if (_isExpanded)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Age: ${widget.age}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Age: ${widget.age}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: mindfulBrown['Brown80'],
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('Gender: ${widget.gender}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Gender: ${widget.gender}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: mindfulBrown['Brown80'],
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('Email: ${widget.email}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Email: ${widget.email}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: mindfulBrown['Brown80'],
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('Number: ${widget.number}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Number: ${widget.number}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: mindfulBrown['Brown80'],
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('Notes: ${widget.notes}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Notes: ${widget.notes}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: mindfulBrown['Brown80'],
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -136,7 +193,7 @@ class _AppointmentCardState extends State<AppointmentCard> {
                               ElevatedButton(
                                 onPressed: widget.onJoinCall,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
+                                  backgroundColor: serenityGreen['Green50'],
                                   foregroundColor: Colors.white,
                                 ),
                                 child: const Text('Join Call'),
@@ -144,12 +201,12 @@ class _AppointmentCardState extends State<AppointmentCard> {
                             ]
                           : widget.status == 'completed'
                               ? [
-                                  const Text(
+                                  Text(
                                     'Completed',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.green,
+                                      color: serenityGreen['Green50'],
                                     ),
                                   ),
                                 ]
@@ -157,7 +214,7 @@ class _AppointmentCardState extends State<AppointmentCard> {
                                   ElevatedButton(
                                     onPressed: _showDeclineDialog,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: presentRed['Red50'],
                                       foregroundColor: Colors.white,
                                     ),
                                     child: const Text('Decline'),
@@ -166,7 +223,7 @@ class _AppointmentCardState extends State<AppointmentCard> {
                                   ElevatedButton(
                                     onPressed: widget.onApprove,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
+                                      backgroundColor: serenityGreen['Green50'],
                                       foregroundColor: Colors.white,
                                     ),
                                     child: const Text('Approve'),

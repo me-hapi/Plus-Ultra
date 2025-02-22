@@ -51,8 +51,10 @@ class _LoadingDialogState extends State<LoadingDialog>
 
       if (mounted) {
         print('mounted');
-        Navigator.pop(context); // Close modal
-        context.push('/peer-chatscreen', extra: {'roomId': roomId, 'id': id});
+        Navigator.pop(context);
+        String name = isAnonymous ? 'Anonymous' : globalName;
+        context.push('/peer-chatscreen',
+            extra: {'roomId': roomId, 'id': id, 'name': name});
       }
     } else {
       Map result = await match.findRoom(uid);

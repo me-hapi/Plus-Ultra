@@ -7,6 +7,8 @@ class SignLogic {
 
   SignLogic(this._supabaseClient);
 
+  
+
   Future<void> signInAnonymously() async {
     final response = await _supabaseClient.auth.signInAnonymously();
 

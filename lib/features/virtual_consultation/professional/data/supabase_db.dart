@@ -142,16 +142,15 @@ class SupabaseDB {
       final teleconsultationOnly = stepData['teleconsultationOnly'] ?? false;
 
       // If teleconsultation is selected, set all fields to null
-      final clinicName = teleconsultationOnly ? 'teleconsultation' : stepData['clinicName'];
+      final clinicName =
+          teleconsultationOnly ? 'teleconsultation' : stepData['clinicName'];
       final clinicAddress =
           teleconsultationOnly ? 'teleconsultation' : stepData['clinicAddress'];
       final selectedLocation =
           teleconsultationOnly ? null : stepData['selectedLocation'];
 
-      final clinicLat =
-          selectedLocation != null ? selectedLocation['lat'] : 0;
-      final clinicLong =
-          selectedLocation != null ? selectedLocation['lng'] : 0;
+      final clinicLat = selectedLocation != null ? selectedLocation['lat'] : 0;
+      final clinicLong = selectedLocation != null ? selectedLocation['lng'] : 0;
 
       // Insert data into the professional_clinic table
       final response = await _client.from('professional_clinic').insert({
@@ -220,7 +219,7 @@ class SupabaseDB {
     try {
       final response = await _client
           .from('appointment')
-          .select('*, profile(*)')
+          .select('*, profile(*), consultation_room(*)')
           .eq('professional_id', professionalId);
 
       final appointments = response as List<dynamic>;
@@ -245,6 +244,16 @@ class SupabaseDB {
     } catch (e) {
       print('Error: $e');
       return {'approved': [], 'pending': [], 'rejected': []};
+    }
+  }
+
+  Future<void> updateAppointment(String status, int id) async {
+    try {
+      final result = await _client
+          .from('appointment')
+          .update({'status': status}).eq('id', id);
+    } catch (e) {
+      print('errr updating: $e');
     }
   }
 }

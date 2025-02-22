@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:lingap/features/chatbot/services/pinecone_retriever.dart';
 
@@ -73,7 +74,6 @@ class RAGModel {
    - If the question is out of scope, respond:  
      _"Pasensya na, hindi ko masagot ang tanong na ito sa ngayon. Pero nandito ako para makinig at tumulong sa ibang paraan."_  
 
-
 ### **Conversation History:**
 $formattedHistory
 
@@ -83,12 +83,22 @@ $retrievedContext
 ### **User Query:**
 $userQuery
 
-### Response Format (Conversational and Human-Like):
-- **Response:** {response} (Rewrite the response to sound like a caring person, using Filipino cultural insights, CBT methods, and a natural tone, do not enclose in quotes)  
-- **Title:** {title} (Summarize the main theme of the conversation)  
-- **Icon:** {icon} (Select the best corresponding icon from the given options: abstract, arrowdown, arrowup, bandaid, bell, blood, bulb, calendar, chart, cloud, control, document, drug, ekg, head, healthplus, heartbeat, house, leaf, lock, mask, medal, microscope, performance, phone, piechart, pill, processor, search, shield_health, stethoscope, syringe, time, virus) 
-- **Emotion:** {emotion} (Awful, Sad, Neutral, Happy, Cheerful, Progress* *Progress* should be used when there is an improvement in the user's emotional state, based on the conversation history and current query. If the user initially expressed distress but now shows signs of hope, relief, or a better outlook, classify it as *Progress*)  
-- **Issue:** {issue} [Addiction, Anxiety, Children, Depression, Food, Grief, LGBTQ, Psychosis, Relationship, Sleep]  
+### **Response Format (JSON):**
+```json
+{
+  "response": "{response}", 
+  "title": "{title}", 
+  "icon": "{icon}", 
+  "emotion": "{emotion}", 
+  "issue": "{issue}"
+}
+```
+- **Response:** `{response}` (Rewrite the response to sound like a caring person, using Filipino cultural insights, CBT methods, and a natural tone.)  
+- **Title:** `{title}` (Summarize the main theme of the conversation.)  
+- **Icon:** `{icon}` (Select the best corresponding icon from the given options: abstract, arrowdown, arrowup, bandaid, bell, blood, bulb, calendar, chart, cloud, control, document, drug, ekg, head, healthplus, heartbeat, house, leaf, lock, mask, medal, microscope, performance, phone, piechart, pill, processor, search, shield_health, stethoscope, syringe, time, virus.)  
+- **Emotion:** `{emotion}` (Possible values: **Awful, Sad, Neutral, Happy, Cheerful, Progress**. *Progress* should be used when the user shows improvement in emotional state based on conversation history.)  
+- **Issue:** `{issue}` (Possible values: **Addiction, Anxiety, Children, Depression, Food, Grief, LGBTQ, Psychosis, Relationship, Sleep**.)  
+```
 ''';
   }
 
@@ -126,7 +136,8 @@ $userQuery
       // Extract and return the response text
       final contentList = chatCompletion.choices.first.message.content;
       if (contentList != null && contentList.isNotEmpty) {
-        return contentList.map((item) => item.text).join(" ").trim();
+        final result = contentList.map((item) => item.text).join(" ").trim();
+        return result;
       }
       return "";
     } catch (e) {

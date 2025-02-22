@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -47,6 +48,31 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
         super([]) {
     _loadCachedMessages();
     _listenToMessages();
+  }
+
+    Map<String, dynamic> extractRecommendation(String rawResponse) {
+    try {
+      // Clean the response by removing triple backticks and any extra markers
+      String cleanedJson = rawResponse
+          .trim()
+          .replaceAll("```json", "") // Remove markdown-style json block markers
+          .replaceAll("```", ""); // Remove closing backticks if present
+
+      // Parse the cleaned JSON string
+      Map<String, dynamic> data = jsonDecode(cleanedJson);
+
+      // Extract the required fields
+      return {
+        "recommended_exercise": data["recommended_exercise"],
+        "reasoning": data["reasoning"],
+        "sound_name": data["selected_soundtrack"]["name"],
+        "soundtrack_url": data["selected_soundtrack"]["url"],
+        "soundtrack_id": data["selected_soundtrack"]["id"],
+      };
+    } catch (e) {
+      print("Error parsing JSON: $e");
+      return {};
+    }
   }
 
   Future<void> _loadCachedMessages() async {
@@ -102,7 +128,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
         .toList();
 
     String responseQuery = await rag.queryResponse(userInput, history);
-    Map response = Utils().parseResponse(responseQuery);
+    // Map response = Utils().parseResponse(responseQuery);
+    Map response = extractRecommendation(responseQuery);
 
     String responseText = response['response'];
     emotion = response['emotion'];
@@ -290,7 +317,8 @@ Ensure the response is a close ended question.
     ];
 
     String responseQuery = await rag.queryResponse(prompt, history);
-    Map response = Utils().parseResponse(responseQuery);
+    // Map response = Utils().parseResponse(responseQuery);
+    Map response = extractRecommendation(responseQuery);
 
     String responseText = response['response'];
 
@@ -379,7 +407,8 @@ Ensure the response is a close ended question.
         .toList();
 
     String responseQuery = await rag.queryResponse('Hindi', history);
-    Map response = Utils().parseResponse(responseQuery);
+    // Map response = Utils().parseResponse(responseQuery);
+    Map response = extractRecommendation(responseQuery);
 
     String responseText = response['response'];
 

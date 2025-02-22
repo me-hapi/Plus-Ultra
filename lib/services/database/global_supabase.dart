@@ -84,15 +84,40 @@ class GlobalSupabase {
       }
 
       // Insert the data into the 'profile' table
-      final response = await _client.from('profile').insert({
-        'name': responses['name'],
-        'age': responses['age'],
-        'weight': responses['weight']['weight'],
-        'weight_lbl': responses['weight']['unit'],
-        'mood': responses['mood'],
-        'sleep_quality': responses['sleepQuality'],
-        'imageUrl': responses['profilePicture']
-      });
+      final response = await _client
+          .from('profile')
+          .insert({
+            'name': responses['name'],
+            'age': responses['age'],
+            'weight': responses['weight']['weight'],
+            'weight_lbl': responses['weight']['unit'],
+            'mood': responses['mood'],
+            'sleep_quality': responses['sleepQuality'],
+            'imageUrl': responses['profilePicture']
+          })
+          .select('id')
+          .maybeSingle();
+
+      final category = {
+        'Excellent': 8,
+        'Good': 6,
+        'Fair': 5,
+        'Poor': 4,
+        'Worst': 3,
+        'Cheerful': 5,
+        'Happy': 4,
+        'Neutral': 3,
+        'Sad': 2,
+        'Awful': 1
+      };
+
+      final uid = response!['id'];
+      final insertSleep = await _client.from('sleep').insert(
+          {'uid': uid, 'sleep_hour': category[responses['sleepQuality']]});
+
+      final insertMood = await _client
+          .from('mood')
+          .insert({'uid': uid, 'mood': responses['mood']});
 
       print('Data inserted successfully');
       return true;

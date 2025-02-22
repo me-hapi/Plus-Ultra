@@ -126,7 +126,7 @@ class HomeLogic {
     double averageSleep = totalSleep / result.length;
 
     return {
-      'spots': spots,
+      'spots': List<FlSpot>.from(spots),
       'average': averageSleep,
     };
   }

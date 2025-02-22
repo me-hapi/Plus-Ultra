@@ -96,6 +96,7 @@ flutter:
 
     - assets/logo/google.png
     - assets/logo/facebook.png
+    - assets/logo/incognity.png
 
     - assets/splashscreen/robot.png
     - assets/splashscreen/splash1.png

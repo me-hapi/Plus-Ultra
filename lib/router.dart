@@ -27,6 +27,7 @@ import 'package:lingap/features/sleep_tracker/ui/sleep_tracker.dart';
 
 //PROFESSIONAL TELECONSULT
 import 'package:lingap/features/virtual_consultation/professional/ui/application_page.dart';
+import 'package:lingap/features/virtual_consultation/professional/ui/professional_screen.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/consult_screen.dart';
 
 //USER TELECONSULT
@@ -196,6 +197,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/application_page',
         builder: (context, state) => ApplicationPage(),
       ),
+
+      GoRoute(
+          path: '/professional-screen',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final roomId = extra['roomId'];
+            final name = extra['name'];
+            final appointmentId = extra['appointmentId'];
+            return ProfessionalScreen(
+              roomId: roomId,
+              userName: name,
+              appointmentId: appointmentId,
+            );
+          }),
 
       //User
       GoRoute(

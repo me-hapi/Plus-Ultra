@@ -223,6 +223,7 @@ class _SignInPageState extends State<SignInPage> {
               children: [
                 GestureDetector(
                   onTap: () {
+
                     final googleAuthService = GoogleAuthService(context);
                     googleAuthService.setupAuthListener();
                     googleAuthService.googleSignIn();
@@ -253,7 +254,7 @@ class _SignInPageState extends State<SignInPage> {
                         Colors.white, // Set background color to white
                     child: ClipOval(
                       child: Image.asset(
-                        'assets/logo/facebook.png',
+                        'assets/logo/incognity.png',
                         width: 55, // Adjust the logo size
                         height: 55, // Adjust the logo size
                         fit: BoxFit.contain,

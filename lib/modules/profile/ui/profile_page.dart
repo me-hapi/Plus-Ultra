@@ -19,42 +19,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
-class ConvexArcPainter extends CustomPainter {
-  final ui.Image backgroundImage;
-
-  ConvexArcPainter(this.backgroundImage);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Define the convex arc shape
-    final path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(0, size.height - 30)
-      ..quadraticBezierTo(
-        size.width / 2,
-        size.height + 30,
-        size.width,
-        size.height - 30,
-      )
-      ..lineTo(size.width, 0)
-      ..close();
-
-    // Clip the canvas to the convex arc shape
-    canvas.clipPath(path);
-
-    // Draw the background image within the clipped path
-    paintImage(
-      canvas: canvas,
-      rect: Rect.fromLTWH(0, 0, size.width, size.height),
-      image: backgroundImage,
-      fit: BoxFit.cover,
-    );
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
 class ProfilePage extends StatefulWidget {
   final ui.Image backgroundImage;
   final Map<String, dynamic> profile;
@@ -69,7 +33,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _isNotificationOn = false;
-  bool _isDarkModeOn = false;
+  bool _Anonymous = false;
   bool _isSigningOut = false;
   GlobalSupabase supabase = GlobalSupabase(client);
   bool _isProfessionalOn = false;
@@ -80,6 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _checkProfessionalStatus();
     _loadProfessionalStatus();
+    _loadAnonymousStatus();
   }
 
   void _checkProfessionalStatus() async {
@@ -103,6 +68,23 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _isProfessionalOn = value;
       professional = _isProfessionalOn;
+    });
+  }
+
+  Future<void> _loadAnonymousStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _Anonymous = prefs.getBool('isAnonymous') ?? false;
+      isAnonymous = _Anonymous;
+    });
+  }
+
+  Future<void> _updateAnonymousStatus(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isAnonymous', value);
+    setState(() {
+      _Anonymous = value;
+      isAnonymous = _Anonymous;
     });
   }
 
@@ -374,39 +356,39 @@ class _ProfilePageState extends State<ProfilePage> {
             //     ),
             //   ),
             // ),
-            // Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 16),
-            //   child: Card(
-            //     color: Colors.white,
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(30),
-            //     ),
-            //     child: ListTile(
-            //       leading: Image.asset('assets/profileIcon/dark.png'),
-            //       contentPadding:
-            //           EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            //       title: Text(
-            //         'Dark Mode',
-            //         style: TextStyle(
-            //           fontWeight: FontWeight.bold,
-            //           color: mindfulBrown['Brown80'],
-            //         ),
-            //       ),
-            //       trailing: Switch(
-            //         value: _isDarkModeOn,
-            //         onChanged: (value) {
-            //           setState(() {
-            //             _isDarkModeOn = value; // Toggle the switch
-            //           });
-            //         },
-            //         activeColor: Colors.green, // Green when ON
-            //         inactiveThumbColor: Colors.grey, // Gray thumb when OFF
-            //         inactiveTrackColor:
-            //             Colors.grey[300], // Light gray track when OFF
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ListTile(
+                  leading: Image.asset('assets/profileIcon/emergency.png'),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  title: Text(
+                    'Anonymous',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: mindfulBrown['Brown80'],
+                    ),
+                  ),
+                  trailing: Switch(
+                    value: _Anonymous,
+                    onChanged: (value) {
+                      setState(() {
+                        _updateAnonymousStatus(value);
+                      });
+                    },
+                    activeColor: Colors.green, // Green when ON
+                    inactiveThumbColor: Colors.grey, // Gray thumb when OFF
+                    inactiveTrackColor:
+                        Colors.grey[300], // Light gray track when OFF
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 25),
             Align(
               alignment: Alignment.centerLeft,
@@ -503,4 +485,40 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+}
+
+class ConvexArcPainter extends CustomPainter {
+  final ui.Image backgroundImage;
+
+  ConvexArcPainter(this.backgroundImage);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Define the convex arc shape
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(0, size.height - 30)
+      ..quadraticBezierTo(
+        size.width / 2,
+        size.height + 30,
+        size.width,
+        size.height - 30,
+      )
+      ..lineTo(size.width, 0)
+      ..close();
+
+    // Clip the canvas to the convex arc shape
+    canvas.clipPath(path);
+
+    // Draw the background image within the clipped path
+    paintImage(
+      canvas: canvas,
+      rect: Rect.fromLTWH(0, 0, size.width, size.height),
+      image: backgroundImage,
+      fit: BoxFit.cover,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

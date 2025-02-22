@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/professional/data/supabase_db.dart';
@@ -63,23 +64,19 @@ class _HomePageState extends State<HomePage>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    blurRadius: 3,
-                    offset: Offset(0, 3),
-                  ),
-                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildToggleButton("Pending", empathyOrange['Orange40']!),
-                  _buildToggleButton("Approved", reflectiveBlue['Blue50']!),
-                  _buildToggleButton("Completed", serenityGreen['Green50']!),
+                  _buildToggleButton("Pending", empathyOrange['Orange40']!, 0),
+                  _buildToggleButton("Approved", reflectiveBlue['Blue50']!, 1),
+                  _buildToggleButton("Completed", serenityGreen['Green50']!, 2),
                 ],
               ),
             ),
+          ),
+          SizedBox(
+            height: 15,
           ),
           Expanded(
             child: TabBarView(
@@ -102,11 +99,13 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildToggleButton(String label, Color activeColor) {
+  Widget _buildToggleButton(String label, Color activeColor, int tabIndex) {
     return GestureDetector(
         onTap: () {
           setState(() {
             selectedButton = label;
+
+            _tabController.animateTo(tabIndex);
           });
         },
         child: SizedBox(
@@ -144,6 +143,7 @@ class _HomePageState extends State<HomePage>
       itemBuilder: (context, index) {
         final appointment = appointments[index];
         return AppointmentCard(
+          room_id: appointment['consultation_room'][0]['room_id'],
           name: appointment['full_name']!,
           date: appointment['appointment_date']!,
           timeSlot: appointment['time_slot']!,
@@ -153,10 +153,14 @@ class _HomePageState extends State<HomePage>
           number: appointment['mobile']!,
           notes: appointment['comment']!,
           status: appointment['status']!,
-          onApprove: () {
+          onApprove: () async {
+            await supabase.updateAppointment('approved', appointment['id']);
+
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${appointment['name']} approved!')),
+              SnackBar(content: Text('${appointment['full_name']} approved!')),
             );
+
+            setState(() {});
           },
           onDecline: (reason) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -165,9 +169,13 @@ class _HomePageState extends State<HomePage>
             );
           },
           onJoinCall: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Join call')),
-            );
+        
+
+            context.push('/professional-screen', extra: {
+              'roomId': appointment['consultation_room'][0]['room_id'],
+              'name': appointment['full_name'],
+              'appointmentId': appointment['id']
+            });
           },
         );
       },

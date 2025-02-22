@@ -47,7 +47,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _initializeConnectionStatus();
     _fetchSleepData();
     _fetchMoodData();
-    _fetchMindfulData();
+    // _fetchMindfulData();
   }
 
   @override
