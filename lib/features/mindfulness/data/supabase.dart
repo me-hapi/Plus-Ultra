@@ -16,7 +16,6 @@ class SupabaseDB {
         .eq('uid', uid)
         .gte('created_at', weekAgo.toIso8601String());
 
-    print('RESPONSE: $response');
     return response;
   }
 
@@ -29,7 +28,6 @@ class SupabaseDB {
         .eq('uid', uid)
         .gte('created_at', weekAgo.toIso8601String());
 
-    print('RESPONSE: $response');
     return response;
   }
 
@@ -57,8 +55,10 @@ class SupabaseDB {
 
   Future<List<Map<String, dynamic>>> fetchMindfulness() async {
     try {
-      final response = await _client.from('mindfulness').select();
+      final response =
+          await _client.from('mindfulness').select('*, soundtracks(*)');
 
+      print('RESPONSE: $response');
       return response;
     } catch (error) {
       print('Error selecting data: $error');
@@ -74,7 +74,7 @@ class SupabaseDB {
         'seconds': seconds,
         'minutes': minutes,
         'exercise': exercise,
-        'song': song_id,
+        'song_id': song_id,
         'uid': uid,
       });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
+import 'package:lingap/features/wearable_device/logic/health_connect.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:workmanager/workmanager.dart';
 import 'router.dart';
@@ -14,11 +15,10 @@ void callbackDispatcher() {
     if (task == fetchHealthTask) {
       // Perform your background task here
       try {
-        // Example: Log the execution
-        debugPrint('Background task executed: $fetchHealthTask');
-        // Add any logic you need to perform, such as fetching health data
+        HealthLogic().fetchHealthData();
+        print('SUCECSS');
       } catch (e) {
-        debugPrint('Error in background task: $e');
+        print('Error in background task: $e');
       }
       return Future.value(true); // Task completed successfully
     }
@@ -38,12 +38,18 @@ Future<void> main() async {
   // Initialize WorkManager
   Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
 
-  // Schedule periodic background tasks
+  // Schedule periodic background tasks every 15 minutes
   Workmanager().cancelByTag(fetchHealthTask).then((_) {
-    Workmanager().registerOneOffTask(
+    Workmanager().registerPeriodicTask(
+      fetchHealthTask, // Unique name for the task
       fetchHealthTask,
-      fetchHealthTask,
-      initialDelay: const Duration(seconds: 5),
+      frequency: const Duration(minutes: 15), // Runs every 15 minutes
+      initialDelay:
+          const Duration(seconds: 5), // Initial delay before first execution
+      // constraints: Constraints(
+      //   networkType:
+      //       NetworkType.connected, // Only run when the network is available
+      // ),
     );
   });
 

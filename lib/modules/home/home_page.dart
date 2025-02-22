@@ -32,6 +32,14 @@ class _HomePageState extends ConsumerState<HomePage> {
   Map<String, dynamic> healthDataMap = {};
   Map<String, dynamic> sleepData = {};
   Map<String, dynamic> moodData = {};
+  double totalHours = 0.0;
+  Map<String, double> mindfulnessData = {
+    'Breathing': 0,
+    'Relaxation': 0,
+    'Sleep': 0,
+    'Meditation': 0,
+  };
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +47,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _initializeConnectionStatus();
     _fetchSleepData();
     _fetchMoodData();
+    _fetchMindfulData();
   }
 
   @override
@@ -93,6 +102,14 @@ class _HomePageState extends ConsumerState<HomePage> {
     final result = await homeLogic.fetchMood();
     setState(() {
       moodData = result;
+    });
+  }
+
+  Future<void> _fetchMindfulData() async {
+    final result = await homeLogic.fetchMindfulness();
+    setState(() {
+      mindfulnessData = result;
+      totalHours = mindfulnessData.values.reduce((a, b) => a + b);
     });
   }
 
@@ -207,27 +224,98 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                       const SizedBox(height: 5),
                       SizedBox(
-                          height: 220,
-                          child: GestureDetector(
-                            onTap: () {
-                              context.push('/mindful-home');
-                            },
-                            child: Card(
-                              elevation: 0,
-                              color: reflectiveBlue['Blue40'],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(30.0),
-                                child: Icon(
-                                  Icons.mood, // Use a mood icon
-                                  size: 120,
-                                  color: Colors.grey[700],
+                        height: 220,
+                        child: GestureDetector(
+                          onTap: () {
+                            context.push('/mindful-home');
+                          },
+                          child: Card(
+                            elevation: 0,
+                            color: reflectiveBlue['Blue30'],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: SizedBox(
+                                width:
+                                    140, // Ensures Stack has defined constraints
+                                height: 140,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    if (totalHours > 0)
+                                      SizedBox(
+                                        // Prevents infinite size error for PieChart
+                                        width: 140,
+                                        height: 140,
+                                        child: PieChart(
+                                          PieChartData(
+                                            sections: mindfulnessData.entries
+                                                .map((entry) {
+                                              final color = {
+                                                    'Breathing': serenityGreen[
+                                                        'Green50'],
+                                                    'Meditation':
+                                                        zenYellow['Yellow50'],
+                                                    'Relaxation': empathyOrange[
+                                                        'Orange40'],
+                                                    'Sleep':
+                                                        mindfulBrown['Brown80'],
+                                                  }[entry.key] ??
+                                                  Colors.grey;
+
+                                              return PieChartSectionData(
+                                                value: entry.value,
+                                                title: '',
+                                                radius:
+                                                    25, // Ensure a reasonable radius
+                                                color: color,
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      const Center(
+                                        child: Text(
+                                          'No Data',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.white70,
+                                          ),
+                                        ),
+                                      ),
+
+                                    // Centered Text
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '${totalHours.toStringAsFixed(2)} h',
+                                          style: TextStyle(
+                                            color: mindfulBrown['Brown80'],
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Total',
+                                          style: TextStyle(
+                                            color: mindfulBrown['Brown80'],
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],

@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/mindfulness/data/supabase.dart' as mindful;
 import 'package:lingap/features/mood_tracker/data/supabase_db.dart' as mood;
 import 'package:lingap/features/sleep_tracker/data/supabase.dart' as sleep;
 import 'package:lingap/features/wearable_device/data/supabase_db.dart'
@@ -10,12 +11,49 @@ class HomeLogic {
   final wearable.SupabaseDB wearable_db = wearable.SupabaseDB();
   final mood.SupabaseDB mood_db = mood.SupabaseDB(client);
   final sleep.SupabaseDB sleep_db = sleep.SupabaseDB(client);
+  final mindful.SupabaseDB mindful_db = mindful.SupabaseDB(client);
   bool isConnected = false;
   final HealthLogic healthLogic = HealthLogic();
   String? name;
   String? imageUrl;
 
   Map<String, dynamic> healthDataMap = {};
+
+  Future<Map<String, double>> fetchMindfulness() async {
+    final result = await mindful_db.fetchMindfulness();
+    return convert(result);
+  }
+
+  Map<String, double> convert(List<Map<String, dynamic>> result) {
+    // Initialize exercise totals (in seconds)
+    Map<String, int> exerciseSeconds = {
+      'Breathing': 0,
+      'Relaxation': 0,
+      'Sleep': 0,
+      'Meditation': 0,
+    };
+
+    // Sum up total seconds for each exercise category
+    for (var entry in result) {
+      String exerciseType =
+          entry['exercise'] ?? ''; // Ensure exercise key exists
+      int minutes = entry['minutes'] ?? 0;
+      int seconds = entry['seconds'] ?? 0;
+
+      if (exerciseSeconds.containsKey(exerciseType)) {
+        exerciseSeconds[exerciseType] =
+            exerciseSeconds[exerciseType]! + (minutes * 60) + seconds;
+      }
+    }
+
+    // Convert total seconds to hours (double)
+    Map<String, double> exerciseHours = {
+      for (var key in exerciseSeconds.keys)
+        key: exerciseSeconds[key]! / 3600 // Convert seconds to hours
+    };
+
+    return exerciseHours;
+  }
 
   Future<Map<String, dynamic>> fetchMood() async {
     final result = await mood_db.getPastWeekMoods();

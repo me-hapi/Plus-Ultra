@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/mindfulness/data/supabase.dart';
 import 'package:lingap/features/mindfulness/services/recommender_api.dart';
 import 'package:lingap/features/mindfulness/ui/mindful_card.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -13,10 +14,48 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final RecommenderApi recommender = RecommenderApi();
-
+  final SupabaseDB supabase = SupabaseDB(client);
+  List<Map<String, dynamic>> mindfulHistory = [];
+  int total = 0;
   @override
   void initState() {
     super.initState();
+    fetchMindfulness();
+  }
+
+  Future<void> fetchMindfulness() async {
+    final result = await supabase.fetchMindfulness();
+    setState(() {
+      total = getTotalDuration(result);
+      mindfulHistory = result;
+    });
+    print(mindfulHistory);
+  }
+
+  int getTotalDuration(List<Map<String, dynamic>> result) {
+    int totalSeconds = 0;
+
+    for (var entry in result) {
+      int minutes = entry['minutes'] ?? 0;
+      int seconds = entry['seconds'] ?? 0;
+
+      totalSeconds += (minutes * 60) + seconds;
+    }
+
+    return (totalSeconds/60).toInt();
+  }
+
+  List<Widget> buildMindfulCards() {
+    return mindfulHistory.map((mindful) {
+      return MindfulCard(
+        goal: mindful['goal'] ?? 'No goal specified',
+        song: mindful['soundtracks']['name'] ?? 'No song selected',
+        minutes: mindful['minutes'],
+        seconds: mindful['seconds'],
+        exercise: mindful['exercise'] ?? 'Uncategorized',
+        url: mindful['soundtracks']['url'],
+      );
+    }).toList();
   }
 
   @override
@@ -60,7 +99,7 @@ class _HomePageState extends State<HomePage> {
               Image.asset('assets/mindfulness/time.png', height: 60),
               SizedBox(width: 8),
               Text(
-                '25',
+                total.toString(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 150,
@@ -79,25 +118,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // Streak Section
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     Icon(
-          //       Icons.flash_on,
-          //       color: Colors.white,
-          //     ),
-          //     SizedBox(width: 8),
-          //     Text(
-          //       '28 days streak',
-          //       style: TextStyle(
-          //         color: Colors.white,
-          //         fontSize: 18,
-          //         fontWeight: FontWeight.w500,
-          //       ),
-          //     ),
-          //   ],
-          // ),
           Spacer(),
           // Floating Plus Button
 
@@ -143,11 +163,11 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
-                      MindfulCard(
-                          goal: 'To have a better sleep asdasdasfasfds',
-                          song: 'zen yoga',
-                          duration: '5',
-                          category: 'Breathing')
+                      Expanded(
+                        child: ListView(
+                          children: buildMindfulCards(),
+                        ),
+                      )
                     ],
                   ),
                 ),

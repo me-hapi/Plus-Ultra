@@ -44,6 +44,7 @@ import 'package:lingap/features/wearable_device/ui/health_page.dart';
 //PEER TO PEER
 import 'package:lingap/features/peer_connect/ui/chat_screen.dart'
     as peer_screen;
+import 'package:lingap/modules/notification/ui/notification_home.dart';
 
 //GENERAL MODULE
 import 'package:lingap/modules/profile/ui/profile_page.dart' as module_profile;
@@ -380,6 +381,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           path: '/mood-overview', builder: (context, state) => MoodOverview()),
 
       GoRoute(path: '/mood-track', builder: (context, state) => MoodTracker()),
+
+      //NOTIFICATION
+      GoRoute(
+          path: '/notification',
+          builder: (context, state) => NotificationHome()),
 
       // GoRoute(
       //     path: '/match-loading', builder: (context, state) => LoadingDialog()),

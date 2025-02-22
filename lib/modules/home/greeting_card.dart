@@ -156,6 +156,7 @@ class _GreetingCardState extends State<GreetingCard> {
                   color: Colors.white,
                   onPressed: () {
                     // NOTIFICATION FUNCTION
+                    context.push('/notification');
                   },
                 ),
               ],

@@ -193,7 +193,7 @@ class _NewExercisePageState extends State<NewExercisePage> {
                                 selectedSeconds,
                                 selectedMinutes,
                                 response['recommended_exercise'],
-                                response['id'],
+                                response['soundtrack_id'],
                                 uid);
 
                             LoadingScreen.hide(context);

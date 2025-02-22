@@ -352,61 +352,61 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: ListTile(
-                  onTap: () {},
-                  leading: Image.asset('assets/profileIcon/emergency.png'),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  title: Text(
-                    'Emergency Contact',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: mindfulBrown['Brown80'],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: ListTile(
-                  leading: Image.asset('assets/profileIcon/dark.png'),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  title: Text(
-                    'Dark Mode',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: mindfulBrown['Brown80'],
-                    ),
-                  ),
-                  trailing: Switch(
-                    value: _isDarkModeOn,
-                    onChanged: (value) {
-                      setState(() {
-                        _isDarkModeOn = value; // Toggle the switch
-                      });
-                    },
-                    activeColor: Colors.green, // Green when ON
-                    inactiveThumbColor: Colors.grey, // Gray thumb when OFF
-                    inactiveTrackColor:
-                        Colors.grey[300], // Light gray track when OFF
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 16),
+            //   child: Card(
+            //     color: Colors.white,
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(30),
+            //     ),
+            //     child: ListTile(
+            //       onTap: () {},
+            //       leading: Image.asset('assets/profileIcon/emergency.png'),
+            //       contentPadding:
+            //           EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            //       title: Text(
+            //         'Emergency Contact',
+            //         style: TextStyle(
+            //           fontWeight: FontWeight.bold,
+            //           color: mindfulBrown['Brown80'],
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 16),
+            //   child: Card(
+            //     color: Colors.white,
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(30),
+            //     ),
+            //     child: ListTile(
+            //       leading: Image.asset('assets/profileIcon/dark.png'),
+            //       contentPadding:
+            //           EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            //       title: Text(
+            //         'Dark Mode',
+            //         style: TextStyle(
+            //           fontWeight: FontWeight.bold,
+            //           color: mindfulBrown['Brown80'],
+            //         ),
+            //       ),
+            //       trailing: Switch(
+            //         value: _isDarkModeOn,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             _isDarkModeOn = value; // Toggle the switch
+            //           });
+            //         },
+            //         activeColor: Colors.green, // Green when ON
+            //         inactiveThumbColor: Colors.grey, // Gray thumb when OFF
+            //         inactiveTrackColor:
+            //             Colors.grey[300], // Light gray track when OFF
+            //       ),
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 25),
             Align(
               alignment: Alignment.centerLeft,

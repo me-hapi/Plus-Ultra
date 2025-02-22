@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 
 class MindfulCard extends StatelessWidget {
   final String goal;
   final String song;
-  final String duration;
-  final String category;
+  final int minutes;
+  final int seconds;
+  final String exercise;
+  final String url;
 
   const MindfulCard({
     Key? key,
     required this.goal,
     required this.song,
-    required this.duration,
-    required this.category,
+    required this.minutes,
+    required this.seconds,
+    required this.exercise,
+    required this.url,
   }) : super(key: key);
 
   @override
@@ -25,10 +30,15 @@ class MindfulCard extends StatelessWidget {
       'Sleep': mindfulBrown['Brown80'] ?? Colors.brown,
     };
 
-    final Color categoryColor = categoryColors[category] ?? Colors.blueAccent;
+    String duration = "$minutes min ${seconds == 0 ? "" : "$seconds sec"}";
+
+    final Color categoryColor = categoryColors[exercise] ?? Colors.blueAccent;
 
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        context.push('/mindful-player',
+            extra: {'song': song, 'min': minutes, 'sec': seconds, 'url': url});
+      },
       child: Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(
@@ -76,7 +86,7 @@ class MindfulCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '$duration min',
+                      duration,
                       style: TextStyle(
                         fontSize: 12,
                         color: optimisticGray['Gray50'],
@@ -88,13 +98,14 @@ class MindfulCard extends StatelessWidget {
 
               // Category label with corresponding color
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: categoryColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
-                  category,
+                  exercise,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,

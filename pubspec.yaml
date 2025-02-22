@@ -250,4 +250,11 @@ flutter:
     - assets/whiteMoods/whiteOrange.png
     - assets/whiteMoods/whiteBlue.png
 
+    - assets/notification/data.png
+    - assets/notification/exercise.png
+    - assets/notification/journal.png
+    - assets/notification/peer.png
+    - assets/notification/session.png
+    - assets/notification/appoint.png
+
 

@@ -1,14 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/mindfulness/data/supabase.dart';
 
-class MindfulOverview extends StatelessWidget {
-  final Map<String, double> mindfulnessData = {
-    'Breathing': 5,
-    'Meditation': 8,
-    'Relax': 4,
-    'Sleep': 10,
+class MindfulOverview extends StatefulWidget {
+  const MindfulOverview({Key? key}) : super(key: key);
+
+  @override
+  _MindfulOverviewState createState() => _MindfulOverviewState();
+}
+
+class _MindfulOverviewState extends State<MindfulOverview> {
+  Map<String, double> mindfulnessData = {
+    'Breathing': 0,
+    'Relaxation': 0,
+    'Sleep': 0,
+    'Meditation': 0,
   };
+  final SupabaseDB supabase = SupabaseDB(client);
+
+  void initState() {
+    super.initState();
+    fetchMindfulness();
+  }
+
+  Future<void> fetchMindfulness() async {
+    final result = await supabase.fetchMindfulness();
+    setState(() {
+      mindfulnessData = convert(result);
+    });
+  }
+
+  Map<String, double> convert(List<Map<String, dynamic>> result) {
+    // Initialize exercise totals (in seconds)
+    Map<String, int> exerciseSeconds = {
+      'Breathing': 0,
+      'Relaxation': 0,
+      'Sleep': 0,
+      'Meditation': 0,
+    };
+
+    // Sum up total seconds for each exercise category
+    for (var entry in result) {
+      String exerciseType =
+          entry['exercise'] ?? ''; // Ensure exercise key exists
+      int minutes = entry['minutes'] ?? 0;
+      int seconds = entry['seconds'] ?? 0;
+
+      if (exerciseSeconds.containsKey(exerciseType)) {
+        exerciseSeconds[exerciseType] =
+            exerciseSeconds[exerciseType]! + (minutes * 60) + seconds;
+      }
+    }
+
+    // Convert total seconds to hours (double)
+    Map<String, double> exerciseHours = {
+      for (var key in exerciseSeconds.keys)
+        key: exerciseSeconds[key]! / 3600 // Convert seconds to hours
+    };
+
+    return exerciseHours;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +108,7 @@ class MindfulOverview extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '${totalHours.toStringAsFixed(1)} h',
+                        '${totalHours.toStringAsFixed(2)} h',
                         style: TextStyle(
                             color: mindfulBrown['Brown80'],
                             fontSize: 40,
@@ -108,7 +161,7 @@ class MindfulOverview extends StatelessWidget {
                                     color: mindfulBrown['Brown80'],
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold))),
-                        Text('${entry.value.toStringAsFixed(1)} h',
+                        Text('${entry.value.toStringAsFixed(2)} h',
                             style: TextStyle(
                                 fontSize: 16, color: optimisticGray['Gray40'])),
                         SizedBox(width: 10),
