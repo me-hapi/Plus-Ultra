@@ -84,14 +84,16 @@ class SupabaseDB {
           .gte('created_at', startDate.toIso8601String())
           .lte('created_at', endDate.toIso8601String());
 
-      final results = (response as List<dynamic>)
+      print('response: $response');
+
+      final results = response
           .map((entry) => {
                 'classification': entry['classification'] as String,
                 'created_at': entry['created_at'] as String,
               })
           .toList();
 
-      return results;
+      return response;
     } catch (error) {
       print('Error retrieving classifications: $error');
       return [];

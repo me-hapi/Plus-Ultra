@@ -223,7 +223,6 @@ class _SignInPageState extends State<SignInPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-
                     final googleAuthService = GoogleAuthService(context);
                     googleAuthService.setupAuthListener();
                     googleAuthService.googleSignIn();
@@ -252,13 +251,11 @@ class _SignInPageState extends State<SignInPage> {
                     radius: 30, // Circle size
                     backgroundColor:
                         Colors.white, // Set background color to white
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/logo/incognity.png',
-                        width: 55, // Adjust the logo size
-                        height: 55, // Adjust the logo size
-                        fit: BoxFit.contain,
-                      ),
+                    child: Image.asset(
+                      'assets/logo/incognity.png',
+                      width: 25, // Adjust the logo size
+                      height: 25, // Adjust the logo size
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                 ),

@@ -14,22 +14,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late HomeLogic homeLogic;
-  late List<Map<String, dynamic>> classifications;
+  List<Map<String, dynamic>> classifications = [];
   late Map<String, int> counts;
 
   @override
   void initState() {
     super.initState();
     homeLogic = HomeLogic(supabase: SupabaseDB(client));
-    classifications = homeLogic.classifications;
-    counts = homeLogic.counts;
+    // classifications = homeLogic.classifications;
+    // counts = homeLogic.counts;
+    fetchCounts();
+  }
 
-    homeLogic.getClassifications(uid).then((_) {
-      setState(() {
-        classifications = homeLogic.classifications;
-        counts = homeLogic.counts;
-        print(counts);
-      });
+  Future<void> fetchCounts() async {
+    final classResult = await homeLogic.getClassifications(uid);
+    final countResult = homeLogic.calculateMonthlyCounts(classResult);
+    setState(() {
+      classifications = classResult;
+      counts = countResult;
     });
   }
 

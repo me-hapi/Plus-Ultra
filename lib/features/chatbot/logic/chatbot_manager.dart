@@ -50,9 +50,9 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     _listenToMessages();
   }
 
-    Map<String, dynamic> extractRecommendation(String rawResponse) {
+  Map<String, dynamic> extractRecommendation(String rawResponse) {
     try {
-      // Clean the response by removing triple backticks and any extra markers
+      print(rawResponse);
       String cleanedJson = rawResponse
           .trim()
           .replaceAll("```json", "") // Remove markdown-style json block markers
@@ -62,13 +62,7 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
       Map<String, dynamic> data = jsonDecode(cleanedJson);
 
       // Extract the required fields
-      return {
-        "recommended_exercise": data["recommended_exercise"],
-        "reasoning": data["reasoning"],
-        "sound_name": data["selected_soundtrack"]["name"],
-        "soundtrack_url": data["selected_soundtrack"]["url"],
-        "soundtrack_id": data["selected_soundtrack"]["id"],
-      };
+      return data;
     } catch (e) {
       print("Error parsing JSON: $e");
       return {};

@@ -45,7 +45,7 @@ class CreateJournalLogic {
 
     String response =
         await uploadAudio(id.toString(), result['text'], result['audio']);
-
+    print('UPLOAD: $response');
     // Use RegExp to extract the value after 'emotion: '
     RegExp regex = RegExp(r'emotion:\s*(\w+)');
     Match? match = regex.firstMatch(response);
@@ -55,16 +55,9 @@ class CreateJournalLogic {
     return emotion!;
   }
 
-  Future<String> uploadAudio(String id, String text, String audioPath) async {
+  Future<String> uploadAudio(String id, String text, String? audioPath) async {
     try {
-      // Print debug info
       print("Uploading audio from: $audioPath");
-
-      // Validate file existence
-      File audioFile = File(audioPath);
-      if (!audioFile.existsSync()) {
-        throw Exception("Audio file not found at: $audioPath");
-      }
 
       // API URL
       String url = 'https://lingap-rag.onrender.com/classify-emotion';
@@ -73,9 +66,21 @@ class CreateJournalLogic {
       FormData formData = FormData.fromMap({
         'id': id,
         'text': text,
-        'audio': await MultipartFile.fromFile(audioPath,
-            filename: 'merged_audio.m4a'), // Ensure correct format
       });
+
+      // Attach audio if it exists
+      if (audioPath != null) {
+        File audioFile = File(audioPath);
+        if (audioFile.existsSync()) {
+          formData.files.add(MapEntry(
+            'audio',
+            await MultipartFile.fromFile(audioPath,
+                filename: 'merged_audio.m4a'),
+          ));
+        } else {
+          print("Audio file not found: $audioPath");
+        }
+      }
 
       // Configure Dio
       Dio dio = Dio();
@@ -93,7 +98,7 @@ class CreateJournalLogic {
       // Handle response
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("Audio uploaded successfully: ${response.data}");
-        return response.data.classification;
+        return response.data["classification"] ?? "error";
       } else {
         print(
             "Failed to upload audio: ${response.statusCode} - ${response.data}");
