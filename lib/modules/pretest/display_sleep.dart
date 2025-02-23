@@ -13,7 +13,7 @@ class DisplaySleep extends StatefulWidget {
 }
 
 class _DisplaySleepState extends State<DisplaySleep> {
-  int selectedCategory = 0; // Default category (Fair)
+  int selectedCategory = 2; // Default category (Fair)
 
   // List of moods corresponding to the sleep categories
   final List<String> moods = [

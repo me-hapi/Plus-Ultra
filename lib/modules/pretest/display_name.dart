@@ -47,7 +47,7 @@ class _DisplayNameState extends State<DisplayName> {
             height: 50,
           ),
           GestureDetector(
-            onTap: _pickImage,
+            // onTap: _pickImage,
             child: Stack(
               alignment: Alignment.center,
               children: [

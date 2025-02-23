@@ -76,7 +76,7 @@ class GlobalSupabase {
   Future<bool> insertResponses(Map<String, dynamic> responses) async {
     try {
       // Validate that all required keys are present in the responses
-      final requiredKeys = ['name', 'age', 'weight', 'mood', 'sleepQuality'];
+      final requiredKeys = ['name', 'age', 'weight', 'mood', 'sleepQuality', 'profilePicture'];
       for (String key in requiredKeys) {
         if (!responses.containsKey(key)) {
           throw Exception('Missing required key: $key');

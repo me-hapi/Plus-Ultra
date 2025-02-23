@@ -98,6 +98,9 @@ class HomeLogic {
       }
     }
 
+    if (spots.isEmpty) {
+      return {};
+    }
     return {
       'spots': spots,
       'average': mostFrequentMood,
@@ -154,6 +157,7 @@ class HomeLogic {
 
   Map<String, dynamic> convertData(List<Map<String, dynamic>> data) {
     Map<String, List<Map<String, dynamic>>> categorizedData = {};
+    List<FlSpot> flSpots = [];
 
     for (var entry in data) {
       String type = entry['type'];
@@ -181,7 +185,7 @@ class HomeLogic {
       value.sort((a, b) => a['date'].compareTo(b['date']));
 
       // Convert to FlSpot
-      List<FlSpot> flSpots = value.map((data) {
+      flSpots = value.map((data) {
         double x = data['date'].millisecondsSinceEpoch.toDouble();
         double y = data['value']; // Use extracted numeric value
         return FlSpot(x, y);
@@ -197,6 +201,10 @@ class HomeLogic {
     });
 
     print('HOME Data: $result');
+
+    if (flSpots.isEmpty) {
+      return {};
+    }
 
     return result;
   }

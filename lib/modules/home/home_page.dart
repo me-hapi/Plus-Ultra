@@ -31,7 +31,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   final HomeLogic homeLogic = HomeLogic();
   Map<String, dynamic> healthDataMap = {};
   Map<String, dynamic> sleepData = {};
+  List<FlSpot> sleepBack = [];
   Map<String, dynamic> moodData = {};
+  List<FlSpot> moodBack = [];
   double totalHours = 0.0;
   Map<String, double> mindfulnessData = {
     'Breathing': 0,
@@ -47,7 +49,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _initializeConnectionStatus();
     _fetchSleepData();
     _fetchMoodData();
-    // _fetchMindfulData();
+    _fetchMindfulData();
   }
 
   @override
@@ -63,9 +65,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (isConnected) {
       await _fetchHealthData();
     }
-    setState(() {
-      isConnected = result;
-    });
+
+    if (mounted) {
+      setState(() {
+        isConnected = result;
+      });
+    }
   }
 
   Future<void> _fetchHealthData() async {
@@ -83,6 +88,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _fetchProfile() async {
     Map<String, dynamic>? result = await supabase.fetchProfile(uid);
+    if (result == null) {
+      context.go('/data');
+      return;
+    }
     if (mounted) {
       setState(() {
         name = result!['name'];
@@ -93,24 +102,30 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _fetchSleepData() async {
     final result = await homeLogic.fetchSleep();
-    setState(() {
-      sleepData = result;
-    });
+    if (mounted) {
+      setState(() {
+        sleepData = result;
+      });
+    }
   }
 
   Future<void> _fetchMoodData() async {
     final result = await homeLogic.fetchMood();
-    setState(() {
-      moodData = result;
-    });
+    if (mounted) {
+      setState(() {
+        moodData = result;
+      });
+    }
   }
 
   Future<void> _fetchMindfulData() async {
     final result = await homeLogic.fetchMindfulness();
-    setState(() {
-      mindfulnessData = result;
-      totalHours = mindfulnessData.values.reduce((a, b) => a + b);
-    });
+    if (mounted) {
+      setState(() {
+        mindfulnessData = result;
+        totalHours = mindfulnessData.values.reduce((a, b) => a + b);
+      });
+    }
   }
 
   @override
@@ -358,14 +373,22 @@ class _HomePageState extends ConsumerState<HomePage> {
                   title: "Sleep",
                   imageUrl: "assets/vitals/sleep.png",
                   metric: sleepData['average'].toString(),
-                  lineGraphData: sleepData['spots'] ?? [],
+                  lineGraphData: sleepData.isEmpty
+                      ? sleepBack
+                      : (sleepData['spots'] as List<dynamic>)
+                          .map((e) => e as FlSpot)
+                          .toList(),
                   graphColor: mindfulBrown['Brown50']!,
                 ),
                 VitalCard(
                   title: "Mood",
                   imageUrl: "assets/vitals/mood.png",
                   metric: moodData['average'].toString(),
-                  lineGraphData: moodData['spots'] ?? [],
+                  lineGraphData: moodData.isEmpty
+                      ? moodBack
+                      : (moodData['spots'] as List<dynamic>)
+                          .map((e) => e as FlSpot)
+                          .toList(),
                   graphColor: kindPurple['Purple50']!,
                 ),
               ],

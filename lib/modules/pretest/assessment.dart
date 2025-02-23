@@ -21,11 +21,7 @@ class AssessmentScreen extends StatefulWidget {
 class _AssessmentScreenState extends State<AssessmentScreen> {
   final GlobalSupabase supabase = GlobalSupabase(client);
   int currentIndex = 0;
-
-  // Map to hold the responses for each question
   final Map<String, dynamic> responses = {};
-
-  // List of questions and their corresponding widgets
   final List<Map<String, dynamic>> questions = [
     {
       'question': 'Set your display name and choose an avatar!',
@@ -90,6 +86,29 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
     //   'key': 'happyThings', // Key to identify this response
     // },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    responses['profilePicture'] = 'assets/profile/profile1.png';
+    for (var question in questions) {
+      if (!responses.containsKey(question['key'])) {
+        // Assign default values based on the expected type
+        if (question['key'] == 'name') {
+          responses['name'] = 'Anonymous';
+        } else if (question['key'] == 'age') {
+          responses['age'] = 18; // Default age
+        } else if (question['key'] == 'weight') {
+          responses['weight'] = {'weight': 60, 'unit': 'kg'}; // Default weight
+        } else if (question['key'] == 'mood') {
+          responses['mood'] = 'Neutral'; // Default mood
+        } else if (question['key'] == 'sleepQuality') {
+          responses['sleepQuality'] = 'Fair'; // Default sleep quality
+        }
+      }
+    }
+  }
 
   Future<void> nextQuestion() async {
     print(responses);
