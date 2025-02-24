@@ -65,7 +65,7 @@ class ConnectionRow extends StatelessWidget {
                 size: 30,
               ),
               onPressed: () {
-                // Add action for the high five button here
+                onTap();
                 print('High five pressed for $name');
               },
             ),

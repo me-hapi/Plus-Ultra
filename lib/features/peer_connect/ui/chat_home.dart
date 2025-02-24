@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/core/utils/security/encryption.dart';
 import 'package:lingap/features/peer_connect/data/supabase_db.dart';
+import 'package:lingap/features/peer_connect/models/message_model.dart';
 import 'package:lingap/features/peer_connect/services/api_service.dart';
 import 'package:lingap/features/peer_connect/ui/chat_rows.dart';
 import 'package:lingap/features/peer_connect/ui/chat_screen.dart';
@@ -23,6 +25,7 @@ class _ChatHomeState extends State<ChatHome> {
   final Encryption encrypt = Encryption();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  late MessageModel message;
 
   @override
   void initState() {
@@ -205,15 +208,29 @@ class _ChatHomeState extends State<ChatHome> {
                                             avatarUrl: imageUrl,
                                             onTap: () async {
                                               try {
+                                                LoadingScreen.show(context);
                                                 String roomId =
                                                     await api.createRoomId();
+
                                                 final room = await _supabaseDb
                                                     .insertToPeerRoom(
                                                         roomId, uid, userId);
+
+                                                message = MessageModel(
+                                                    created_at: DateTime.now(),
+                                                    roomId: room,
+                                                    sender: uid,
+                                                    content: Encryption().encryptMessage("👋", room.toString()));
+
+                                                await _supabaseDb
+                                                    .insertPeerMessage(message);
+
+                                                LoadingScreen.hide(context);
                                                 context.push('/peer-chatscreen',
                                                     extra: {
                                                       'roomId': roomId,
-                                                      'id': room
+                                                      'id': room,
+                                                      'name': name
                                                     });
                                               } catch (e) {
                                                 print(

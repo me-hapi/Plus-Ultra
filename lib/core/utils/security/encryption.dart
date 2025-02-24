@@ -8,12 +8,20 @@ class Encryption {
     final keyBytes = _deriveKey(key);
 
     final iv = encrypt.IV.fromSecureRandom(16);
-    final encrypter = encrypt.Encrypter(encrypt.AES(keyBytes, mode: encrypt.AESMode.cbc));
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(keyBytes, mode: encrypt.AESMode.cbc));
 
     final encrypted = encrypter.encrypt(plainText, iv: iv);
 
     final resultBytes = iv.bytes + encrypted.bytes;
     return base64Encode(resultBytes);
+  }
+
+  String addBase64Padding(String input) {
+    while (input.length % 4 != 0) {
+      input += "=";
+    }
+    return input;
   }
 
   String decryptMessage(String encryptedText, String key) {
@@ -24,9 +32,11 @@ class Encryption {
 
     final keyBytes = _deriveKey(key);
     final iv = encrypt.IV(ivBytes);
-    final encrypter = encrypt.Encrypter(encrypt.AES(keyBytes, mode: encrypt.AESMode.cbc));
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(keyBytes, mode: encrypt.AESMode.cbc));
 
-    final decrypted = encrypter.decrypt(encrypt.Encrypted(encryptedBytes), iv: iv);
+    final decrypted =
+        encrypter.decrypt(encrypt.Encrypted(encryptedBytes), iv: iv);
     return decrypted;
   }
 
