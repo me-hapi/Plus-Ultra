@@ -56,7 +56,7 @@ class SupabaseDB {
   Future<List<Map<String, dynamic>>> fetchMindfulness() async {
     try {
       final response =
-          await _client.from('mindfulness').select('*, soundtracks(*)');
+          await _client.from('mindfulness').select('*, soundtracks(*)').eq('uid', uid);
 
       print('RESPONSE: $response');
       return response;

@@ -89,7 +89,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future<void> _fetchProfile() async {
     Map<String, dynamic>? result = await supabase.fetchProfile(uid);
     if (result == null) {
-      context.go('/data');
+      if (mounted) {
+        context.go('/data');
+      }
       return;
     }
     if (mounted) {
@@ -294,36 +296,38 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     else
                                       const Center(
                                         child: Text(
-                                          'No Data',
+                                          'No data available yet',
+                                          textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 18,
-                                            color: Colors.white70,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
 
                                     // Centered Text
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '${totalHours.toStringAsFixed(2)} h',
-                                          style: TextStyle(
-                                            color: mindfulBrown['Brown80'],
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
+                                    if (totalHours > 0)
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '${totalHours.toStringAsFixed(2)} h',
+                                            style: TextStyle(
+                                              color: mindfulBrown['Brown80'],
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          'Total',
-                                          style: TextStyle(
-                                            color: mindfulBrown['Brown80'],
-                                            fontSize: 15,
+                                          Text(
+                                            'Total',
+                                            style: TextStyle(
+                                              color: mindfulBrown['Brown80'],
+                                              fontSize: 15,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
+                                        ],
+                                      ),
                                   ],
                                 ),
                               ),

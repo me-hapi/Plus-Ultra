@@ -11,6 +11,7 @@ import 'package:lingap/modules/home/home_page.dart';
 import 'package:lingap/features/chatbot/chatbot_page.dart';
 import 'package:lingap/features/journaling/journal_page.dart';
 import 'package:lingap/features/peer_connect/peer_page.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -28,6 +29,7 @@ class _BottomNavState extends State<BottomNav> {
   final SupabaseDB supabase = SupabaseDB(client);
   bool hasSession = false;
   bool _isProfessionalOn = false;
+  final GlobalSupabase globalSupabase = GlobalSupabase(client);
 
   @override
   void initState() {
@@ -38,11 +40,17 @@ class _BottomNavState extends State<BottomNav> {
   }
 
   Future<void> _loadProfessionalStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isProfessionalOn = prefs.getBool('isProfessional') ?? false;
-      professional = _isProfessionalOn;
-    });
+    final result = await globalSupabase.isProfessional(uid);
+    if (result) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _isProfessionalOn = prefs.getBool('isProfessional') ?? false;
+        professional = _isProfessionalOn;
+        print('PROFESSIONAL: $professional');
+      });
+    } else{
+       professional = false;
+    }
   }
 
   void hasConversation() async {

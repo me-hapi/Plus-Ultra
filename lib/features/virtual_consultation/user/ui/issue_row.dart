@@ -3,10 +3,14 @@ import 'package:lingap/core/const/colors.dart';
 
 class IssuesRow extends StatelessWidget {
   final Map<String, String> issues;
+  final String? selectedIssue;
+  final Function(String) onIssueSelected;
 
   const IssuesRow({
     Key? key,
     required this.issues,
+    this.selectedIssue,
+    required this.onIssueSelected,
   }) : super(key: key);
 
   @override
@@ -15,31 +19,20 @@ class IssuesRow extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: issues.entries.map((entry) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: SizedBox(
-              width: 70, // Fixed width for uniform size
+          bool isSelected = entry.key == selectedIssue;
+
+          return GestureDetector(
+            onTap: () => onIssueSelected(entry.key),
+            child: Container(
+              padding: EdgeInsets.all(6),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    entry.value,
-                    width: 65,
-                    height: 65,
-                    fit: BoxFit.cover,
+                  CircleAvatar(
+                    radius: 35,
+                    backgroundColor:  isSelected ? serenityGreen['Green50'] : Colors.transparent,
+                    child: Image.asset(entry.value, width: 65, height: 65),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    entry.key,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: mindfulBrown['Brown80'],
-                    ),
-                    maxLines: 2, // Limit to two lines to handle longer text
-                    overflow: TextOverflow.ellipsis, // Ellipsis for overflow
-                  ),
+                  Text(entry.key, style: TextStyle(fontSize: 12)),
                 ],
               ),
             ),

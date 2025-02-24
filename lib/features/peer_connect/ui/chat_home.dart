@@ -21,11 +21,18 @@ class _ChatHomeState extends State<ChatHome> {
   final APIService api = APIService();
   bool isMessagesSelected = true;
   final Encryption encrypt = Encryption();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     fetchConnectedUsers(uid);
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
   }
 
   Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) {
@@ -67,6 +74,7 @@ class _ChatHomeState extends State<ChatHome> {
                   child: SizedBox(
                     height: 55, // Set desired height here
                     child: TextField(
+                      controller: _searchController,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.search),
                         hintText: 'Search...',
@@ -107,51 +115,56 @@ class _ChatHomeState extends State<ChatHome> {
                                 return Center(
                                     child: Text('No chats available'));
                               } else {
-                                return ListView.builder(
-                                  itemCount: snapshot.data!.length,
-                                  itemBuilder: (context, index) {
-                                    final user = snapshot.data![index];
-                                    final name = user['name'];
-                                    final avatarUrl = user['imageUrl'];
-                                    final roomId = user['roomId'];
-                                    final id = user['id'];
-                                    final lastMessage = user['last_message'];
-                                    final dateTime =
-                                        DateTime.parse(user['time']).toUtc();
-                                    final messageTime =
-                                        DateFormat('h:mm a').format(dateTime);
+                                var filteredUsers = snapshot.data!
+                                    .where((user) => user['name']
+                                        .toLowerCase()
+                                        .contains(_searchQuery))
+                                    .toList();
 
-                                    final read = user['read'];
+                                return filteredUsers.isEmpty
+                                    ? Center(child: Text('No results found'))
+                                    : ListView.builder(
+                                        itemCount: filteredUsers.length,
+                                        itemBuilder: (context, index) {
+                                          final user = filteredUsers[index];
+                                          final name = user['name'];
+                                          final avatarUrl = user['imageUrl'];
+                                          final roomId = user['roomId'];
+                                          final id = user['id'];
+                                          final lastMessage =
+                                              user['last_message'];
+                                          final dateTime =
+                                              DateTime.parse(user['time'])
+                                                  .toUtc();
+                                          final messageTime =
+                                              DateFormat('h:mm a')
+                                                  .format(dateTime);
+                                          final read = user['read'];
 
-                                    return Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 16),
-                                      child: ChatRow(
-                                        avatarUrl: avatarUrl,
-                                        name: name,
-                                        lastMessage: encrypt.decryptMessage(
-                                            lastMessage, id.toString()),
-                                        time: messageTime,
-                                        read: read,
-                                        onTap: () {
-                                          context.push('/peer-chatscreen',
-                                              extra: {
-                                                'roomId': roomId,
-                                                'id': id,
-                                                'name': name
-                                              });
-                                          // Navigator.of(context).push(
-                                          //   MaterialPageRoute(
-                                          //     builder: (context) => ChatScreen(
-                                          //       roomId: roomId,
-                                          //     ),
-                                          //   ),
-                                          // );
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16),
+                                            child: ChatRow(
+                                              avatarUrl: avatarUrl,
+                                              name: name,
+                                              lastMessage:
+                                                  encrypt.decryptMessage(
+                                                      lastMessage,
+                                                      id.toString()),
+                                              time: messageTime,
+                                              read: read,
+                                              onTap: () {
+                                                context.push('/peer-chatscreen',
+                                                    extra: {
+                                                      'roomId': roomId,
+                                                      'id': id,
+                                                      'name': name
+                                                    });
+                                              },
+                                            ),
+                                          );
                                         },
-                                      ),
-                                    );
-                                  },
-                                );
+                                      );
                               }
                             })
                         : StreamBuilder<List<Map<String, dynamic>>>(
@@ -169,46 +182,54 @@ class _ChatHomeState extends State<ChatHome> {
                                 return Center(
                                     child: Text('No chats available'));
                               } else {
-                                return ListView.builder(
-                                  itemCount: snapshot.data!.length,
-                                  itemBuilder: (context, index) {
-                                    final user = snapshot.data![index];
-                                    final userId = user['id'];
-                                    final name =
-                                        user['name'] as String? ?? 'Unknown';
-                                    final imageUrl =
-                                        user['imageUrl'] as String? ??
-                                            'https://via.placeholder.com/150';
+                                var filteredUsers = snapshot.data!
+                                    .where((user) => user['name']
+                                        .toLowerCase()
+                                        .contains(_searchQuery))
+                                    .toList();
 
-                                    return ConnectionRow(
-                                      name: name,
-                                      avatarUrl: imageUrl,
-                                      onTap: () async {
-                                        try {
-                                          // Show a loading indicator or handle feedback if necessary
-                                          String roomId =
-                                              await api.createRoomId();
-                                          final room = await _supabaseDb
-                                              .insertToPeerRoom(
-                                                  roomId, uid, userId);
-                                          context.push('/peer-chatscreen',
-                                              extra: {
-                                                'roomId': roomId,
-                                                'id': room
-                                              });
-                                        } catch (e) {
-                                          // Handle errors (e.g., show a snackbar or alert dialog)
-                                          print('Error creating room: $e');
-                                        }
-                                      },
-                                    );
-                                  },
-                                );
+                                return filteredUsers.isEmpty
+                                    ? Center(child: Text('No results found'))
+                                    : ListView.builder(
+                                        itemCount: filteredUsers.length,
+                                        itemBuilder: (context, index) {
+                                          final user = filteredUsers[index];
+                                          final userId = user['id'];
+                                          final name =
+                                              user['name'] ?? 'Unknown';
+                                          final imageUrl = user['imageUrl'] ??
+                                              'https://via.placeholder.com/150';
+
+                                          return ConnectionRow(
+                                            name: name,
+                                            avatarUrl: imageUrl,
+                                            onTap: () async {
+                                              try {
+                                                String roomId =
+                                                    await api.createRoomId();
+                                                final room = await _supabaseDb
+                                                    .insertToPeerRoom(
+                                                        roomId, uid, userId);
+                                                context.push('/peer-chatscreen',
+                                                    extra: {
+                                                      'roomId': roomId,
+                                                      'id': room
+                                                    });
+                                              } catch (e) {
+                                                print(
+                                                    'Error creating room: $e');
+                                              }
+                                            },
+                                          );
+                                        },
+                                      );
                               }
                             },
                           ))
               ],
             ),
+
+            //FLOATING
             Positioned(
               right: 16,
               bottom: 90,

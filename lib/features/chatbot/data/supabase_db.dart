@@ -7,6 +7,21 @@ class SupabaseDB {
 
   SupabaseDB(this._client);
 
+  Future<List<Map<String, dynamic>>> fetchHotlines() async {
+    try {
+      final response = await _client
+          .from('hotlines')
+          .select('name, phone, email')
+          .eq('address', 'Online / Hotline')
+          .neq('phone', 'NULL');
+
+      return response;
+    } catch (e) {
+      print('Error hotlines: $e');
+      return [];
+    }
+  }
+
   Future<bool> hasSession(String uid) async {
     final response =
         await _client.from('session').select('id').eq('uid', uid).limit(1);
@@ -45,8 +60,7 @@ class SupabaseDB {
     }
   }
 
-  Future<int> insertMessages(
-      int sessionID, String message, bool user) async {
+  Future<int> insertMessages(int sessionID, String message, bool user) async {
     try {
       final response = await _client.from('chatbot_convo').insert({
         'sessionID': sessionID,

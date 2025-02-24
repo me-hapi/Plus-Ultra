@@ -11,6 +11,7 @@ import 'package:lingap/features/virtual_consultation/user/ui/professional_card.d
 import 'package:permission_handler/permission_handler.dart';
 
 final searchProvider = StateProvider<String>((ref) => '');
+final selectedIssueProvider = StateProvider<String?>((ref) => null);
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -101,12 +102,29 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final searchValue = ref.watch(searchProvider);
+    final selectedIssue = ref.watch(selectedIssueProvider);
 
     professionals.where((professional) {
       final name = professional['name'] as String;
       final matchesSearch = searchValue.isEmpty ||
           name.toLowerCase().contains(searchValue.toLowerCase());
       return matchesSearch;
+    }).toList();
+
+    // Filter professionals based on search and selected issue
+    List<Map<String, dynamic>> filteredProfessionals =
+        professionals.where((professional) {
+      final name = professional['name'] as String;
+      print(professional['specialty']);
+      final specialties =
+          List<String>.from(professional['specialty'][0]['specialty'] ?? []);
+
+      bool matchesSearch = searchValue.isEmpty ||
+          name.toLowerCase().contains(searchValue.toLowerCase());
+      bool matchesIssue =
+          selectedIssue == null || specialties.contains(selectedIssue);
+
+      return matchesSearch && matchesIssue;
     }).toList();
 
     return Scaffold(
@@ -208,7 +226,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
-                child: IssuesRow(issues: issues),
+                child: IssuesRow(
+                  issues: issues,
+                  selectedIssue: selectedIssue,
+                  onIssueSelected: (issue) {
+                    ref.read(selectedIssueProvider.notifier).state =
+                        (selectedIssue == issue) ? null : issue;
+                  },
+                ),
               ),
 
               SizedBox(
@@ -257,7 +282,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               professionals.isNotEmpty
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: professionals.map((professional) {
+                      children: filteredProfessionals.map((professional) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 2.0,

@@ -29,10 +29,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchCounts() async {
     final classResult = await homeLogic.getClassifications(uid);
     final countResult = homeLogic.calculateMonthlyCounts(classResult);
-    setState(() {
-      classifications = classResult;
-      counts = countResult;
-    });
+    if (mounted) {
+      setState(() {
+        classifications = classResult;
+        counts = countResult;
+      });
+    }
   }
 
   @override
