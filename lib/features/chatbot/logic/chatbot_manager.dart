@@ -279,9 +279,9 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     int anxietyScore = _computeScores()['anxiety']!;
     int stressScore = _computeScores()['stress']!;
     String depression =
-        interpreter.getInterpretation('depression', depressionScore);
-    String anxiety = interpreter.getInterpretation('depression', anxietyScore);
-    String stress = interpreter.getInterpretation('depression', stressScore);
+        interpreter.getInterpretation('depression', depressionScore)['interpretation'];
+    String anxiety = interpreter.getInterpretation('depression', anxietyScore)['interpretation'];
+    String stress = interpreter.getInterpretation('depression', stressScore)['interpretation'];
 
     String prompt = '''
 Based on the user's DASS-12 scores, provide a meaningful and supportive interpretation. 

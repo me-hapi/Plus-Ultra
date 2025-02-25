@@ -28,7 +28,7 @@ class _GreetingCardState extends State<GreetingCard> {
     {
       'message':
           "Feeling overwhelmed? The chatbot is here to listen and support you.",
-      'button': "Talk to the Chatbot",
+      'button': "Talk to Ligaya",
       'location': '/bottom-nav',
       'extra': 1,
       'color': mindfulBrown['Brown40']
@@ -144,9 +144,9 @@ class _GreetingCardState extends State<GreetingCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  currentDate,
+                  'Lingap',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -185,7 +185,7 @@ class _GreetingCardState extends State<GreetingCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hello, $username !',
+                      'Hello, $username!',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,

@@ -33,15 +33,8 @@ class _DasResultPageState extends State<DasResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Stack(
+        body: SingleChildScrollView(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -67,7 +60,7 @@ class _DasResultPageState extends State<DasResultPage> {
                       child: _buildCircle(
                         context,
                         size: widget.depressionAmount / maxScore * 400,
-                        color: kindPurple['Purple30']!,
+                        color: kindPurple['Purple50']!,
                         value: widget.depressionAmount,
                       ),
                     ),
@@ -79,7 +72,7 @@ class _DasResultPageState extends State<DasResultPage> {
                           child: _buildCircle(
                             context,
                             size: widget.anxietyAmount / maxScore * 400,
-                            color: empathyOrange['Orange30']!,
+                            color: empathyOrange['Orange50']!,
                             value: widget.anxietyAmount,
                           ),
                         ),
@@ -88,7 +81,7 @@ class _DasResultPageState extends State<DasResultPage> {
                           child: _buildCircle(
                             context,
                             size: widget.stressAmount / maxScore * 400,
-                            color: serenityGreen['Green30']!,
+                            color: serenityGreen['Green50']!,
                             value: widget.stressAmount,
                           ),
                         ),
@@ -102,51 +95,139 @@ class _DasResultPageState extends State<DasResultPage> {
                   children: [
                     _buildLegend(
                         'Depression',
-                        interpreter.getInterpretation(
-                            'depression', widget.depressionAmount),
-                        kindPurple['Purple30']!),
+                        interpreter.getInterpretation('depression',
+                            widget.depressionAmount)['interpretation'],
+                        kindPurple['Purple50']!),
                     _buildLegend(
                         'Anxiety',
                         interpreter.getInterpretation(
-                            'anxiety', widget.anxietyAmount),
-                        empathyOrange['Orange30']!),
+                            'anxiety', widget.anxietyAmount)['interpretation'],
+                        empathyOrange['Orange50']!),
                     _buildLegend(
                         'Stress',
                         interpreter.getInterpretation(
-                            'stress', widget.stressAmount),
-                        serenityGreen['Green30']!),
+                            'stress', widget.stressAmount)['interpretation'],
+                        serenityGreen['Green50']!),
                   ],
                 ),
+                SizedBox(
+                  height: 30,
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Depression',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: mindfulBrown['Brown80']),
+                      ),
+                      Text(
+                        interpreter.getInterpretation(
+                            'depression', widget.depressionAmount)['meanings'],
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: optimisticGray['Gray50']),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text(
+                        'Anxiety',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: mindfulBrown['Brown80']),
+                      ),
+                      Text(
+                        interpreter.getInterpretation(
+                            'anxiety', widget.anxietyAmount)['meanings'],
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: optimisticGray['Gray50']),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text(
+                        'Stress',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: mindfulBrown['Brown80']),
+                      ),
+                      Text(
+                        interpreter.getInterpretation(
+                            'stress', widget.stressAmount)['meanings'],
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: optimisticGray['Gray50']),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                SizedBox(
+                  height: 60,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push('/bottom-nav');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: mindfulBrown['Brown80'],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                )
               ],
             ),
           ),
-          Positioned(
-            bottom: 20,
-            left: 16,
-            right: 16,
-            child: SizedBox(
-              height: 60,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.push('/bottom-nav');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: mindfulBrown['Brown80'],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  'Continue',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
+
+          // Positioned(
+          //   bottom: 20,
+          //   left: 16,
+          //   right: 16,
+          //   child: SizedBox(
+          //     height: 60,
+          //     width: double.infinity,
+          //     child: ElevatedButton(
+          //       onPressed: () {
+          //         context.push('/bottom-nav');
+          //       },
+          //       style: ElevatedButton.styleFrom(
+          //         backgroundColor: mindfulBrown['Brown80'],
+          //         shape: RoundedRectangleBorder(
+          //           borderRadius: BorderRadius.circular(30),
+          //         ),
+          //       ),
+          //       child: Text(
+          //         'Continue',
+          //         style: TextStyle(fontSize: 18, color: Colors.white),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildCircle(
@@ -155,6 +236,7 @@ class _DasResultPageState extends State<DasResultPage> {
     required Color color,
     required int value,
   }) {
+    String percent = '${((value / maxScore) * 100).toInt()}%';
     return Container(
       width: size,
       height: size,
@@ -164,11 +246,11 @@ class _DasResultPageState extends State<DasResultPage> {
       ),
       alignment: Alignment.center,
       child: Text(
-        value.toString(),
+        percent,
         style: TextStyle(
-          fontSize: 18,
+          fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: color,
+          color: Colors.white,
         ),
       ),
     );

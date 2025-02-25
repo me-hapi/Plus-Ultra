@@ -11,8 +11,15 @@ import 'package:videosdk/videosdk.dart';
 class MeetingScreen extends StatefulWidget {
   final int id;
   final String roomId;
+  final String name;
+  final bool camEnabled;
 
-  const MeetingScreen({super.key, required this.roomId, required this.id});
+  const MeetingScreen(
+      {super.key,
+      required this.roomId,
+      required this.id,
+      required this.name,
+      required this.camEnabled});
 
   @override
   State<MeetingScreen> createState() => _MeetingScreenState();
@@ -21,7 +28,7 @@ class MeetingScreen extends StatefulWidget {
 class _MeetingScreenState extends State<MeetingScreen> {
   late Room room;
   var micEnabled = true;
-  var camEnabled = true;
+  var camEnabled;
   Map<String, Participant> participants = {};
   List<VideoDeviceInfo>? cameras = [];
 
@@ -32,13 +39,13 @@ class _MeetingScreenState extends State<MeetingScreen> {
     room = VideoSDK.createRoom(
         roomId: widget.roomId,
         token: token,
-        displayName: "John Doe",
+        displayName: widget.name,
         micEnabled: micEnabled,
-        camEnabled: camEnabled,
+        camEnabled: widget.camEnabled,
         defaultCameraIndex: 1);
 
     setMeetingEventListener();
-
+    camEnabled = widget.camEnabled;
     // Join room
     room.join();
 
@@ -79,12 +86,14 @@ class _MeetingScreenState extends State<MeetingScreen> {
 
     room.on(Events.roomLeft, () {
       participants.clear();
-      context.push('/peer-chatscreen',
-          extra: {'roomId': widget.roomId, 'id': widget.id});
-      // Navigator.of(context).push(
-      //   MaterialPageRoute(
-      //       builder: (context) => ChatScreen(roomId: widget.roomId)),
-      // );
+      context.go('/bottom-nav', extra: 4);
+      Future.microtask(() {
+        context.push('/peer-chatscreen', extra: {
+          'roomId': widget.roomId,
+          'id': widget.id,
+          'name': widget.name
+        });
+      });
     });
   }
 
@@ -104,9 +113,10 @@ class _MeetingScreenState extends State<MeetingScreen> {
           backgroundColor: mindfulBrown['Brown80'],
           centerTitle: true,
           automaticallyImplyLeading: false,
-          title: Text('Anonymous', style: TextStyle(
-            color: Colors.white
-          ),),
+          title: Text(
+            widget.name,
+            style: TextStyle(color: Colors.white),
+          ),
         ),
         body: Stack(
           children: [
@@ -169,7 +179,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
                     });
                   },
                   onLeaveButtonPressed: () => room.leave(),
-                  onSwitchCameraButtonPressed: () {},
+                  micEnabled: micEnabled,
+                  camEnabled: camEnabled,
                 ),
               ),
             ),

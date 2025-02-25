@@ -46,15 +46,13 @@ class NotificationCard extends StatelessWidget {
       },
       'mood': {
         'title': 'Mood Logged',
-        'content':
-            'Tracking your emotions helps with self-awareness.',
+        'content': 'Tracking your emotions helps with self-awareness.',
         'color': empathyOrange['Orange50'],
         'image': 'assets/notification/data.png'
       },
       'sleep': {
         'title': 'Sleep Data Recorded',
-        'content':
-            'Understanding your sleep patterns is key to well-being.',
+        'content': 'Understanding your sleep patterns is key to well-being.',
         'color': kindPurple['Purple50'],
         'image': 'assets/notification/data.png'
       }
@@ -72,8 +70,8 @@ class NotificationCard extends StatelessWidget {
           children: [
             // Image asset on the left
             Container(
-              width: 60, // Adjust size as needed
-              height: 60,
+              width: 30, // Adjust size as needed
+              height: 30,
               decoration: BoxDecoration(
                 color: categories[category]['color'], // White background
                 shape: BoxShape.circle, // Makes it circular
@@ -81,8 +79,8 @@ class NotificationCard extends StatelessWidget {
               child: Center(
                 child: Image.asset(
                   categories[category]['image'],
-                  width: 40, // Adjust image size as needed
-                  height: 40,
+                  width: 20, // Adjust image size as needed
+                  height: 20,
                   fit: BoxFit.contain,
                 ),
               ),

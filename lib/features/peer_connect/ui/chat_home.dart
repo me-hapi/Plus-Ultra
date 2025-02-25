@@ -12,6 +12,7 @@ import 'package:lingap/features/peer_connect/ui/chat_rows.dart';
 import 'package:lingap/features/peer_connect/ui/chat_screen.dart';
 import 'package:lingap/features/peer_connect/ui/connection_row.dart';
 import 'package:lingap/features/peer_connect/ui/loading_page.dart';
+import 'dart:math' as math;
 
 class ChatHome extends StatefulWidget {
   @override
@@ -220,7 +221,9 @@ class _ChatHomeState extends State<ChatHome> {
                                                     created_at: DateTime.now(),
                                                     roomId: room,
                                                     sender: uid,
-                                                    content: Encryption().encryptMessage("👋", room.toString()));
+                                                    content: Encryption()
+                                                        .encryptMessage("👋",
+                                                            room.toString()));
 
                                                 await _supabaseDb
                                                     .insertPeerMessage(message);
@@ -264,14 +267,17 @@ class _ChatHomeState extends State<ChatHome> {
                   );
                 },
                 elevation: 0,
-                backgroundColor: mindfulBrown['Brown80'],
+                backgroundColor: serenityGreen['Green20'],
                 shape: CircleBorder(),
                 child: ClipOval(
-                  child: Image.asset(
-                    'assets/chatbot/icon/search.png',
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.fill,
+                  child: Transform.rotate(
+                    angle: -45 * math.pi / 180, // Convert degrees to radians
+                    child: Image.asset(
+                      'assets/chatbot/icon/search.png',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
               ),

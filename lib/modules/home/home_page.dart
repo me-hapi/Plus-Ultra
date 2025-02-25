@@ -248,7 +248,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           },
                           child: Card(
                             elevation: 0,
-                            color: reflectiveBlue['Blue30'],
+                            color: reflectiveBlue['Blue50'],
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),

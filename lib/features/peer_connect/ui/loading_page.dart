@@ -19,6 +19,7 @@ class _LoadingDialogState extends State<LoadingDialog>
   final SupabaseDB _supabaseDB = SupabaseDB(client);
   final Matchmaking match = Matchmaking();
   final APIService api = APIService();
+  int id_room = 0;
 
   @override
   void initState() {
@@ -42,15 +43,31 @@ class _LoadingDialogState extends State<LoadingDialog>
     if (availRooms.isEmpty) {
       String roomId = await api.createRoomId();
       final id = await _supabaseDB.insertMatchRoom(roomId, 'available', uid);
+      id_room = id;
+      bool isMatched = false;
+      DateTime startTime = DateTime.now();
 
-      await for (String status in _supabaseDB.isFull(roomId)) {
-        if (status == 'unavailable') {
-          break;
+      try {
+        await for (String status
+            in _supabaseDB.isFull(roomId).timeout(Duration(seconds: 10))) {
+          print('Received status: $status'); // Debugging print
+
+          if (status == 'unavailable') {
+            isMatched = true;
+            break;
+          }
         }
+      } catch (e) {
+        print('Stream timeout: No match found within 10 seconds');
       }
 
-      if (mounted) {
-        print('mounted');
+      if (!isMatched) {
+        await _supabaseDB.deleteMatchRoom(id);
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } else if (mounted) {
+        print('Mounted');
         Navigator.pop(context);
         String name = isAnonymous ? 'Anonymous' : globalName;
         context.push('/peer-chatscreen',
@@ -77,7 +94,12 @@ class _LoadingDialogState extends State<LoadingDialog>
     return Stack(
       children: [
         GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
+          onTap: () {
+            if (id_room != 0) {
+              _supabaseDB.deleteMatchRoom(id_room);
+            }
+            Navigator.of(context).pop();
+          },
           child: Container(
             color: Colors.transparent, // Transparent background
           ),

@@ -56,8 +56,12 @@ class _ChatScreenState extends State<ChatScreen> {
           GestureDetector(
             onTap: () {
               print('clicke');
-              context.push('/meeting-screen',
-                  extra: {'roomId': widget.roomId, 'id': widget.id});
+              context.push('/meeting-screen', extra: {
+                'roomId': widget.roomId,
+                'id': widget.id,
+                'name': widget.name,
+                'cam': true
+              });
             },
             child: Image.asset(
               'assets/peer/videocall.png',
@@ -69,7 +73,14 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 20,
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              context.push('/meeting-screen', extra: {
+                'roomId': widget.roomId,
+                'id': widget.id,
+                'name': widget.name,
+                'cam': false
+              });
+            },
             child: Image.asset(
               'assets/peer/call.png',
               width: 20,

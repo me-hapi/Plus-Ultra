@@ -38,7 +38,7 @@ class _NotificationHomeState extends State<NotificationHome> {
               height: 50,
             ),
             Text(
-              "Notification",
+              "Notifications",
               style: TextStyle(
                 color: mindfulBrown['Brown80'],
                 fontSize: 32,

@@ -137,7 +137,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }),
       GoRoute(
         path: '/dastest',
-        builder: (context, state) => DASTest(),
+        builder: (context, state) {
+          final extra = state.extra as String;
+          return DASTest(language: extra);
+        },
       ),
       GoRoute(
         path: '/dasresult',
@@ -351,7 +354,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map;
           final id = extra['id'];
           final roomId = extra['roomId'];
-          return MeetingScreen(roomId: roomId, id: id);
+          final name = extra['name'];
+          final cam = extra['cam'];
+          return MeetingScreen(roomId: roomId, id: id, name: name, camEnabled: cam,);
         },
       ),
 

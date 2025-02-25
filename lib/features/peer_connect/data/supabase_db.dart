@@ -50,8 +50,7 @@ class SupabaseDB {
         'anxiety': mhScore?['anxiety'] ?? 0,
         'stress': mhScore?['stress'] ?? 0,
         'name': senderProfile?['name'] ?? 'Unknown', // Default if null
-        'anonymous':
-            senderProfile?['anonymous'] ?? false, // Default to false
+        'anonymous': senderProfile?['anonymous'] ?? false, // Default to false
       });
     }
 
@@ -134,6 +133,14 @@ class SupabaseDB {
         .single();
 
     return response['id'] as int;
+  }
+
+  Future<void> deleteMatchRoom(int id) async {
+    try {
+      await _client.from('match_room').delete().eq('id', id);
+    } catch (e) {
+      print('ERROR delete match room');
+    }
   }
 
   Future<int> insertToPeerRoom(String roomId, String uid, String userId) async {
