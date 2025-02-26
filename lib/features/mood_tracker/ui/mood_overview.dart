@@ -70,7 +70,7 @@ class _MoodOverviewState extends State<MoodOverview> {
               SizedBox(height: 30),
               Center(
                 child: Text(
-                  'I am feeling $moodWeek \n this week',
+                  'I am feeling $moodWeek \n this week.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,

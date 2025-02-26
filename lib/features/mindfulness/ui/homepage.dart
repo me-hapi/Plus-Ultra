@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
       totalSeconds += (minutes * 60) + seconds;
     }
 
-    return (totalSeconds/60).toInt();
+    return (totalSeconds / 60).toInt();
   }
 
   List<Widget> buildMindfulCards() {
@@ -151,16 +151,16 @@ class _HomePageState extends State<HomePage> {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              context.push('/mindful-overview');
+                          GestureDetector(
+                            onTap: () {
+                               context.push('/mindful-overview');
                             },
-                            icon: Icon(
-                              Icons.more_horiz, // Ellipsis icon
-                              color: Colors.grey, // Gray color
-                              size: 24, // Adjust size if needed
+                            child: Image.asset(
+                              'assets/journal/more.png',
+                              height: 50,
+                              width: 50,
                             ),
-                          ),
+                          )
                         ],
                       ),
                       Expanded(

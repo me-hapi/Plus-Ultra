@@ -44,8 +44,8 @@ class _LoadingDialogState extends State<LoadingDialog>
       String roomId = await api.createRoomId();
       final id = await _supabaseDB.insertMatchRoom(roomId, 'available', uid);
       id_room = id;
+      late Map<String, dynamic> receiver;
       bool isMatched = false;
-      DateTime startTime = DateTime.now();
 
       try {
         await for (String status
@@ -53,6 +53,7 @@ class _LoadingDialogState extends State<LoadingDialog>
           print('Received status: $status'); // Debugging print
 
           if (status == 'unavailable') {
+            receiver = await _supabaseDB.fetchReceiver(id);
             isMatched = true;
             break;
           }
@@ -69,9 +70,14 @@ class _LoadingDialogState extends State<LoadingDialog>
       } else if (mounted) {
         print('Mounted');
         Navigator.pop(context);
-        String name = isAnonymous ? 'Anonymous' : globalName;
-        context.push('/peer-chatscreen',
-            extra: {'roomId': roomId, 'id': id, 'name': name});
+        
+        String name = receiver['anonymous'] ? 'Anonymous' : receiver['name'];
+        context.push('/peer-chatscreen', extra: {
+          'roomId': roomId,
+          'id': id,
+          'name': name,
+          'avatar': receiver['imageUrl']
+        });
       }
     } else {
       Map result = await match.findRoom(uid);
@@ -83,7 +89,8 @@ class _LoadingDialogState extends State<LoadingDialog>
         context.push('/peer-chatscreen', extra: {
           'roomId': result['roomId'],
           'id': result['id'],
-          'name': name
+          'name': name,
+          'avatar': result['imageUrl']
         });
       }
     }

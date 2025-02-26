@@ -10,6 +10,37 @@ class HomeLogic {
 
   HomeLogic({required this.supabase});
 
+  Future<List<Map<String, dynamic>>> fetchJournalCount() async {
+    return await supabase.fetchJournalCount();
+  }
+
+  int fetchStreak(List<Map<String, dynamic>> journal) {
+    if (journal.isEmpty) return 0;
+
+    // Extract and sort the dates
+    List<DateTime> dates = journal
+        .map((entry) => DateTime.parse(entry['created_at']))
+        .toList()
+      ..sort();
+
+    int longestStreak = 1;
+    int currentStreak = 1;
+
+    for (int i = 1; i < dates.length; i++) {
+      Duration diff = dates[i].difference(dates[i - 1]);
+
+      if (diff.inDays == 1) {
+        currentStreak++;
+      } else if (diff.inDays > 1) {
+        longestStreak =
+            currentStreak > longestStreak ? currentStreak : longestStreak;
+        currentStreak = 1;
+      }
+    }
+
+    return currentStreak > longestStreak ? currentStreak : longestStreak;
+  }
+
   Future<List<Map<String, dynamic>>> getClassifications(String uid) async {
     List<DateTime> dates = getDatesForCurrentAndPastTwoWeeks();
     final result = await supabase.getClassifications(

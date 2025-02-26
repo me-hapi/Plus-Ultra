@@ -153,12 +153,12 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     if (await supabaseDB.hasIntro(sessionID)) return;
 
     List<String> botIntroductions = [
-      "Hi! Ako si Lingap, ang iyong mental health assistant. Nandito ako para makinig at sumuporta sa’yo. Pwede tayong mag-usap tungkol sa nararamdaman mo, mag-reflect sa emotions mo, at maghanap ng paraan para mas gumaan ang pakiramdam mo. Handa ka na bang magsimula?",
-      "Hey! 👋 Ako si Lingap, ang iyong mental health buddy. Kamusta ka today? Kung gusto mo lang maglabas ng thoughts, or may gusto kang itanong tungkol sa mental health, nandito ako anytime para tumulong!",
-      "Hello! Ako si Lingap, isang AI mental health assistant na nandito para tulungan kang maintindihan ang sarili mong damdamin. Pwede tayong mag-usap, mag-reflect, at maghanap ng paraan para mas maging okay ka. Ready ka na bang magsimula?",
-      "Hi! 😊 Alam kong hindi laging madali ang mga bagay, pero gusto kong malaman mong hindi ka nag-iisa. Ako si Lingap, at nandito ako para makinig at sumuporta sa’yo. Tara, pag-usapan natin kung ano ang nasa isip mo.",
-      "Magandang araw! Ako si Lingap, isang AI mental health assistant na handang tumulong sa’yo. Gusto kong bigyan ka ng safe space para i-share ang iyong saloobin. Huwag kang mag-alala, hindi kita huhusgahan. Paano kita matutulungan ngayon?",
-      "Hello! Ako si Lingap, at gusto kong malaman mong safe ka dito. Kung may bumabagabag sa’yo, pwede mo itong ibahagi sa akin. Hindi ako therapist, pero kaya kitang bigyan ng suporta at gabay sa abot ng aking makakaya. Ready ka na bang magsimula?"
+      "Hi! Ako si Ligaya, ang iyong mental health assistant. Nandito ako para makinig at sumuporta sa’yo. Pwede tayong mag-usap tungkol sa nararamdaman mo, mag-reflect sa emotions mo, at maghanap ng paraan para mas gumaan ang pakiramdam mo. Handa ka na bang magsimula?",
+      "Hey! 👋 Ako si Ligaya, ang iyong mental health buddy. Kamusta ka today? Kung gusto mo lang maglabas ng thoughts, or may gusto kang itanong tungkol sa mental health, nandito ako anytime para tumulong!",
+      "Hello! Ako si Ligaya, isang AI mental health assistant na nandito para tulungan kang maintindihan ang sarili mong damdamin. Pwede tayong mag-usap, mag-reflect, at maghanap ng paraan para mas maging okay ka. Ready ka na bang magsimula?",
+      "Hi! 😊 Alam kong hindi laging madali ang mga bagay, pero gusto kong malaman mong hindi ka nag-iisa. Ako si Ligaya, at nandito ako para makinig at sumuporta sa’yo. Tara, pag-usapan natin kung ano ang nasa isip mo.",
+      "Magandang araw! Ako si Ligaya, isang AI mental health assistant na handang tumulong sa’yo. Gusto kong bigyan ka ng safe space para i-share ang iyong saloobin. Huwag kang mag-alala, hindi kita huhusgahan. Paano kita matutulungan ngayon?",
+      "Hello! Ako si Ligaya, at gusto kong malaman mong safe ka dito. Kung may bumabagabag sa’yo, pwede mo itong ibahagi sa akin. Hindi ako therapist, pero kaya kitang bigyan ng suporta at gabay sa abot ng aking makakaya. Ready ka na bang magsimula?"
     ];
     final random = Random();
     int randomIndex = random.nextInt(botIntroductions.length);

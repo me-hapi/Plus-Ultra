@@ -70,7 +70,7 @@ class _sleepOverviewState extends State<SleepOverview> {
               SizedBox(height: 30),
               Center(
                 child: Text(
-                  'I have a $sleepQuality sleep \n this week',
+                  'I have a $sleepQuality sleep \n this week.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,

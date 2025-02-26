@@ -77,31 +77,36 @@ class _MindfulOverviewState extends State<MindfulOverview> {
       ),
       backgroundColor: mindfulBrown['Brown10'],
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  PieChart(
-                    PieChartData(
-                      sections: mindfulnessData.entries.map((entry) {
-                        final color = {
-                              'Breathing': serenityGreen['Green50'],
-                              'Meditation': zenYellow['Yellow50'],
-                              'Relax': empathyOrange['Orange40'],
-                              'Sleep': mindfulBrown['Brown80'],
-                            }[entry.key] ??
-                            Colors.grey;
+                  SizedBox(
+                    height: 300,
+                    child: PieChart(
+                      PieChartData(
+                        sections: mindfulnessData.entries.map((entry) {
+                          final color = {
+                                'Breathing': serenityGreen['Green50'],
+                                'Meditation': zenYellow['Yellow50'],
+                                'Relax': empathyOrange['Orange40'],
+                                'Sleep': mindfulBrown['Brown80'],
+                              }[entry.key] ??
+                              Colors.grey;
 
-                        return PieChartSectionData(
-                          value: entry.value,
-                          title: '', // Removes the text inside the pie sections
-                          radius: 80,
-                          color: color, // Assigns colors based on the category
-                        );
-                      }).toList(),
+                          return PieChartSectionData(
+                            value: entry.value,
+                            title:
+                                '', // Removes the text inside the pie sections
+                            radius: 70,
+                            color:
+                                color, // Assigns colors based on the category
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                   Column(
@@ -174,6 +179,7 @@ class _MindfulOverviewState extends State<MindfulOverview> {
                 );
               }).toList(),
             ),
+            SizedBox(height: 30,)
           ],
         ),
       ),

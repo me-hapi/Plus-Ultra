@@ -10,14 +10,7 @@ import 'package:lingap/features/journaling/model/journal_item.dart';
 import 'package:lingap/features/journaling/ui/journal_collection.dart';
 
 class JournalInsightPage extends StatefulWidget {
-  final int currentStreak;
-  final int recordStreak;
-
-  const JournalInsightPage({
-    Key? key,
-    required this.currentStreak,
-    required this.recordStreak,
-  }) : super(key: key);
+  const JournalInsightPage({Key? key}) : super(key: key);
 
   @override
   State<JournalInsightPage> createState() => _JournalInsightPageState();
@@ -28,6 +21,8 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
   List<Map<String, dynamic>> journals = [];
   DateTime _currentDate = DateTime.now();
   late List<DateTime> displayDates;
+  int currentStreak = 0;
+  int longestStreak = 0;
 
   @override
   void initState() {
@@ -47,6 +42,16 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
         startDate: displayDates.first, endDate: displayDates.last);
     setState(() {
       journals = result;
+    });
+  }
+
+  Future<void> fetchStreak() async {
+    final result = await logic.fetchJournalCount();
+    final resultLong = logic.fetchStreak(result);
+    final resultCurrent = logic.fetchCurrentStreak(result);
+    setState(() {
+      longestStreak = resultLong;
+      currentStreak = resultCurrent;
     });
   }
 
@@ -310,7 +315,7 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
               Column(
                 children: [
                   Text(
-                    '${widget.currentStreak}',
+                    currentStreak.toString(),
                     style: TextStyle(
                         color: mindfulBrown['Brown80']!,
                         fontSize: 24,
@@ -324,7 +329,7 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
               Column(
                 children: [
                   Text(
-                    '${widget.recordStreak}',
+                    longestStreak.toString(),
                     style: TextStyle(
                         color: mindfulBrown['Brown80']!,
                         fontSize: 24,
@@ -341,7 +346,4 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
       ),
     );
   }
-
-
-  
 }

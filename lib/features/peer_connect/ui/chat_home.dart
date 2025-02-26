@@ -131,6 +131,7 @@ class _ChatHomeState extends State<ChatHome> {
                                         itemCount: filteredUsers.length,
                                         itemBuilder: (context, index) {
                                           final user = filteredUsers[index];
+                                          final unsent = user['unsent'];
                                           final name = user['name'];
                                           final avatarUrl = user['imageUrl'];
                                           final roomId = user['roomId'];
@@ -151,8 +152,9 @@ class _ChatHomeState extends State<ChatHome> {
                                             child: ChatRow(
                                               avatarUrl: avatarUrl,
                                               name: name,
-                                              lastMessage:
-                                                  encrypt.decryptMessage(
+                                              lastMessage: unsent
+                                                  ? 'Unsent message'
+                                                  : encrypt.decryptMessage(
                                                       lastMessage,
                                                       id.toString()),
                                               time: messageTime,
@@ -162,7 +164,8 @@ class _ChatHomeState extends State<ChatHome> {
                                                     extra: {
                                                       'roomId': roomId,
                                                       'id': id,
-                                                      'name': name
+                                                      'name': name,
+                                                      'avatar': avatarUrl
                                                     });
                                               },
                                             ),
@@ -218,12 +221,14 @@ class _ChatHomeState extends State<ChatHome> {
                                                         roomId, uid, userId);
 
                                                 message = MessageModel(
+                                                    id: 0,
                                                     created_at: DateTime.now(),
                                                     roomId: room,
                                                     sender: uid,
                                                     content: Encryption()
                                                         .encryptMessage("👋",
-                                                            room.toString()));
+                                                            room.toString()),
+                                                    unsent: false);
 
                                                 await _supabaseDb
                                                     .insertPeerMessage(message);
@@ -233,7 +238,8 @@ class _ChatHomeState extends State<ChatHome> {
                                                     extra: {
                                                       'roomId': roomId,
                                                       'id': room,
-                                                      'name': name
+                                                      'name': name,
+                                                      'avatar': imageUrl
                                                     });
                                               } catch (e) {
                                                 print(

@@ -295,13 +295,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
-        path: '/journal-insight',
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>;
-          return JournalInsightPage(
-              currentStreak: extra['current'], recordStreak: extra['record']);
-        },
-      ),
+          path: '/journal-insight',
+          builder: (context, state) => JournalInsightPage()),
 
       GoRoute(
         path: '/journal-collection',
@@ -344,7 +339,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final id = extra['id'];
           final roomId = extra['roomId'];
           final name = extra['name'];
-          return peer_screen.ChatScreen(roomId: roomId, id: id, name: name);
+          final avatar = extra['avatar'];
+          return peer_screen.ChatScreen(
+            roomId: roomId,
+            id: id,
+            name: name,
+            avatarUrl: avatar,
+          );
         },
       ),
 
@@ -356,7 +357,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final roomId = extra['roomId'];
           final name = extra['name'];
           final cam = extra['cam'];
-          return MeetingScreen(roomId: roomId, id: id, name: name, camEnabled: cam,);
+          return MeetingScreen(
+            roomId: roomId,
+            id: id,
+            name: name,
+            camEnabled: cam,
+          );
         },
       ),
 

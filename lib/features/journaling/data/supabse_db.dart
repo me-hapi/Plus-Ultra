@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/journaling/model/journal_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -7,6 +8,15 @@ class SupabaseDB {
   final SupabaseClient _client;
 
   SupabaseDB(this._client);
+
+  Future<List<Map<String, dynamic>>> fetchJournalCount() async {
+    try {
+      final response = await _client.from('journal').select().eq('uid', uid);
+      return response;
+    } catch (e) {
+      return [];
+    }
+  }
 
   Future<int> insertJournal(
       String uid, String title, List<JournalItem> journalItems) async {

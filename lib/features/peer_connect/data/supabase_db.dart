@@ -38,7 +38,7 @@ class SupabaseDB {
         // Fetch sender profile details
         senderProfile = await _client
             .from('profile')
-            .select('name, anonymous')
+            .select('name, anonymous, imageUrl')
             .eq('id', senderId)
             .maybeSingle();
       }
@@ -51,6 +51,8 @@ class SupabaseDB {
         'stress': mhScore?['stress'] ?? 0,
         'name': senderProfile?['name'] ?? 'Unknown', // Default if null
         'anonymous': senderProfile?['anonymous'] ?? false, // Default to false
+        'imageUrl':
+            senderProfile?['imageUrl'] ?? 'assets/profileIcon/profile1.png'
       });
     }
 
@@ -88,6 +90,26 @@ class SupabaseDB {
     });
   }
 
+  Future<Map<String, dynamic>> fetchReceiver(int id) async {
+    try {
+      final uid = await _client
+          .from('match_room')
+          .select('receiver')
+          .eq('id', id)
+          .maybeSingle();
+
+      final response = await _client
+          .from('profile')
+          .select()
+          .eq('id', uid!['receiver'])
+          .maybeSingle();
+
+      return response!;
+    } catch (e) {
+      return {};
+    }
+  }
+
   Future<void> markMessageAsRead(int roomId) async {
     final supabase = Supabase.instance.client;
 
@@ -110,13 +132,20 @@ class SupabaseDB {
     return stream;
   }
 
+  Future<void> unsendMessage(int messageId) async {
+    final response = await _client
+        .from('peer_messages')
+        .update({'unsent': true}).eq('id', messageId);
+  }
+
   Future<void> insertPeerMessage(MessageModel message) async {
     final response = await _client.from('peer_messages').insert({
       'created_at': message.created_at.toIso8601String(),
       'room_id': message.roomId,
       'sender': message.sender,
       'content': message.content,
-      'read': false
+      'read': false,
+      'unsent': false
     });
   }
 
@@ -217,7 +246,7 @@ class SupabaseDB {
           .from('peer_room')
           .select('''
           id, room_id, sender, receiver, 
-          peer_messages(created_at, room_id, sender, content, read),
+          peer_messages(created_at, room_id, sender, content, read, unsent),
           sender_profile:profile!peer_room_sender_fkey(name, imageUrl), 
           receiver_profile:profile!peer_room_receiver_fkey(name, imageUrl)
         ''')
@@ -255,6 +284,7 @@ class SupabaseDB {
                   'last_message': lastMessage['content'],
                   'time': lastMessage['created_at'],
                   'read': lastMessage['read'],
+                  'unsent': lastMessage['unsent']
                 };
               })));
     } catch (e) {

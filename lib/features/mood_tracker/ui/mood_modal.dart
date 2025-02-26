@@ -73,7 +73,7 @@ class MoodModal extends StatelessWidget {
                       padding: EdgeInsets.zero,
                     ),
                     child: Text(
-                      'Go to Home',
+                      'OK',
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
                   ),

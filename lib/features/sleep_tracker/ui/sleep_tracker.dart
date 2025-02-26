@@ -75,7 +75,7 @@ class _SleepTrackerState extends State<SleepTracker> {
                   ),
                 ),
                 child: Text(
-                  'Set Mood',
+                  'Set Sleep',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,

@@ -151,9 +151,9 @@ class _HealthPageState extends State<HealthPage> {
               Text(
                 'Linked',
                 style: TextStyle(
+                    color: mindfulBrown['Brown80'],
                     fontSize: 36,
-                    fontWeight: FontWeight.w700,
-                    color: mindfulBrown['80']),
+                    fontWeight: FontWeight.w700,),
               ),
             ],
           ),
@@ -188,7 +188,7 @@ class _HealthPageState extends State<HealthPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
-            color: appState == AppState.CONNECTED
+            color: isConnected
                 ? serenityGreen['Green50']
                 : optimisticGray['Gray50'],
             child: Padding(

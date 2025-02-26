@@ -16,6 +16,8 @@ class _HomePageState extends State<HomePage> {
   late HomeLogic homeLogic;
   List<Map<String, dynamic>> classifications = [];
   late Map<String, int> counts;
+  int journalCount = 0;
+  int streak = 0;
 
   @override
   void initState() {
@@ -24,6 +26,16 @@ class _HomePageState extends State<HomePage> {
     // classifications = homeLogic.classifications;
     // counts = homeLogic.counts;
     fetchCounts();
+    fetchjournalCount();
+  }
+
+  Future<void> fetchjournalCount() async {
+    final result = await homeLogic.fetchJournalCount();
+    final resultStreak = homeLogic.fetchStreak(result);
+    setState(() {
+      journalCount = result.length;
+      streak = resultStreak;
+    });
   }
 
   Future<void> fetchCounts() async {
@@ -85,7 +97,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(width: 8),
               Text(
-                '25',
+                journalCount.toString(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 120,
@@ -114,7 +126,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(width: 8),
               Text(
-                '28 days streak',
+                streak > 1 ? '$streak days streak' : '$streak day streak',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,

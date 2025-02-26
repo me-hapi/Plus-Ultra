@@ -77,10 +77,11 @@ class _NewExercisePageState extends State<NewExercisePage> {
                           ),
                           maxLines: 4,
                           decoration: InputDecoration(
-                            hintText: 'Enter your goal...',
+                            hintText:
+                                "Enter your goal... e.g., 'I want to feel calm' or 'I want a good nap.'",
                             hintStyle: TextStyle(
-                              color: mindfulBrown['Brown80'],
-                            ),
+                                color: optimisticGray['Gray50'],
+                                fontStyle: FontStyle.italic),
                             border: InputBorder.none, // No border
                             enabledBorder:
                                 InputBorder.none, // No border when not focused
@@ -198,9 +199,9 @@ class _NewExercisePageState extends State<NewExercisePage> {
 
                             LoadingScreen.hide(context);
                             print(response);
-
                             context.go('/bottom-nav');
                             Future.microtask(() {
+                              context.push('/mindful-home');
                               context.push('/mindful-player', extra: {
                                 'song': response['sound_name'],
                                 'min': selectedMinutes,

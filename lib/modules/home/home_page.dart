@@ -45,6 +45,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      
+    });
     _fetchProfile();
     _initializeConnectionStatus();
     _fetchSleepData();
@@ -248,7 +251,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           },
                           child: Card(
                             elevation: 0,
-                            color: reflectiveBlue['Blue50'],
+                            color: optimisticGray['Gray40'],
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),

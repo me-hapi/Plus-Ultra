@@ -26,7 +26,7 @@ class VitalCard extends StatelessWidget {
       case 'blood pressure':
         return 'mmHg';
       case 'sleep':
-        return 'hr/day';
+        return 'hrs/day';
       case 'mood':
         return '';
       default:

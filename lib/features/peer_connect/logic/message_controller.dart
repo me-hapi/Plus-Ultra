@@ -18,13 +18,20 @@ class MessageController {
   Future<void> sendMessage(String content, int id) async {
     try {
       final message = MessageModel(
+          id: 0,
           created_at: DateTime.now(),
           roomId: id,
           sender: uid,
-          content: encrypt.encryptMessage(content, id.toString()));
+          content: encrypt.encryptMessage(content, id.toString()),
+          unsent: false);
+
       await _supabaseDb.insertPeerMessage(message);
-    } catch (e) {
-      throw Exception('Failed to send message: $e');
-    }
+    } catch (e) {}
+  }
+
+  Future<void> unsendMessage(int id) async {
+    try {
+      await _supabaseDb.unsendMessage(id);
+    } catch (e) {}
   }
 }
