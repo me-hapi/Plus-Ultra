@@ -89,6 +89,7 @@ class InsightLogic {
       );
 
       return {
+        'id': journalEntry['id'],
         'selected': date.isAtSameMomentAs(clickedDate),
         'date': date,
         'emotion': journalEntry.isNotEmpty ? journalEntry['emotion'] : 'None',

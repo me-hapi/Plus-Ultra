@@ -268,7 +268,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Text(
-                  'All Therapist',
+                  'All Professionals',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,

@@ -81,6 +81,14 @@ class SupabaseDB {
     }
   }
 
+  Future<void> deleteJournal(int id) async {
+    try {
+      final response = await _client.from('journal').delete().eq('id', id);
+    } catch (e) {
+      print('ERROR DELETING: $e');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getClassifications({
     required String uid,
     required DateTime startDate,

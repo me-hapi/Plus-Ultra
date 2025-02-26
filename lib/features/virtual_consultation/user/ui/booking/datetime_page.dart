@@ -76,7 +76,7 @@ class _DateTimePageState extends State<DateTimePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: Icon(Icons.arrow_back_ios),
+              icon: Icon(Icons.arrow_back_ios, color: mindfulBrown['Brown80']),
               onPressed: () {
                 setState(() {
                   _focusedDate =
@@ -86,10 +86,14 @@ class _DateTimePageState extends State<DateTimePage> {
             ),
             Text(
               DateFormat.yMMMM().format(_focusedDate),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: mindfulBrown['Brown80']),
             ),
             IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
+              icon:
+                  Icon(Icons.arrow_forward_ios, color: mindfulBrown['Brown80']),
               onPressed: () {
                 setState(() {
                   _focusedDate =
@@ -150,6 +154,7 @@ class _DateTimePageState extends State<DateTimePage> {
   Widget buildDay(DateTime day, bool isAvailable) {
     final isSelected = _logic.selectedDate != null &&
         _logic.selectedDate!.isAtSameMomentAs(day);
+    final today = DateTime.now();
 
     return GestureDetector(
       onTap: isAvailable ? () => _onDateSelected(day) : null,
@@ -157,9 +162,11 @@ class _DateTimePageState extends State<DateTimePage> {
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: isAvailable
-              ? isSelected
-                  ? reflectiveBlue['Blue50']
-                  : serenityGreen['Green50']
+              ? day.isBefore(today)
+                  ? optimisticGray['Gray50']
+                  : isSelected
+                      ? reflectiveBlue['Blue50']
+                      : serenityGreen['Green50']
               : Colors.transparent,
           shape: BoxShape.circle,
         ),

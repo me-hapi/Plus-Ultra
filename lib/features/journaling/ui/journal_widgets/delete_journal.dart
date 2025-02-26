@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 
 class DeleteJournalDialog extends StatelessWidget {
+  final Future<void> Function() delete;
+
+  const DeleteJournalDialog({super.key, required this.delete});
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -80,7 +85,11 @@ class DeleteJournalDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () async {
+                      await delete();
+                      Navigator.pop(context);
+                      context.go('/bottom-nav', extra: 2);
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -103,9 +112,12 @@ class DeleteJournalDialog extends StatelessWidget {
   }
 }
 
-void showDeleteJournalDialog(BuildContext context) {
+void showDeleteJournalDialog(
+    BuildContext context, Future<void> Function() delete) {
   showDialog(
     context: context,
-    builder: (BuildContext context) => DeleteJournalDialog(),
+    builder: (BuildContext context) => DeleteJournalDialog(
+      delete: delete,
+    ),
   );
 }

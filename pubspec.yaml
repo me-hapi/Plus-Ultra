@@ -52,6 +52,7 @@ dependencies:
   langchain_pinecone: ^0.1.0+11
   langchain_openai: ^0.7.3
   dart_openai: ^5.1.0
+  screenshot: ^3.0.0
 
 
 dev_dependencies:
@@ -83,6 +84,13 @@ flutter:
   assets:
     - assets/logo.png
     - assets/test.jpg
+
+    - assets/utils/seemore.png
+    - assets/utils/whiteBack.png
+    - assets/utils/containerBack.png
+    - assets/utils/brownBack.png
+    - assets/utils/streak.png
+
     - assets/mood/cheerful.png
     - assets/mood/happy.png
     - assets/mood/neutral.png

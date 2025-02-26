@@ -237,6 +237,7 @@ class _JournalCollectionState extends State<JournalCollection> {
                         Expanded(
                           flex: 3,
                           child: JournalCard(
+                            id: date['id'],
                             emotion: date['emotion'],
                             title: date['title'],
                             date: date['date'].toString(),

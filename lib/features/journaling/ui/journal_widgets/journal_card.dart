@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:lingap/features/journaling/ui/journal_detail.dart';
 
 class JournalCard extends StatelessWidget {
+  final int id;
   final String emotion;
   final String title;
   final String date;
@@ -19,6 +20,7 @@ class JournalCard extends StatelessWidget {
     required this.date,
     required this.time,
     required this.journalItems,
+    required this.id,
   }) : super(key: key);
 
   Map<String, dynamic> getAsset(String emotion) {
@@ -125,6 +127,7 @@ class JournalCard extends StatelessWidget {
             context,
             MaterialPageRoute(
                 builder: (context) => JournalDetailPage(
+                    id: id,
                     emotion: emotion,
                     date: date,
                     time: time,

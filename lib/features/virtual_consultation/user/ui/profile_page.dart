@@ -258,10 +258,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Column(
                           children: [
                             Text(
-                              sessionFee.toString(),
+                              '₱ ${sessionFee.toString()}.00',
                               style: TextStyle(
+                                fontFamily: 'Montserrat',
                                   color: mindfulBrown['Brown80'],
-                                  fontSize: 26,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w700),
                             ),
                             Text(
@@ -290,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               completedSessions,
                               style: TextStyle(
                                   color: mindfulBrown['Brown80'],
-                                  fontSize: 26,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w700),
                             ),
                             Text(
@@ -379,7 +380,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 8.0),
                   child: Text(
-                    'Specialty',
+                    'Specializations',
                     style: TextStyle(
                         color: mindfulBrown['Brown80'],
                         fontSize: 16.0,

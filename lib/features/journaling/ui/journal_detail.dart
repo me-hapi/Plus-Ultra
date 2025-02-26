@@ -2,12 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/journaling/data/supabse_db.dart';
 import 'package:lingap/features/journaling/model/journal_item.dart';
 import 'package:lingap/features/journaling/ui/audio_card.dart';
 import 'package:intl/intl.dart';
 import 'package:lingap/features/journaling/ui/journal_widgets/delete_journal.dart';
 
 class JournalDetailPage extends StatefulWidget {
+  final int id;
   final String emotion;
   final String date;
   final String time;
@@ -21,6 +24,7 @@ class JournalDetailPage extends StatefulWidget {
     required this.time,
     required this.title,
     required this.journalItems,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -28,12 +32,14 @@ class JournalDetailPage extends StatefulWidget {
 }
 
 class _JournalDetailPageState extends State<JournalDetailPage> {
+  final SupabaseDB supabase = SupabaseDB(client);
   late String formattedDate;
   late String formattedTime;
 
   @override
   void initState() {
     super.initState();
+    print("ID: ${widget.id}");
     formattedDate = _formatDate(widget.date);
     formattedTime = _formatTime(widget.time);
   }
@@ -222,9 +228,14 @@ class _JournalDetailPageState extends State<JournalDetailPage> {
                     height: 80,
                     child: GestureDetector(
                         onTap: () {
-                          showDeleteJournalDialog(context);
+                          showDeleteJournalDialog(context, () async {
+                            await supabase.deleteJournal(widget.id);
+                          });
                         },
                         child: Image.asset('assets/journal/remove.png')),
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                 ],
               ),

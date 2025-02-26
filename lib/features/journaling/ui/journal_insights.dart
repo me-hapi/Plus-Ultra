@@ -28,6 +28,7 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
   void initState() {
     super.initState();
     _updateDisplayDates();
+    fetchStreak();
   }
 
   void _updateDisplayDates() {
@@ -298,17 +299,26 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(7, (index) {
-              return CircleAvatar(
-                radius: 12,
-                backgroundColor: index % 2 == 0 ? Colors.brown : Colors.grey,
-              );
+              return index < currentStreak
+                  ? Image.asset(
+                      'assets/utils/streak.png',
+                      width: 24,
+                    )
+                  : CircleAvatar(
+                      radius: 12,
+                      backgroundColor: optimisticGray['Gray50'],
+                    );
             }),
           ),
-          const Divider(height: 32, thickness: 1),
+          Divider(
+            height: 32,
+            thickness: 1,
+            color: optimisticGray['Gray50'],
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
