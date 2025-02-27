@@ -91,13 +91,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: mindfulBrown['Brown80'],
         toolbarHeight: 50.0,
-        title: Text('Ligaya',
-            style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-                color: Colors.white)),
+        title: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                context.pop();
+              },
+              child: Image.asset(
+                'assets/utils/whiteBack.png',
+                width: 20,
+                height: 20,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text('Ligaya',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white)),
+          ],
+        ),
         actions: [
           GestureDetector(
             onTap: () {

@@ -1,28 +1,23 @@
+import 'dart:convert';
+
 class Utils {
-  Map<String, String> parseResponse(String fullResponse) {
-    print('FULL: $fullResponse');
-    RegExp responseRegExp = RegExp(
-        r'\*\*Response:\*\*\s*([\s\S]*?)(?=\n\s*- \*\*Title:|\Z)',
-        multiLine: true);
+  Map<String, dynamic> extractRecommendation(String rawResponse) {
+    try {
+      print(rawResponse);
+      String cleanedJson = rawResponse
+          .trim()
+          .replaceAll("```json", "") // Remove markdown-style json block markers
+          .replaceAll("```", ""); // Remove closing backticks if present
 
-    RegExp titleRegExp = RegExp(r'Title\s*:\*\*?\s*([\w\s]+)');
-    RegExp iconRegExp = RegExp(r'Icon\s*:\*\*?\s*([\S]+)');
-    RegExp emotionRegExp = RegExp(r'Emotion\s*:\*\*?\s*([\w\s]+)');
-    RegExp issueRegExp = RegExp(r'Issue\s*:\*\*?\s*([\w\s]+)');
+      // Parse the cleaned JSON string
+      Map<String, dynamic> data = jsonDecode(cleanedJson);
 
-    String responseText = _extractMatch(responseRegExp, fullResponse);
-    String title = _extractMatch(titleRegExp, fullResponse);
-    String icon = _extractMatch(iconRegExp, fullResponse);
-    String emotion = _extractMatch(emotionRegExp, fullResponse);
-    String issue = _extractMatch(issueRegExp, fullResponse);
-    print('RESPONSE: $responseText');
-    return {
-      'response': responseText,
-      'title': title,
-      'icon': icon,
-      'emotion': emotion,
-      'issue': issue,
-    };
+      // Extract the required fields
+      return data;
+    } catch (e) {
+      print("Error parsing JSON: $e");
+      return {};
+    }
   }
 
   String _extractMatch(RegExp regex, String text) {

@@ -59,11 +59,11 @@ class NotificationCard extends StatelessWidget {
     };
 
     return Card(
-      color: Colors.white,
+      color: mindfulBrown['Brown10'],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
       ),
-      elevation: 1,
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(

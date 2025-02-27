@@ -92,8 +92,22 @@ class _ChatScreenState extends State<ChatScreen> {
         toolbarHeight: 50.0,
         title: Row(
           children: [
-            Icon(Icons.arrow_back_ios),
-            SizedBox(width: 5,),
+            GestureDetector(
+              onTap: () {
+                context.pop();
+              },
+              child: Image.asset(
+                'assets/utils/whiteBack.png',
+                width: 20,
+                height: 20,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            SizedBox(
+              width: 5,
+            ),
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -115,7 +129,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-            SizedBox(width: 8,),
+            SizedBox(
+              width: 8,
+            ),
             Text(widget.name,
                 style: TextStyle(
                     fontSize: 20,

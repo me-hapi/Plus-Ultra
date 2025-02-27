@@ -33,7 +33,9 @@ class _HealthPageState extends State<HealthPage> {
   Future<void> _initializeConnectionStatus() async {
     final result =
         await SharedPrefHelper.instance.getBool('isConnected') ?? false;
-    isConnected = result;
+    setState(() {
+      isConnected = result;
+    });
     if (!result) {
       _initializeHealthConnect();
     } else {
@@ -151,9 +153,10 @@ class _HealthPageState extends State<HealthPage> {
               Text(
                 'Linked',
                 style: TextStyle(
-                    color: mindfulBrown['Brown80'],
-                    fontSize: 36,
-                    fontWeight: FontWeight.w700,),
+                  color: mindfulBrown['Brown80'],
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
