@@ -1,35 +1,29 @@
+import 'dart:convert';
 import 'dart:io';
-
-import 'package:dart_openai/dart_openai.dart';
+import 'dart:typed_data';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lingap/features/chatbot/logic/utils.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:lingap/features/chatbot/services/rag_model.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class CallLogic {
   stt.SpeechToText _speech = stt.SpeechToText();
-  final FlutterTts _flutterTts = FlutterTts();
   bool _isListening = false;
-  bool _isMuted = false; // Controls whether speech is allowed
+  bool _isMuted = false;
   String _text = "Listening...";
   String _response = "";
   List<String> callHistory = [];
   late RAGModel rag;
   final AudioPlayer _audioPlayer = AudioPlayer();
-  String apiKey =
-      "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"; // Replace with your OpenAI API Key
+
+  String elevenLabsApiKey =
+      "sk_b1212189c293af2565baa2ccf97c79e504b4d279d997ed4b";
+  String voiceId = "u0P5zPuh3SvxTi9vSTCn";
 
   CallLogic(int sessionID) {
-    OpenAI.apiKey = apiKey;
-    _initializeTTS();
     rag = RAGModel(sessionID);
-  }
-
-  Future<void> _initializeTTS() async {
-    await _flutterTts.setLanguage("fil-PH");
-    await _flutterTts.setPitch(1.0);
   }
 
   bool get isListening => _isListening;
@@ -37,40 +31,6 @@ class CallLogic {
 
   void setMute(bool mute) {
     _isMuted = mute;
-  }
-
-  Future<void> _speakResponse(Function() onUpdate) async {
-    if (_response.isNotEmpty && _response != "Thinking..." && !_isMuted) {
-      // Directory appDir = await getApplicationDocumentsDirectory();
-      // String outputDirPath = "${appDir.path}/speechOutput";
-      // Directory outputDir = Directory(outputDirPath);
-
-      // if (!(await outputDir.exists())) {
-      //   await outputDir.create(recursive: true);
-      // }
-
-      // File speechFile = await OpenAI.instance.audio.createSpeech(
-      //   model: "tts-1",
-      //   input: _response,
-      //   voice: "sage",
-      //   responseFormat: OpenAIAudioSpeechResponseFormat.mp3,
-      //   outputDirectory: outputDir,
-      //   outputFileName: "test",
-      // );
-
-      // await _audioPlayer.setFilePath(speechFile.path);
-      // await _audioPlayer.play();
-      // await _audioPlayer.playerStateStream.firstWhere(
-      //     (state) => state.processingState == ProcessingState.completed);
-      _flutterTts.speak(_response);
-    }
-
-    // Reset to "Tap the mic to speak" and restart listening
-    _text = "Listening...";
-    _isListening = false;
-    onUpdate();
-    await Future.delayed(Duration(microseconds: 500));
-    startListening(onUpdate);
   }
 
   Future<void> startListening(Function() onUpdate) async {
@@ -82,8 +42,7 @@ class CallLogic {
           _text = "Didn't hear any speech";
           _isListening = false;
           onUpdate();
-          Future.delayed(Duration(seconds: 1),
-              () => startListening(onUpdate)); // Restart listening
+          Future.delayed(Duration(seconds: 1), () => startListening(onUpdate));
         }
       },
     );
@@ -105,7 +64,7 @@ class CallLogic {
           }
         }
       },
-      listenFor: Duration(seconds: 20),
+      listenFor: Duration(seconds: 10),
       cancelOnError: false,
       partialResults: true,
     );
@@ -124,14 +83,80 @@ class CallLogic {
 
       _response = mapResponse['response'];
       callHistory.add("Chatbot: $_response");
-
-      // Force UI update before playing the response
       onUpdate();
 
-      // Delay to ensure UI updates before playing response
       await Future.delayed(Duration(milliseconds: 500));
-
-      _speakResponse(onUpdate); // Speak response and restart listening
+      await _speakResponse(onUpdate);
     }
+  }
+
+  Future<void> _speakResponse(Function() onUpdate) async {
+    if (_response.isNotEmpty && _response != "Thinking..." && !_isMuted) {
+      print('speak');
+      await _streamElevenLabsTTS(_response);
+    }
+
+    _text = "Listening...";
+    _isListening = false;
+    onUpdate();
+    await Future.delayed(Duration(milliseconds: 500));
+    startListening(onUpdate);
+  }
+
+  Future<void> _streamElevenLabsTTS(String text) async {
+    final String url =
+        "wss://api.elevenlabs.io/v1/text-to-speech/$voiceId/stream-input";
+    final WebSocketChannel channel = WebSocketChannel.connect(Uri.parse(url));
+
+    print("Connecting to Eleven Labs WebSocket...");
+
+    channel.sink.add(jsonEncode({
+      "xi-api-key": elevenLabsApiKey,
+      "text": text, // Directly send the text
+      "voice_settings": {"stability": 0.5, "similarity_boost": 0.8}
+    }));
+
+    channel.stream.listen(
+      (message) async {
+        try {
+          Map<String, dynamic> response = jsonDecode(message);
+
+          if (response.containsKey("audio")) {
+            print("Received audio data from Eleven Labs.");
+
+            String audioBase64 = response["audio"];
+            Uint8List audioBytes = base64Decode(audioBase64);
+
+            // Write to a temporary file
+            Directory tempDir = Directory.systemTemp;
+            String filePath = "${tempDir.path}/output.mp3";
+            File tempAudioFile = File(filePath);
+            await tempAudioFile.writeAsBytes(audioBytes);
+
+            // Debug log to confirm the file exists
+            if (await tempAudioFile.exists()) {
+              print("Audio file saved at: $filePath");
+
+              // Play the audio
+              await _audioPlayer.setFilePath(filePath);
+              await _audioPlayer.play();
+            } else {
+              print("Failed to save audio file.");
+            }
+          } else {
+            print("No audio key found in response: $response");
+          }
+        } catch (e) {
+          print("Error processing TTS response: $e");
+        }
+      },
+      onDone: () {
+        print("WebSocket connection closed.");
+        channel.sink.close();
+      },
+      onError: (error) {
+        print("WebSocket Error: $error");
+      },
+    );
   }
 }

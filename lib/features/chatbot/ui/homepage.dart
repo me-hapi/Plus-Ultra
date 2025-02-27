@@ -69,11 +69,16 @@ class _ChatHomeState extends State<ChatHome> {
                   emotion: chat['emotion'] ?? 'Neutral',
                   isSessionOpen: chat['open'],
                   onDelete: () async {
+                    print('CHATID: ${chat['id']}');
                     await supabase.deleteSession(chat['id']);
+
                     setState(() {
                       snapshot.data!
                           .removeAt(index); // Remove the item from the list
                     });
+                  },
+                  onClose: () async {
+                    await supabase.closeSession(chat['id']);
                   },
                 );
               },

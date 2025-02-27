@@ -10,8 +10,12 @@ class SupabaseDB {
 
   Future<void> deleteSession(int sessionID) async {
     try {
-      await _client.from('session').delete().eq('id', sessionID);
-    } catch (e) {}
+      print('Deleting...');
+      final response = await _client.from('session').delete().eq('id', sessionID);
+      print('Success deleting: $response');
+    } catch (e) {
+      print('Error deleting: $e');
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchHotlines() async {

@@ -193,6 +193,7 @@ flutter:
     - assets/chatbot/chatbot.png
     - assets/chatbot/limit.png
     - assets/chatbot/chat.png
+    - assets/chatbot/close.png
 
     - assets/chatbot/icon/abstract.png
     - assets/chatbot/icon/arrowdown.png

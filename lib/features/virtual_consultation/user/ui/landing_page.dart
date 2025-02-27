@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
@@ -30,12 +31,27 @@ class _LandingPageState extends State<LandingPage> {
     if (mounted) {
       setState(() {
         appointment = result;
-        print(appointment);
         if (result != null) {
+          print('APPOINTMENT ${appointment!['status']}');
           getProfessional(result['professional_id']);
         }
       });
     }
+  }
+
+  String formatAppointment(String appointmentDate, String timeSlot) {
+    // Parse the date string
+    DateTime date = DateTime.parse(appointmentDate);
+
+    // Format the date as "Month Day"
+    String formattedDate = DateFormat("MMMM d").format(date);
+
+    // Format the time slot (assumes timeSlot is in 24-hour format, e.g., "14:30")
+    DateTime time = DateFormat("HH:mm").parse(timeSlot);
+    String formattedTime =
+        DateFormat("h:mm a").format(time); // Converts to "2:30 PM"
+
+    return "You have an upcoming appointment on $formattedDate at $formattedTime.";
   }
 
   Future<void> getProfessional(String uid) async {
@@ -45,7 +61,6 @@ class _LandingPageState extends State<LandingPage> {
     if (mounted) {
       setState(() {
         professional = result;
-        print(result);
       });
     }
   }
@@ -73,14 +88,15 @@ class _LandingPageState extends State<LandingPage> {
           Text(
             appointment == null
                 ? 'You have no therapist appointment'
-                : 'You have an upcoming appointment',
+                : formatAppointment(appointment!['appointment_date'],
+                    appointment!['time_slot']),
             style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 30.0,
                 color: mindfulBrown['Brown80']),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 40.0),
+          const SizedBox(height: 30.0),
 
           if (professional != null)
             ProfessionalCard(professionalData: professional!),
@@ -93,11 +109,13 @@ class _LandingPageState extends State<LandingPage> {
                 if (appointment == null) {
                   context.push('/findpage');
                 } else {
-                  context.push('/instruction', extra: {
-                    'roomId': appointment!['consultation_room'][0]['room_id'],
-                    'name': professional!['name'],
-                    'appointmentId': appointment!['id']
-                  });
+                  if (appointment!['status'] != 'pending') {
+                    context.push('/instruction', extra: {
+                      'roomId': appointment!['consultation_room'][0]['room_id'],
+                      'name': professional!['name'],
+                      'appointmentId': appointment!['id']
+                    });
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -107,7 +125,11 @@ class _LandingPageState extends State<LandingPage> {
                 ),
               ),
               child: Text(
-                appointment == null ? 'Schedule Appointment' : 'Join call',
+                appointment == null
+                    ? 'Schedule Appointment'
+                    : appointment!['status'] == 'pending'
+                        ? 'Waiting for approval'
+                        : 'Join call',
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.white,

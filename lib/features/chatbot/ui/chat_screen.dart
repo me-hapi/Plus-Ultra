@@ -101,7 +101,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           GestureDetector(
             onTap: () {
-              context.push('/call-chatbot');
+              context.push('/call-chatbot', extra: widget.sessionID);
             },
             child: Image.asset(
               'assets/peer/call.png',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/features/chatbot/ui/close_modal.dart';
 
 class ConversationCard extends StatelessWidget {
   final int sessionID;
@@ -11,18 +12,20 @@ class ConversationCard extends StatelessWidget {
   final String emotion;
   final bool isSessionOpen;
   final Future<void> Function() onDelete;
+  final Future<void> Function() onClose;
 
-  const ConversationCard({
-    Key? key,
-    required this.imagePath,
-    required this.title,
-    required this.total,
-    required this.emotion,
-    required this.sessionID,
-    required this.animate,
-    required this.isSessionOpen,
-    required this.onDelete,
-  }) : super(key: key);
+  const ConversationCard(
+      {Key? key,
+      required this.imagePath,
+      required this.title,
+      required this.total,
+      required this.emotion,
+      required this.sessionID,
+      required this.animate,
+      required this.isSessionOpen,
+      required this.onDelete,
+      required this.onClose})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +44,8 @@ class ConversationCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: const Icon(Icons.delete, color: Colors.white, size: 30),
         ),
-        onDismissed: (direction) {
-          onDelete();
+        onDismissed: (direction) async {
+          await onDelete();
         },
         child: GestureDetector(
           onTap: () {
@@ -51,6 +54,9 @@ class ConversationCard extends StatelessWidget {
               'animate': false,
               'open': isSessionOpen
             });
+          },
+          onLongPress: () {
+            showDeleteSessionDialog(context, onClose);
           },
           child: Card(
             color: isSessionOpen ? Colors.white : optimisticGray['Gray50'],
