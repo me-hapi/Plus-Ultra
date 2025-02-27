@@ -17,12 +17,14 @@ class RAGModel {
 
   late final PineconeRetriever pinecone;
   late List<Map<String, dynamic>> hotlines;
+  late List<Map<String, dynamic>> journal;
 
-  RAGModel() {
+  RAGModel(final int sessionID) {
     OpenAI.apiKey = openaiApiKey;
     pinecone = PineconeRetriever(
         pineconeApiKey: pineconeApiKey, indexEndpoint: indexEndpoint);
     fetchHotlines();
+    fetchJournal(sessionID);
     // test();
   }
 
@@ -32,6 +34,11 @@ class RAGModel {
     for (var model in models) {
       print(model.id);
     }
+  }
+
+  Future<void> fetchJournal(int sessionID) async {
+    journal = await supabase.fetchJournal(sessionID);
+    print('JOURNAL: $journal');
   }
 
   Future<void> fetchHotlines() async {
@@ -73,12 +80,11 @@ Instruction:
     - "Hindi ko na kaya."
     - "Hindi na lang sana ako ipinanganak."
     - "Sana wala na lang ako sa mundo."
-    - "Hindi ko na kailangan ang mga ito."
     - "Gusto kong makatulog at di na magising."
     - "Hindi na mag-aalala mga parents ko."
     - "Maging maayos ang lahat kapag wala na ako."
     - "Wala namang makakapansin sa akin kung ako man ay buhay o patay."
-- If the user is showing severe distress or suicidal thoughts, encourage them to seek professional help and connect them with appropriate crisis support services.   
+- If the user is showing severe distress or suicidal thoughts, either ask for more context, recommends Lingap features or give reassuring and comforting response and encourage them to seek professional help and connect them with appropriate crisis support services.   
 $hotlines
 
 4. Cultural Sensitivity  
@@ -118,6 +124,8 @@ $hotlines
         Virtual Consultation – Schedule an appointment with a licensed mental health professional, either online or in a clinical setting.
         Peer-to-Peer Connection – Find and connect with someone facing similar challenges or simply talk to someone for support.
 
+Journal entries since the conversation was created and from the past seven days:
+$journal
 
 Conversation History:  
 $formattedHistory  

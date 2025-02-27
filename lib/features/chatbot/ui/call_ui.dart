@@ -5,6 +5,10 @@ import 'package:lingap/features/chatbot/services/call_logic.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class CallChatbot extends StatefulWidget {
+  final int sessionID;
+
+  const CallChatbot({super.key, required this.sessionID});
+
   @override
   _CallChatbotState createState() => _CallChatbotState();
 }
@@ -17,7 +21,7 @@ class _CallChatbotState extends State<CallChatbot> {
   @override
   void initState() {
     super.initState();
-    _callLogic = CallLogic();
+    _callLogic = CallLogic(widget.sessionID);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _callLogic.startListening(() => setState(() {}));
     });

@@ -24,11 +24,14 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  final Set<int> _animatedMessageIndexes = {};
+  // final Set<int> _animatedMessageIndexes = {};
+  List<int> _animatedMessageIndex = [];
+  Map<int, bool> _showTimestamp = {};
 
   @override
   void initState() {
     super.initState();
+    _fetchAnimatedIndex();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(chatbotProvider(widget.sessionID).notifier).introduction();
     });
@@ -38,6 +41,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _toggleTimestamp(int index) {
+    setState(() {
+      _showTimestamp[index] = !(_showTimestamp[index] ?? false);
+    });
+  }
+
+  Future<void> _fetchAnimatedIndex() async {
+    final index = await ref
+        .read(chatbotProvider(widget.sessionID).notifier)
+        .fetchAnimatedIndex();
+    setState(() {
+      _animatedMessageIndex = index; // Default to 0 if null
+      print('INDEX: $index');
+    });
+  }
+
+  Future<void> _updateAnimatedIndex(int index) async {
+    await ref
+        .read(chatbotProvider(widget.sessionID).notifier)
+        .updateAnimatedIndex(index);
   }
 
   void _updateSessionState(bool isOpen) {
@@ -68,7 +93,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       appBar: AppBar(
         backgroundColor: mindfulBrown['Brown80'],
         toolbarHeight: 50.0,
-        title: Text('AI Chat',
+        title: Text('Ligaya',
             style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w500,
@@ -98,72 +123,99 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               itemBuilder: (context, index) {
                 final message = messages[index];
 
-                bool shouldAnimate = !_animatedMessageIndexes.contains(index);
+                final formattedTime =
+                    TimeOfDay.fromDateTime(message.time).format(context);
 
-                return ChatBubble(
-                  animateText:
-                      widget.animateText ? shouldAnimate : widget.animateText,
-                  isUser: message.isUser,
-                  message: message.message,
-                  onTextUpdate: _scrollToBottom,
-                  emotion: message.emotion,
-                  onCompleted: () {
-                    // Ensure that this is only triggered once per message.
-                    if (!_animatedMessageIndexes.contains(index)) {
-                      _animatedMessageIndexes.add(index);
+                //STORE THE INDEX ON SUPABSE FOR PERSISTENCE
+                bool shouldAnimate = !_animatedMessageIndex.contains(index);
 
-                      switch (message.emotion.toLowerCase()) {
-                        case 'progress':
-                          print(message.emotion.toLowerCase());
-                          ref
-                              .read(chatbotProvider(widget.sessionID).notifier)
-                              .postAssessment();
-                          break;
+                return GestureDetector(
+                  onTap: () => _toggleTimestamp(index),
+                  child: Column(
+                    children: [
+                      if (_showTimestamp[index] == true)
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          child: Text(
+                            formattedTime,
+                            style: TextStyle(
+                                fontSize: 12, color: optimisticGray['Gray50']),
+                          ),
+                        ),
+                      ChatBubble(
+                        animateText: shouldAnimate,
+                        isUser: message.isUser,
+                        message: message.message,
+                        onTextUpdate: _scrollToBottom,
+                        emotion: message.emotion,
+                        onCompleted: () {
+                          // Ensure that this is only triggered once per message.
+                          if (!_animatedMessageIndex.contains(index)) {
+                            _updateAnimatedIndex(index);
+                            _animatedMessageIndex.add(index);
 
-                        case 'script':
-                          ref
-                              .read(chatbotProvider(widget.sessionID).notifier)
-                              .askQuestion();
-                          break;
+                            switch (message.emotion.toLowerCase()) {
+                              case 'progress':
+                                print(message.emotion.toLowerCase());
+                                ref
+                                    .read(chatbotProvider(widget.sessionID)
+                                        .notifier)
+                                    .postAssessment();
+                                break;
 
-                        case 'dass':
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                              case 'script':
+                                ref
+                                    .read(chatbotProvider(widget.sessionID)
+                                        .notifier)
+                                    .askQuestion();
+                                break;
+
+                              case 'dass':
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  ref
+                                      .read(chatbotProvider(widget.sessionID)
+                                          .notifier)
+                                      .sendOption();
+                                });
+                                break;
+
+                              case 'interpretation':
+                                ref
+                                    .read(chatbotProvider(widget.sessionID)
+                                        .notifier)
+                                    .askSession();
+                                break;
+
+                              default:
+                                break;
+                            }
+                          }
+                        },
+                        onOptionSelected: (selectedOption) {
+                          if (message.emotion.toLowerCase() == 'option') {
                             ref
                                 .read(
                                     chatbotProvider(widget.sessionID).notifier)
-                                .sendOption();
-                          });
-                          break;
+                                .getScore(selectedOption);
+                          }
 
-                        case 'interpretation':
-                          ref
-                              .read(chatbotProvider(widget.sessionID).notifier)
-                              .askSession();
-                          break;
+                          if (message.emotion.toLowerCase() == 'close') {
+                            ref
+                                .read(
+                                    chatbotProvider(widget.sessionID).notifier)
+                                .checkSession(selectedOption);
 
-                        default:
-                          break;
-                      }
-                    }
-                  },
-                  onOptionSelected: (selectedOption) {
-                    if (message.emotion.toLowerCase() == 'option') {
-                      ref
-                          .read(chatbotProvider(widget.sessionID).notifier)
-                          .getScore(selectedOption);
-                    }
-
-                    if (message.emotion.toLowerCase() == 'close') {
-                      ref
-                          .read(chatbotProvider(widget.sessionID).notifier)
-                          .checkSession(selectedOption);
-
-                      if (selectedOption.toLowerCase() == "oo") {
-                        _updateSessionState(
-                            false); // Close session when "Oo" is selected
-                      }
-                    }
-                  },
+                            if (selectedOption.toLowerCase() == "oo") {
+                              _updateSessionState(
+                                  false); // Close session when "Oo" is selected
+                            }
+                          }
+                        },
+                      )
+                    ],
+                  ),
                 );
               },
             ),

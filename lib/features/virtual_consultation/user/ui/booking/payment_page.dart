@@ -102,7 +102,7 @@ class PaymentPage extends StatelessWidget {
   }
 
   Widget _buildDownloadButton(BuildContext context) {
-    return ElevatedButton(
+    return TextButton(
       onPressed: () async {
         await _requestStoragePermission(); // Request storage permission
 

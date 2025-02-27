@@ -21,10 +21,10 @@ class CallLogic {
   String apiKey =
       "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"; // Replace with your OpenAI API Key
 
-  CallLogic() {
+  CallLogic(int sessionID) {
     OpenAI.apiKey = apiKey;
     _initializeTTS();
-    rag = RAGModel();
+    rag = RAGModel(sessionID);
   }
 
   Future<void> _initializeTTS() async {

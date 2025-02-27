@@ -20,8 +20,8 @@ final chatbotProvider =
 class ChatbotNotifier extends StateNotifier<List<Message>> {
   // bool _hasIntroduced = false;
   final Chatbot chatbot = Chatbot();
-  final RAGModel rag = RAGModel();
   final int sessionID;
+  late RAGModel rag;
   final SupabaseDB supabaseDB;
   final TextEditingController messageController = TextEditingController();
   final DASInterpreter interpreter = DASInterpreter();
@@ -46,8 +46,23 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
   ChatbotNotifier(this.sessionID)
       : supabaseDB = SupabaseDB(client),
         super([]) {
+    rag = RAGModel(sessionID);
     _loadCachedMessages();
     _listenToMessages();
+  }
+
+  Future<List<int>> fetchAnimatedIndex() async {
+    final response = await client
+        .from('session')
+        .select('index')
+        .eq('id', sessionID)
+        .single();
+
+    return (response['index'] as List<dynamic>).map((e) => e as int).toList();
+  }
+
+  Future<void> updateAnimatedIndex(int index) async {
+    await supabaseDB.updateSessionIndex(index, sessionID);
   }
 
   Map<String, dynamic> extractRecommendation(String rawResponse) {
@@ -78,9 +93,9 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
 
     state = cached
         .map((row) => Message(
-              isUser: row['user'],
-              message: row['content'],
-            ))
+            isUser: row['user'],
+            message: row['content'],
+            time: DateTime.parse(row['created_at'])))
         .toList();
   }
 
@@ -88,9 +103,9 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     supabaseDB.streamChatbotConversations(sessionID.toString()).listen((data) {
       final newMessages = data
           .map((row) => Message(
-                isUser: row['user'],
-                message: row['content'],
-              ))
+              isUser: row['user'],
+              message: row['content'],
+              time: DateTime.parse(row['created_at'])))
           .toList();
 
       // // Ensure messages are sorted by stream_id
@@ -111,8 +126,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
 
     state = [
       ...state,
-      Message(isUser: true, message: userInput),
-      Message(isUser: false, message: "Typing..."),
+      Message(isUser: true, message: userInput, time: DateTime.now()),
+      Message(isUser: false, message: "Typing...", time: DateTime.now()),
     ];
     messageController.clear();
 
@@ -145,7 +160,11 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
 
     state = [
       ...state.where((msg) => msg.message != "Typing..."),
-      Message(isUser: false, message: responseText, emotion: emotion),
+      Message(
+          isUser: false,
+          message: responseText,
+          emotion: emotion,
+          time: DateTime.now()),
     ];
   }
 
@@ -165,10 +184,10 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     state = [
       ...state,
       Message(
-        isUser: false,
-        message: botIntroductions[randomIndex],
-        emotion: 'intro',
-      )
+          isUser: false,
+          message: botIntroductions[randomIndex],
+          emotion: 'intro',
+          time: DateTime.now())
     ];
 
     await supabaseDB.insertMessages(
@@ -185,10 +204,10 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     state = [
       ...state,
       Message(
-        isUser: false,
-        message: script,
-        emotion: 'script',
-      )
+          isUser: false,
+          message: script,
+          emotion: 'script',
+          time: DateTime.now())
     ];
 
     List<String> history = state
@@ -206,10 +225,10 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
       state = [
         ...state,
         Message(
-          isUser: false,
-          message: questions[index],
-          emotion: 'dass',
-        )
+            isUser: false,
+            message: questions[index],
+            emotion: 'dass',
+            time: DateTime.now())
       ];
 
       await supabaseDB.insertMessages(sessionID, questions[index], false);
@@ -224,10 +243,10 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
       state = [
         ...state,
         Message(
-          isUser: true,
-          message: 'option',
-          emotion: 'option',
-        )
+            isUser: true,
+            message: 'option',
+            emotion: 'option',
+            time: DateTime.now())
       ];
     }
   }
@@ -250,10 +269,7 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
 
     state = [
       ...state.sublist(0, state.length - 1),
-      Message(
-        isUser: true,
-        message: option,
-      )
+      Message(isUser: true, message: option, time: DateTime.now())
     ];
 
     List<String> history = state
@@ -278,10 +294,12 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     int depressionScore = _computeScores()['depression']!;
     int anxietyScore = _computeScores()['anxiety']!;
     int stressScore = _computeScores()['stress']!;
-    String depression =
-        interpreter.getInterpretation('depression', depressionScore)['interpretation'];
-    String anxiety = interpreter.getInterpretation('depression', anxietyScore)['interpretation'];
-    String stress = interpreter.getInterpretation('depression', stressScore)['interpretation'];
+    String depression = interpreter.getInterpretation(
+        'depression', depressionScore)['interpretation'];
+    String anxiety = interpreter.getInterpretation(
+        'depression', anxietyScore)['interpretation'];
+    String stress = interpreter.getInterpretation(
+        'depression', stressScore)['interpretation'];
 
     String prompt = '''
 Based on the user's DASS-12 scores, provide a meaningful and supportive interpretation. 
@@ -304,10 +322,7 @@ Ensure the response is a close ended question.
     // Add "Typing..." message
     state = [
       ...state,
-      Message(
-        isUser: false,
-        message: "Typing...",
-      )
+      Message(isUser: false, message: "Typing...", time: DateTime.now())
     ];
 
     String responseQuery = await rag.queryResponse(prompt, history);
@@ -319,10 +334,10 @@ Ensure the response is a close ended question.
     state = [
       ...state.sublist(0, state.length - 1),
       Message(
-        isUser: false,
-        message: responseText,
-        emotion: 'interpretation',
-      )
+          isUser: false,
+          message: responseText,
+          emotion: 'interpretation',
+          time: DateTime.now())
     ];
 
     history = state
@@ -341,7 +356,11 @@ Ensure the response is a close ended question.
   void askSession() {
     state = [
       ...state,
-      Message(isUser: true, message: "close", emotion: 'close')
+      Message(
+          isUser: true,
+          message: "close",
+          emotion: 'close',
+          time: DateTime.now())
     ];
   }
 
@@ -349,10 +368,7 @@ Ensure the response is a close ended question.
     if (option == 'Oo') {
       state = [
         ...state.sublist(0, state.length - 1),
-        Message(
-          isUser: true,
-          message: 'Oo',
-        )
+        Message(isUser: true, message: 'Oo', time: DateTime.now())
       ];
       List<String> history = state
           .map((msg) =>
@@ -366,10 +382,7 @@ Ensure the response is a close ended question.
     } else {
       state = [
         ...state.sublist(0, state.length - 1),
-        Message(
-          isUser: true,
-          message: 'Hindi',
-        )
+        Message(isUser: true, message: 'Hindi', time: DateTime.now())
       ];
       List<String> history = state
           .map((msg) =>
@@ -389,10 +402,7 @@ Ensure the response is a close ended question.
   Future<void> staySession() async {
     state = [
       ...state,
-      Message(
-        isUser: false,
-        message: "Typing...",
-      )
+      Message(isUser: false, message: "Typing...", time: DateTime.now())
     ];
 
     List<String> history = state
@@ -408,10 +418,7 @@ Ensure the response is a close ended question.
 
     state = [
       ...state.sublist(0, state.length - 1),
-      Message(
-        isUser: false,
-        message: responseText,
-      )
+      Message(isUser: false, message: responseText, time: DateTime.now())
     ];
   }
 
@@ -443,10 +450,12 @@ Ensure the response is a close ended question.
 class Message {
   final bool isUser;
   final String message;
+  final DateTime time;
   String emotion;
 
   Message(
-      {required this.isUser,
+      {required this.time,
+      required this.isUser,
       required this.message,
       this.emotion = 'not available'});
 }

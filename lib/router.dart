@@ -184,14 +184,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ChatbotLanding(),
       ),
 
-      GoRoute(
-        path: '/realtime',
-        builder: (context, state) => RealtimeChatbot(),
-      ),
+      // GoRoute(
+      //   path: '/realtime',
+      //   builder: (context, state) => RealtimeChatbot(),
+      // ),
 
       GoRoute(
         path: '/call-chatbot',
-        builder: (context, state) => CallChatbot(),
+        builder: (context, state) {
+          final extra = state.extra as int;
+          return CallChatbot(sessionID: extra);
+        },
       ),
 
       //VIRTUAL CONSULTATION

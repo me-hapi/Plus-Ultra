@@ -1,11 +1,18 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:lingap/core/const/const.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseDB {
   final SupabaseClient _client;
 
   SupabaseDB(this._client);
+
+  Future<void> deleteSession(int sessionID) async {
+    try {
+      await _client.from('session').delete().eq('id', sessionID);
+    } catch (e) {}
+  }
 
   Future<List<Map<String, dynamic>>> fetchHotlines() async {
     try {
@@ -18,6 +25,41 @@ class SupabaseDB {
       return response;
     } catch (e) {
       print('Error hotlines: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchJournal(int sessionID) async {
+    try {
+      // Fetch the created_at timestamp of the given sessionID
+      final sessionResponse = await _client
+          .from('session')
+          .select('created_at')
+          .eq('id', sessionID)
+          .single();
+
+      if (sessionResponse == null ||
+          !sessionResponse.containsKey('created_at')) {
+        print('Session not found or missing created_at');
+        return [];
+      }
+
+      // Parse created_at as DateTime
+      DateTime createdAt = DateTime.parse(sessionResponse['created_at']);
+      DateTime sevenDaysAgo = createdAt.subtract(const Duration(days: 7));
+      DateTime today = DateTime.now();
+
+      // Fetch journal entries within the filtered date range
+      final response = await _client
+          .from('journal')
+          .select('*, journal_item(*)')
+          .eq('uid', uid)
+          .gte('created_at', sevenDaysAgo.toIso8601String())
+          .lte('created_at', today.toIso8601String());
+
+      return response;
+    } catch (e) {
+      print('Error fetching journal entries: $e');
       return [];
     }
   }
@@ -175,5 +217,39 @@ class SupabaseDB {
         .eq('id', sessionID) // Filter by sessionID
         .map((data) =>
             data.isNotEmpty ? data.first : null); // Handle empty state
+  }
+
+  Future<void> updateSessionIndex(int index, int sessionID) async {
+    try {
+      // Fetch existing index array
+      final response = await _client
+          .from('session')
+          .select('index')
+          .eq('id', sessionID)
+          .single();
+
+      print('UPDATE: $response');
+
+      if (response['index'] == null) {
+        // If no index exists, create a new array
+        await _client.from('session').update({
+          'index': [index]
+        }).eq('id', sessionID);
+      } else {
+        List<int> currentIndexes = List<int>.from(response['index']);
+
+        // Append only if not already present
+        if (!currentIndexes.contains(index)) {
+          currentIndexes.add(index);
+
+          // Update session table
+          await _client
+              .from('session')
+              .update({'index': currentIndexes}).eq('id', sessionID);
+        }
+      }
+    } catch (e) {
+      print('Error updating session index: $e');
+    }
   }
 }
