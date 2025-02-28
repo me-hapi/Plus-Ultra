@@ -7,10 +7,12 @@ class ChatRow extends StatelessWidget {
   final String lastMessage;
   final String time;
   final bool read;
+  final bool isUserSender;
   final VoidCallback onTap; // Add onTap callback
 
   const ChatRow({
     Key? key,
+    required this.isUserSender,
     required this.avatarUrl,
     required this.name,
     required this.lastMessage,
@@ -21,6 +23,7 @@ class ChatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('READ: $read \n USER: $isUserSender');
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -61,7 +64,9 @@ class ChatRow extends StatelessWidget {
                   Text(
                     name,
                     style: TextStyle(
-                      fontWeight: read ? FontWeight.w300 : FontWeight.w700,
+                      fontWeight: (read == false && isUserSender == false)
+                          ? FontWeight.w700
+                          : FontWeight.w300,
                       fontSize: 16,
                       color: mindfulBrown['Brown80'],
                     ),
@@ -70,7 +75,9 @@ class ChatRow extends StatelessWidget {
                   Text(
                     lastMessage,
                     style: TextStyle(
-                      color: read ? optimisticGray['Gray50'] : mindfulBrown['Brown80'] ,
+                      color: (read == false && isUserSender == false)
+                          ? mindfulBrown['Brown80']
+                          : optimisticGray['Gray50'],
                       fontSize: 14,
                       fontWeight: read ? FontWeight.w300 : FontWeight.w700,
                     ),
@@ -91,24 +98,21 @@ class ChatRow extends StatelessWidget {
                     fontSize: 12,
                   ),
                 ),
-                // if (unreadMessages > 0) const SizedBox(height: 8),
-                // if (unreadMessages > 0)
-                //   Container(
-                //     padding: const EdgeInsets.all(6),
-                //     decoration: BoxDecoration(
-                //       color: empathyOrange['Orange40'],
-                //       shape: BoxShape.circle,
-                //     ),
-                //     child: Text(
-                //       // unreadMessages.toString(),
-                //       '!',
-                //       style: const TextStyle(
-                //         color: Colors.white,
-                //         fontSize: 12,
-                //         fontWeight: FontWeight.w500,
-                //       ),
-                //     ),
-                //   ),
+                SizedBox(
+                  height: 5,
+                ),
+                if (read && isUserSender)
+                  SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircleAvatar(
+                        backgroundColor: optimisticGray['Gray30'],
+                        child: Image.asset(
+                          'assets/utils/whiteCheck.png',
+                          width: 12,
+                          height: 12,
+                        ),
+                      ))
               ],
             ),
           ],

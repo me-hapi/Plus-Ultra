@@ -143,14 +143,15 @@ class _GreetingCardState extends State<GreetingCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Lingap',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
+                Image.asset('assets/utils/gearSettings.png', width: 15,height: 15,),
+                // Text(
+                //   'Lingap',
+                //   style: TextStyle(
+                //     fontSize: 20,
+                //     fontWeight: FontWeight.w700,
+                //     color: Colors.white,
+                //   ),
+                // ),
                 IconButton(
                   icon: Icon(Icons.notifications),
                   color: Colors.white,

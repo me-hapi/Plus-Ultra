@@ -4,6 +4,7 @@ import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/features/journaling/model/journal_item.dart';
 
 class JournalSuccessPage extends StatefulWidget {
+  final int id;
   final String emotion;
   final String date;
   final String time;
@@ -12,6 +13,7 @@ class JournalSuccessPage extends StatefulWidget {
 
   const JournalSuccessPage(
       {Key? key,
+      required this.id,
       required this.emotion,
       required this.date,
       required this.time,
@@ -66,7 +68,8 @@ class _JournalSuccessPageState extends State<JournalSuccessPage> {
                   context.go('/bottom-nav', extra: 2);
                   Future.microtask(() {
                     context.push('/journal-details', extra: {
-                      'emotion': 'Neutral',
+                      'id': widget.id,
+                      'emotion': widget.emotion,
                       'date': DateTime.now().toString(),
                       'time': DateTime.now()
                           .toLocal()

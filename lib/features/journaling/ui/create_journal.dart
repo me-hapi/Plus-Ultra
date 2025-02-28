@@ -191,11 +191,13 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
                         LoadingScreen.show(context);
 
                         // Call the saveJournal function
-                        String emotion = await _logic.saveJournal();
+                        Map result = await _logic.saveJournal();
                         LoadingScreen.hide(context);
+                        print('ID: ${result['id']}');
 
                         context.go('/journal-success', extra: {
-                          'emotion': emotion,
+                          'id': result['id'],
+                          'emotion': result['emotion'],
                           'date': DateTime.now().toString(),
                           'time': DateTime.now()
                               .toLocal()

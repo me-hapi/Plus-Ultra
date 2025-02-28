@@ -131,6 +131,8 @@ class _ChatHomeState extends State<ChatHome> {
                                         itemCount: filteredUsers.length,
                                         itemBuilder: (context, index) {
                                           final user = filteredUsers[index];
+                                          final isUserSender =
+                                              user['sender'] == uid;
                                           final unsent = user['unsent'];
                                           final name = user['name'];
                                           final avatarUrl = user['imageUrl'];
@@ -151,12 +153,15 @@ class _ChatHomeState extends State<ChatHome> {
                                                 horizontal: 16),
                                             child: ChatRow(
                                               avatarUrl: avatarUrl,
+                                              isUserSender: isUserSender,
                                               name: name,
                                               lastMessage: unsent
-                                                  ? 'Unsent message'
-                                                  : encrypt.decryptMessage(
-                                                      lastMessage,
-                                                      id.toString()),
+                                                  ? isUserSender
+                                                      ? 'You unsent a message'
+                                                      : '$name unsent a message'
+                                                  : isUserSender
+                                                      ? 'You: ${encrypt.decryptMessage(lastMessage, id.toString())}'
+                                                      : '$name: ${encrypt.decryptMessage(lastMessage, id.toString())}',
                                               time: messageTime,
                                               read: read,
                                               onTap: () {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:lingap/core/const/const.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:lingap/features/peer_connect/models/message_model.dart';
 
@@ -116,7 +117,7 @@ class SupabaseDB {
     try {
       final response = await supabase
           .from('peer_messages')
-          .update({'read': true}).match({'room_id': roomId});
+          .update({'read': true}).match({'room_id': roomId}).neq('sender', uid);
     } catch (e) {
       print('Error: $e');
     }
@@ -282,6 +283,7 @@ class SupabaseDB {
                   'name': otherUserProfile['name'],
                   'imageUrl': otherUserProfile['imageUrl'],
                   'last_message': lastMessage['content'],
+                  'sender': lastMessage['sender'],
                   'time': lastMessage['created_at'],
                   'read': lastMessage['read'],
                   'unsent': lastMessage['unsent']

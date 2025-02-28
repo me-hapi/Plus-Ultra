@@ -90,6 +90,8 @@ flutter:
     - assets/utils/containerBack.png
     - assets/utils/brownBack.png
     - assets/utils/streak.png
+    - assets/utils/whiteCheck.png
+    - assets/utils/gearSettings.png
 
     - assets/mood/cheerful.png
     - assets/mood/happy.png

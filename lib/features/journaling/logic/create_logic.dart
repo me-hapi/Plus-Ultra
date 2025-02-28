@@ -37,7 +37,7 @@ class CreateJournalLogic {
     journalItems.removeWhere((item) => item.audioPath == audioPath);
   }
 
-  Future<String> saveJournal() async {
+  Future<Map<String, dynamic>> saveJournal() async {
     int id =
         await supabase.insertJournal(uid, titleController.text, journalItems);
     Map<String, dynamic> result =
@@ -52,7 +52,7 @@ class CreateJournalLogic {
 
     // Extract the matched group (emotion)
     String? emotion = match?.group(1);
-    return emotion!;
+    return {'id': id, 'emotion': emotion!};
   }
 
   Future<String> uploadAudio(String id, String text, String? audioPath) async {

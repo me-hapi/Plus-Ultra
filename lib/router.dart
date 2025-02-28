@@ -313,6 +313,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
           return JournalSuccessPage(
+              id: extra['id'],
               emotion: extra['emotion'],
               date: extra['date'],
               time: extra['time'],

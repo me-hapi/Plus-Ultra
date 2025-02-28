@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
@@ -101,85 +100,141 @@ class _NewExercisePageState extends State<NewExercisePage> {
                       ),
                       SizedBox(height: 8),
                       Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        elevation: 0,
-                        child: SizedBox(
-                          height: 120,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ClipRect(
-                                child: SizedBox(
-                                  width: 80,
-                                  height: 80,
-                                  child: ListWheelScrollView.useDelegate(
-                                    itemExtent: 80,
-                                    physics: FixedExtentScrollPhysics(),
-                                    onSelectedItemChanged: (index) {
-                                      setState(() {
-                                        selectedMinutes = index;
-                                      });
-                                    },
-                                    childDelegate:
-                                        ListWheelChildBuilderDelegate(
-                                      builder: (context, index) {
-                                        return Center(
-                                          child: Text(
-                                            '${index.toString().padLeft(2, '0')}',
-                                            style: TextStyle(
-                                                color: mindfulBrown['Brown80'],
-                                                fontSize: 54,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        );
-                                      },
-                                      childCount: 60,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Text(":",
-                                  style: TextStyle(
-                                      color: mindfulBrown['Brown80'],
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.bold)),
-                              ClipRect(
-                                child: SizedBox(
-                                  width: 80,
-                                  height: 80,
-                                  child: ListWheelScrollView.useDelegate(
-                                    itemExtent: 80,
-                                    physics: FixedExtentScrollPhysics(),
-                                    onSelectedItemChanged: (index) {
-                                      setState(() {
-                                        selectedSeconds = index;
-                                      });
-                                    },
-                                    childDelegate:
-                                        ListWheelChildBuilderDelegate(
-                                      builder: (context, index) {
-                                        return Center(
-                                          child: Text(
-                                            '${index.toString().padLeft(2, '0')}',
-                                            style: TextStyle(
-                                                color: mindfulBrown['Brown80'],
-                                                fontSize: 54,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        );
-                                      },
-                                      childCount: 60,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
                           ),
-                        ),
-                      ),
+                          elevation: 0,
+                          child: SizedBox(
+                            height:
+                                220, // Ensuring enough height for visibility
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Minutes Wheel
+                                ClipRect(
+                                  child: SizedBox(
+                                    width: 80,
+                                    height: 240,
+                                    child: ListWheelScrollView.useDelegate(
+                                      itemExtent: 80,
+                                      physics: FixedExtentScrollPhysics(),
+                                      perspective:
+                                          0.005, // Slight perspective for depth
+                                      diameterRatio:
+                                          2.5, // Controls how much the items shrink
+                                      onSelectedItemChanged: (index) {
+                                        setState(() {
+                                          selectedMinutes = index;
+                                        });
+                                      },
+                                      childDelegate:
+                                          ListWheelChildBuilderDelegate(
+                                        builder: (context, index) {
+                                          final double difference =
+                                              (index - selectedMinutes)
+                                                  .abs()
+                                                  .toDouble();
+                                          final double scaleFactor = 1.0 -
+                                              (difference * 0.2)
+                                                  .clamp(0.0, 0.4);
+                                          final double opacityFactor = 1.0 -
+                                              (difference * 0.3)
+                                                  .clamp(0.0, 0.6);
+
+                                          return Transform.scale(
+                                            scale: scaleFactor,
+                                            child: Opacity(
+                                              opacity: opacityFactor,
+                                              child: Center(
+                                                child: Text(
+                                                  '${index.toString().padLeft(2, '0')}',
+                                                  style: TextStyle(
+                                                    color: difference == 0
+                                                        ? mindfulBrown[
+                                                            'Brown80']
+                                                        : optimisticGray[
+                                                            'Gray50'],
+                                                    fontSize: 54 *
+                                                        scaleFactor, // Scale text size dynamically
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        childCount: 60,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  ":",
+                                  style: TextStyle(
+                                    color: mindfulBrown['Brown80'],
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                // Seconds Wheel
+                                ClipRect(
+                                  child: SizedBox(
+                                    width: 80,
+                                    height: 240,
+                                    child: ListWheelScrollView.useDelegate(
+                                      itemExtent: 80,
+                                      physics: FixedExtentScrollPhysics(),
+                                      perspective: 0.005,
+                                      diameterRatio: 2.5,
+                                      onSelectedItemChanged: (index) {
+                                        setState(() {
+                                          selectedSeconds = index;
+                                        });
+                                      },
+                                      childDelegate:
+                                          ListWheelChildBuilderDelegate(
+                                        builder: (context, index) {
+                                          final double difference =
+                                              (index - selectedSeconds)
+                                                  .abs()
+                                                  .toDouble();
+                                          final double scaleFactor = 1.0 -
+                                              (difference * 0.2)
+                                                  .clamp(0.0, 0.4);
+                                          final double opacityFactor = 1.0 -
+                                              (difference * 0.3)
+                                                  .clamp(0.0, 0.6);
+
+                                          return Transform.scale(
+                                            scale: scaleFactor,
+                                            child: Opacity(
+                                              opacity: opacityFactor,
+                                              child: Center(
+                                                child: Text(
+                                                  '${index.toString().padLeft(2, '0')}',
+                                                  style: TextStyle(
+                                                    color: difference == 0
+                                                        ? mindfulBrown[
+                                                            'Brown80']
+                                                        : optimisticGray[
+                                                            'Gray50'],
+                                                    fontSize: 54 * scaleFactor,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        childCount: 60,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
                       Spacer(),
                       SizedBox(
                         height: 55,
