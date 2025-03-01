@@ -39,6 +39,7 @@ class _HealthPageState extends State<HealthPage> {
     if (!result) {
       _initializeHealthConnect();
     } else {
+      print('initialize');
       await _fetchHealthData();
     }
   }

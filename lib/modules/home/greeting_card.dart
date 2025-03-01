@@ -143,7 +143,17 @@ class _GreetingCardState extends State<GreetingCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset('assets/utils/gearSettings.png', width: 15,height: 15,),
+                GestureDetector(
+                  onTap: () {
+                    context.push('/profile',
+                        extra: {'bg': _backgroundImage, 'profile': profile});
+                  },
+                  child: Image.asset(
+                    'assets/utils/gearSettings.png',
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
                 // Text(
                 //   'Lingap',
                 //   style: TextStyle(
@@ -168,8 +178,8 @@ class _GreetingCardState extends State<GreetingCard> {
               children: [
                 GestureDetector(
                     onTap: () {
-                      context.push('/profile',
-                          extra: {'bg': _backgroundImage, 'profile': profile});
+                      // context.push('/profile',
+                      //     extra: {'bg': _backgroundImage, 'profile': profile});
                     },
                     child: SizedBox(
                       height: 80,

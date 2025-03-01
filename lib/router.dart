@@ -46,6 +46,8 @@ import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/peer_connect/ui/chat_screen.dart'
     as peer_screen;
 import 'package:lingap/modules/notification/ui/notification_home.dart';
+import 'package:lingap/modules/profile/ui/change_age.dart';
+import 'package:lingap/modules/profile/ui/change_weight.dart';
 
 //GENERAL MODULE
 import 'package:lingap/modules/profile/ui/profile_page.dart' as module_profile;
@@ -135,6 +137,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               profile: extra['profile'],
             );
           }),
+
+      GoRoute(
+        path: '/change-age',
+        builder: (context, state) => ChangeAge(),
+      ),
+
+      GoRoute(
+        path: '/change-weight',
+        builder: (context, state) => ChangeWeight(),
+      ),
+
       GoRoute(
         path: '/dastest',
         builder: (context, state) {

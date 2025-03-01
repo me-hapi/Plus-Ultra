@@ -82,6 +82,7 @@ class HealthLogic {
         endTime: now,
         types: types,
       );
+      print("HEALTHDATA: $health");
 
       if (healthData.isNotEmpty) {
         Map<String, List<HealthDataPoint>> categorizedData = {};

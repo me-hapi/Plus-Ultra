@@ -12,11 +12,22 @@ const fetchHealthTask = "fetchHealthDataTask";
 // Callback function for WorkManager tasks
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    WidgetsFlutterBinding.ensureInitialized(); // Initialize Flutter
     if (task == fetchHealthTask) {
-      // Perform your background task here
       try {
-        HealthLogic().fetchHealthData();
-        print('SUCECSS');
+        print("Executing background task: $task");
+
+        // Ensure Supabase is initialized inside background task
+        await Supabase.initialize(
+          url: 'https://roklxdmfmwyniafvremi.supabase.co',
+          anonKey:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJva2x4ZG1mbXd5bmlhZnZyZW1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE5Nzk5MDQsImV4cCI6MjA0NzU1NTkwNH0.zWPFIV5mr6jNwgdU1JHAHQZANHA69qrpTanOcokD5YQ',
+        );
+
+        // Call fetchHealthData explicitly
+        await HealthLogic().fetchHealthData();
+
+        print('SUCCESS: Background task completed');
       } catch (e) {
         print('Error in background task: $e');
       }
@@ -38,20 +49,16 @@ Future<void> main() async {
   // Initialize WorkManager
   Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
 
+  await Workmanager().cancelAll();
+
   // Schedule periodic background tasks every 15 minutes
-  Workmanager().cancelByTag(fetchHealthTask).then((_) {
-    Workmanager().registerPeriodicTask(
-      fetchHealthTask, // Unique name for the task
-      fetchHealthTask,
-      frequency: const Duration(minutes: 15), // Runs every 15 minutes
-      initialDelay:
-          const Duration(seconds: 5), // Initial delay before first execution
-      // constraints: Constraints(
-      //   networkType:
-      //       NetworkType.connected, // Only run when the network is available
-      // ),
-    );
-  });
+  Workmanager()
+      .registerPeriodicTask(
+        fetchHealthTask,
+        fetchHealthTask,
+        frequency: const Duration(minutes: 15),
+      )
+      .then((_) => print("WorkManager task registered successfully!"));
 
   runApp(const ProviderScope(child: LingapApp()));
 }

@@ -181,28 +181,33 @@ class _ProfilePageState extends State<ProfilePage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(
-                  width: 100,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Age',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: mindfulBrown['Brown80']!,
-                          fontWeight: FontWeight.bold,
+                GestureDetector(
+                  onTap: () {
+                    context.push('/change-age');
+                  },
+                  child: SizedBox(
+                    width: 100,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Age',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: mindfulBrown['Brown80']!,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ), // Spacing between texts
+                        Text(
+                          widget.profile['age'].toString(),
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: mindfulBrown['Brown80']!,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ), // Spacing between texts
-                      Text(
-                        widget.profile['age'].toString(),
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: mindfulBrown['Brown80']!,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Container(
@@ -213,29 +218,34 @@ class _ProfilePageState extends State<ProfilePage> {
                     thickness: 2,
                   ),
                 ),
-                SizedBox(
-                    width: 100,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Weight',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: mindfulBrown['Brown80']!,
-                            fontWeight: FontWeight.bold,
-                          ),
+                GestureDetector(
+                  onTap: () {
+                    context.push('/change-weight');
+                  } ,
+                    child: SizedBox(
+                  width: 100,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Weight',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: mindfulBrown['Brown80']!,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text(
-                          weight_unit,
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: mindfulBrown['Brown80']!,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      ),
+                      Text(
+                        weight_unit,
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: mindfulBrown['Brown80']!,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ))
+                      ),
+                    ],
+                  ),
+                ))
               ],
             ),
 
