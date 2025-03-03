@@ -7,6 +7,7 @@ import 'package:lingap/features/peer_connect/logic/matchmaking.dart';
 import 'package:lingap/features/peer_connect/data/supabase_db.dart';
 import 'package:lingap/features/peer_connect/services/api_service.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/features/peer_connect/ui/match_modal.dart';
 
 class LoadingDialog extends StatefulWidget {
   @override
@@ -20,6 +21,7 @@ class _LoadingDialogState extends State<LoadingDialog>
   final Matchmaking match = Matchmaking();
   final APIService api = APIService();
   int id_room = 0;
+  bool roomsFound = false;
 
   @override
   void initState() {
@@ -36,6 +38,20 @@ class _LoadingDialogState extends State<LoadingDialog>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void showMatchModal(
+      BuildContext context, List<Map<String, dynamic>> matches) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30.0)),
+      ),
+      isScrollControlled: true,
+      builder: (context) {
+        return MatchModal(matches: matches);
+      },
+    );
   }
 
   Future<void> findMatch() async {
@@ -70,7 +86,7 @@ class _LoadingDialogState extends State<LoadingDialog>
       } else if (mounted) {
         print('Mounted');
         Navigator.pop(context);
-        
+
         String name = receiver['anonymous'] ? 'Anonymous' : receiver['name'];
         context.push('/peer-chatscreen', extra: {
           'roomId': roomId,
@@ -80,19 +96,25 @@ class _LoadingDialogState extends State<LoadingDialog>
         });
       }
     } else {
-      Map result = await match.findRoom(uid);
-      await _supabaseDB.updateRoom(result['roomId'], 'unavailable', uid);
-      String name = result['anonymous'] ? "Anonymous" : result['name'];
-      if (mounted) {
-        Navigator.pop(context); // Close modal
+      List<Map<String, dynamic>> matches = await match.findTopRooms(uid);
+      print(matches);
+      setState(() {
+        roomsFound = true;
+      });
 
-        context.push('/peer-chatscreen', extra: {
-          'roomId': result['roomId'],
-          'id': result['id'],
-          'name': name,
-          'avatar': result['imageUrl']
-        });
-      }
+      showMatchModal(context, matches);
+      // await _supabaseDB.updateRoom(result['roomId'], 'unavailable', uid);
+      // String name = result['anonymous'] ? "Anonymous" : result['name'];
+      // if (mounted) {
+      //   Navigator.pop(context); // Close modal
+
+      //   context.push('/peer-chatscreen', extra: {
+      //     'roomId': result['roomId'],
+      //     'id': result['id'],
+      //     'name': name,
+      //     'avatar': result['imageUrl']
+      //   });
+      // }
     }
   }
 
@@ -111,39 +133,40 @@ class _LoadingDialogState extends State<LoadingDialog>
             color: Colors.transparent, // Transparent background
           ),
         ),
-        Padding(
-            padding: EdgeInsets.only(left: 50, top: 220),
-            child: SizedBox(
-              width: 220,
-              height: 220,
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  double angle = _controller.value * 2 * pi;
-                  double radius = 30;
-                  double dx = radius * cos(angle);
-                  double dy = radius * sin(angle);
+        if (!roomsFound)
+          Padding(
+              padding: EdgeInsets.only(left: 50, top: 220),
+              child: SizedBox(
+                width: 220,
+                height: 220,
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    double angle = _controller.value * 2 * pi;
+                    double radius = 30;
+                    double dx = radius * cos(angle);
+                    double dy = radius * sin(angle);
 
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Positioned(
-                        left: 50 + dx,
-                        top: 50 + dy,
-                        child: Transform.rotate(
-                          angle: angle,
-                          child: Image.asset(
-                            'assets/peer/search.png',
-                            width: 80,
-                            height: 80,
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(
+                          left: 50 + dx,
+                          top: 50 + dy,
+                          child: Transform.rotate(
+                            angle: angle,
+                            child: Image.asset(
+                              'assets/peer/search.png',
+                              width: 80,
+                              height: 80,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ))
+                      ],
+                    );
+                  },
+                ),
+              ))
       ],
     );
   }

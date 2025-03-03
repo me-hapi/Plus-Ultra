@@ -31,14 +31,14 @@ class RecommenderApi {
     moodData = result_mood;
   }
 
-  String getPrompt(String goal, int minutes) {
+  String getPrompt(String exercise, int minutes) {
     return '''
 **Prompt:**  
 
-You are an AI assistant specializing in mental health and wellness recommendations. Based on the given user data, your task is to recommend the most suitable exercise (**Breathing, Relaxation, Sleep, or Meditation**) along with an appropriate soundtrack from the provided list. Consider the user's **goal, duration, vital signs, sleep history, and mood history** to determine the most beneficial exercise for their current state.
+You are an AI assistant specializing in mental health and wellness recommendations. Based on the given user data, your task is to recommend the appropriate soundtrack from the provided list. Consider the user's ** duration, vital signs, sleep history, and mood history**.
 
-### **User Goal & Duration:**  
-- **Goal:** `$goal`  
+### **User Exercise & Duration:**  
+- **Exercise:** `$exercise`  
 - **Duration:** `$minutes` minutes  
 
 ### **Inputs:**  
@@ -48,13 +48,8 @@ You are an AI assistant specializing in mental health and wellness recommendatio
 - **Mood History (Recent Mood, Stress Levels, etc.):** `{$moodData}`  
 
 ### **Instructions for Selection:**  
-1. **Determine the most appropriate exercise type** based on:  
-   - If the user has **high stress or anxiety**, recommend **Breathing** or **Meditation**.  
-   - If the user has **poor sleep quality**, recommend **Sleep** exercises.  
-   - If the user has **muscle tension or restlessness**, recommend **Relaxation**.  
-   - Consider the **user’s goal** when selecting the best option.  
 
-2. **Select a soundtrack** from the given list that best complements the recommended exercise.  
+1. **Select a soundtrack** from the given list that best complements the recommended exercise.  
    - For **Breathing**, choose a track with a **steady, slow rhythm**.  
    - For **Meditation**, select **calming, ambient music**.  
    - For **Relaxation**, find something with **soft, natural sounds**.  
@@ -65,7 +60,6 @@ Provide your response in the following structured format:
 
 ```json
 {
-  "recommended_exercise": "<Exercise Name>",
   "reasoning": "<Brief Explanation>",
   "selected_soundtrack": "<Soundtrack Details>"
 }
@@ -85,7 +79,6 @@ Provide your response in the following structured format:
 
       // Extract the required fields
       return {
-        "recommended_exercise": data["recommended_exercise"],
         "reasoning": data["reasoning"],
         "sound_name": data["selected_soundtrack"]["name"],
         "soundtrack_url": data["selected_soundtrack"]["url"],
@@ -97,9 +90,9 @@ Provide your response in the following structured format:
     }
   }
 
-  Future<Map<String, dynamic>> queryResponse(String goal, int minutes) async {
+  Future<Map<String, dynamic>> queryResponse(String exercise, int minutes) async {
     try {
-      String prompt = getPrompt(goal, minutes);
+      String prompt = getPrompt(exercise, minutes);
       print('PROMPT: $prompt');
 
       // Call OpenAI API

@@ -6,18 +6,14 @@ import 'package:lingap/features/peer_connect/data/supabase_db.dart';
 class Matchmaking {
   final SupabaseDB _supabaseDB = SupabaseDB(client);
 
-  Future<Map> findRoom(String uid) async {
+  Future<List<Map<String, dynamic>>> findTopRooms(String uid) async {
     final userScore = await _supabaseDB.fetchMHScore(uid);
     if (userScore == null) {
-      return {};
+      return [];
     }
 
     final allRooms = await _supabaseDB.fetchAvailableRooms();
-    String? roomId;
-    int? id;
-    String? name;
-    bool? anonymous;
-    double minDistance = double.infinity;
+    List<Map<String, dynamic>> roomDistances = [];
 
     for (final room in allRooms) {
       final double distance = calculateEuclideanDistance(
@@ -29,16 +25,22 @@ class Matchmaking {
         room['stress'],
       );
 
-      if (distance < minDistance) {
-        minDistance = distance;
-        roomId = room['room_id'];
-        id = room['id'];
-        name = room['name'];
-        anonymous = room['anonymous'];
-      }
+      roomDistances.add({
+        'roomId': room['room_id'],
+        'id': room['id'],
+        'name': room['name'],
+        'anonymous': room['anonymous'],
+        'imageUrl': room['imageUrl'],
+        'emotion': room['emotion'],
+        'distance': distance,
+      });
     }
 
-    return {'roomId': roomId, 'id': id, 'name': name, 'anonymous': anonymous};
+    // Sort rooms based on the distance in ascending order
+    roomDistances.sort((a, b) => a['distance'].compareTo(b['distance']));
+
+    // Return the top 5 closest rooms
+    return roomDistances.take(5).toList();
   }
 
   double calculateEuclideanDistance(

@@ -151,6 +151,18 @@ class _HealthPageState extends State<HealthPage> {
               SizedBox(
                 width: 20,
               ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Image.asset(
+                  'assets/utils/brownBack.png',
+                  width: 25,
+                  height: 25,
+                ),
+              ), SizedBox(
+                width: 10,
+              ),
               Text(
                 'Linked',
                 style: TextStyle(

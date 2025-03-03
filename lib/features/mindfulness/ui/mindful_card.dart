@@ -26,7 +26,7 @@ class MindfulCard extends StatelessWidget {
     final Map<String, Color> categoryColors = {
       'Breathing': serenityGreen['Green50'] ?? Colors.green,
       'Meditation': zenYellow['Yellow50'] ?? Colors.yellow,
-      'Relax': empathyOrange['Orange40'] ?? Colors.orange,
+      'Relaxation': empathyOrange['Orange40'] ?? Colors.orange,
       'Sleep': mindfulBrown['Brown80'] ?? Colors.brown,
     };
 

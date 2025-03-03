@@ -81,13 +81,39 @@ class _HomePageState extends State<HomePage> {
           AppBar(
             backgroundColor: Colors.transparent,
             automaticallyImplyLeading: false,
-            title: Text(
-              'Mindful Minutes',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 32,
-                color: Colors.white,
-              ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Left-aligned GestureDetector (Back Button)
+                GestureDetector(
+                  onTap: () {
+                    context.pop();
+                  },
+                  child: Image.asset(
+                    'assets/utils/whiteBack.png',
+                    width: 25,
+                    height: 25,
+                  ),
+                ),
+
+                // Centered Text
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Mindful Minutes',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 32,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Invisible Spacer to balance row layout
+                SizedBox(width: 10), // Same width as the back button
+              ],
             ),
             centerTitle: true,
           ),
@@ -153,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                               context.push('/mindful-overview');
+                              context.push('/mindful-overview');
                             },
                             child: Image.asset(
                               'assets/journal/more.png',

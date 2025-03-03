@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
@@ -130,15 +131,33 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mindfulBrown['Brown10'],
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Color(0xFF473c38),
-          ),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
+        leading: GestureDetector(
+          onTap: () {
+            context.pop();
           },
+          child: SizedBox(
+            width: 40, // Constrain tap area
+            height: 40,
+            child: Transform.scale(
+              scale: 0.6, // Shrinks the icon visually
+              child: Padding(
+                padding: EdgeInsets.all(8), // Adjusts space around the icon
+                child: Image.asset(
+                  'assets/utils/brownBack.png',
+                ),
+              ),
+            ),
+          ),
         ),
+        //  IconButton(
+        //   icon: const Icon(
+        //     Icons.arrow_back,
+        //     color: Color(0xFF473c38),
+        //   ),
+        //   onPressed: () {
+        //     Navigator.pop(context); // Navigate back to the previous screen
+        //   },
+        // ),
         title: Text(
           'Find Therapist',
           style: TextStyle(

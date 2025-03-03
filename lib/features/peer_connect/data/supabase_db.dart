@@ -25,6 +25,7 @@ class SupabaseDB {
 
       Map<String, dynamic>? mhScore;
       Map<String, dynamic>? senderProfile;
+      List<Map<String, dynamic>>? mood;
 
       if (senderId != null) {
         // Fetch the latest mh_score for the sender
@@ -42,6 +43,13 @@ class SupabaseDB {
             .select('name, anonymous, imageUrl')
             .eq('id', senderId)
             .maybeSingle();
+
+        mood = await _client
+            .from('mood')
+            .select()
+            .eq('uid', senderId)
+            .order('created_at', ascending: false) // Order by latest first
+            .limit(1);
       }
 
       formattedData.add({
@@ -53,7 +61,8 @@ class SupabaseDB {
         'name': senderProfile?['name'] ?? 'Unknown', // Default if null
         'anonymous': senderProfile?['anonymous'] ?? false, // Default to false
         'imageUrl':
-            senderProfile?['imageUrl'] ?? 'assets/profileIcon/profile1.png'
+            senderProfile?['imageUrl'] ?? 'assets/profileIcon/profile1.png',
+        'emotion': mood?[0]['mood'] ?? 'neutral'
       });
     }
 

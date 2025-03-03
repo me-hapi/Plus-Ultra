@@ -67,7 +67,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _fetchMoodData();
     _fetchMindfulData();
 
-    _startTutorial();
+    // _startTutorial();
   }
 
   @override
@@ -326,7 +326,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           },
                           child: Card(
                             elevation: 0,
-                            color: optimisticGray['Gray40'],
+                            color: reflectiveBlue['Blue50'],
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -340,36 +340,55 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   alignment: Alignment.center,
                                   children: [
                                     if (totalHours > 0)
-                                      SizedBox(
-                                        // Prevents infinite size error for PieChart
-                                        width: 140,
-                                        height: 140,
-                                        child: PieChart(
-                                          PieChartData(
-                                            sections: mindfulnessData.entries
-                                                .map((entry) {
-                                              final color = {
-                                                    'Breathing': serenityGreen[
-                                                        'Green50'],
-                                                    'Meditation':
-                                                        zenYellow['Yellow50'],
-                                                    'Relaxation': empathyOrange[
-                                                        'Orange40'],
-                                                    'Sleep':
-                                                        mindfulBrown['Brown80'],
-                                                  }[entry.key] ??
-                                                  Colors.grey;
-
-                                              return PieChartSectionData(
-                                                value: entry.value,
-                                                title: '',
-                                                radius:
-                                                    25, // Ensure a reasonable radius
-                                                color: color,
-                                              );
-                                            }).toList(),
+                                      Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          // White background circle
+                                          Container(
+                                            width:
+                                                140, // Slightly larger than the PieChart
+                                            height: 140,
+                                            decoration: BoxDecoration(
+                                              color: Colors
+                                                  .white, // White background
+                                              shape: BoxShape.circle,
+                                            ),
                                           ),
-                                        ),
+                                          // PieChart with spacing
+                                          SizedBox(
+                                            width: 135,
+                                            height: 135,
+                                            child: PieChart(
+                                              PieChartData(
+                                                sections: mindfulnessData
+                                                    .entries
+                                                    .map((entry) {
+                                                  final color = {
+                                                        'Breathing':
+                                                            serenityGreen[
+                                                                'Green50'],
+                                                        'Meditation': zenYellow[
+                                                            'Yellow50'],
+                                                        'Relaxation':
+                                                            empathyOrange[
+                                                                'Orange40'],
+                                                        'Sleep': mindfulBrown[
+                                                            'Brown80'],
+                                                      }[entry.key] ??
+                                                      Colors.grey;
+
+                                                  return PieChartSectionData(
+                                                    value: entry.value,
+                                                    title: '',
+                                                    radius:
+                                                        25, // Ensure a reasonable radius
+                                                    color: color,
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       )
                                     else
                                       const Center(

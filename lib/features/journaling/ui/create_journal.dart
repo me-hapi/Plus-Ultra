@@ -40,12 +40,24 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
           'New Journal',
           style: TextStyle(fontSize: 22, color: mindfulBrown['Brown80']),
         ),
-        centerTitle: true, // Centers the title
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
+        centerTitle: true,
+        leading: GestureDetector(
+          onTap: () {
+            context.pop();
           },
+          child: SizedBox(
+            width: 40, // Constrain tap area
+            height: 40,
+            child: Transform.scale(
+              scale: 0.6, // Shrinks the icon visually
+              child: Padding(
+                padding: EdgeInsets.all(8), // Adjusts space around the icon
+                child: Image.asset(
+                  'assets/utils/brownBack.png',
+                ),
+              ),
+            ),
+          ),
         ),
       ),
       backgroundColor: mindfulBrown['Brown10'],

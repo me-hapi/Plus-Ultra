@@ -132,13 +132,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       alignment: Alignment.center,
                       children: [
                         Positioned(
-                          top: 30,
-                          left: 10,
-                          child: IconButton(
-                            icon: Icon(Icons.arrow_back, color: Colors.white),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ),
+                            top: 40,
+                            left: 10,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Image.asset(
+                                'assets/utils/whiteBack.png',
+                                width: 25,
+                                height: 25,
+                              ),
+                            )
+
+                            //  IconButton(
+                            //   icon: Icon(Icons.arrow_back, color: Colors.white),
+                            //   onPressed: () => Navigator.of(context).pop(),
+                            // ),
+                            ),
                         Positioned(
                           top: 40, // Move text higher
                           child: Text(
@@ -219,33 +230,33 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    context.push('/change-weight');
-                  } ,
+                    onTap: () {
+                      context.push('/change-weight');
+                    },
                     child: SizedBox(
-                  width: 100,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Weight',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: mindfulBrown['Brown80']!,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      width: 100,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Weight',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: mindfulBrown['Brown80']!,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            weight_unit,
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: mindfulBrown['Brown80']!,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        weight_unit,
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: mindfulBrown['Brown80']!,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ))
+                    ))
               ],
             ),
 

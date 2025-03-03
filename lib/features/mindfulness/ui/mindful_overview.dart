@@ -136,7 +136,7 @@ class _MindfulOverviewState extends State<MindfulOverview> {
                 final color = {
                       'Breathing': serenityGreen['Green50'],
                       'Meditation': zenYellow['Yellow50'],
-                      'Relax': empathyOrange['Orange40'],
+                      'Relaxation': empathyOrange['Orange40'],
                       'Sleep': mindfulBrown['Brown80'],
                     }[entry.key] ??
                     Colors.grey;
@@ -185,4 +185,8 @@ class _MindfulOverviewState extends State<MindfulOverview> {
       ),
     );
   }
+
+  
 }
+
+

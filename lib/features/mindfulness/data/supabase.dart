@@ -66,11 +66,10 @@ class SupabaseDB {
     }
   }
 
-  Future<void> insertMindfulness(String goal, int seconds, int minutes,
+  Future<void> insertMindfulness(int seconds, int minutes,
       String exercise, int song_id, String uid) async {
     try {
       final response = await _client.from('mindfulness').insert({
-        'goal': goal,
         'seconds': seconds,
         'minutes': minutes,
         'exercise': exercise,
