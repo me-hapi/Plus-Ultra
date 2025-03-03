@@ -9,11 +9,20 @@ import 'package:lingap/services/database/global_supabase.dart';
 
 class GreetingCard extends StatefulWidget {
   // final Map<String, dynamic> profile;
+  final GlobalKey keyGreeting;
+  final GlobalKey keyNotification;
+  final GlobalKey keySetting;
   final String name;
   final String imageUrl;
 
-  const GreetingCard({Key? key, required this.name, required this.imageUrl})
-      : super(key: key);
+  const GreetingCard({
+    Key? key,
+    required this.name,
+    required this.imageUrl,
+    required this.keyNotification,
+    required this.keySetting,
+    required this.keyGreeting,
+  }) : super(key: key);
 
   @override
   _GreetingCardState createState() => _GreetingCardState();
@@ -129,6 +138,7 @@ class _GreetingCardState extends State<GreetingCard> {
 
     return Center(
       child: Container(
+        key: widget.keyGreeting,
         width: double.infinity,
         decoration: BoxDecoration(
           color: mindfulBrown['Brown80'],
@@ -144,6 +154,7 @@ class _GreetingCardState extends State<GreetingCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
+                  key: widget.keySetting,
                   onTap: () {
                     context.push('/profile',
                         extra: {'bg': _backgroundImage, 'profile': profile});
@@ -163,6 +174,7 @@ class _GreetingCardState extends State<GreetingCard> {
                 //   ),
                 // ),
                 IconButton(
+                  key: widget.keyNotification,
                   icon: Icon(Icons.notifications),
                   color: Colors.white,
                   onPressed: () {

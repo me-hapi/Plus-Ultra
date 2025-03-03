@@ -33,6 +33,7 @@ class _DasResultPageState extends State<DasResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: mindfulBrown['Brown10'],
         body: SingleChildScrollView(
       child: Column(
         children: [

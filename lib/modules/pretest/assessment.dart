@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/const/custom_button.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 
@@ -200,7 +201,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                         })),
             ),
             SizedBox(
-              height: 60,
+              height: 55,
               width: double.infinity,
               child: TextButton(
                 onPressed: nextQuestion,
@@ -216,7 +217,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 25),
           ],
         ),
       ),

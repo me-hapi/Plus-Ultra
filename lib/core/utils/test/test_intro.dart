@@ -238,7 +238,8 @@ DASS-12를 Lingap과 통합함으로써 우리는 사용자가 정신 건강에 
 
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
+            child: 
+            SizedBox(
               height: 55,
               width: double.infinity,
               child: ElevatedButton(

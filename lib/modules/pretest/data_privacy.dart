@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/custom_button.dart';
 
 class DataPrivacyScreen extends StatefulWidget {
   @override
@@ -24,6 +25,7 @@ class _DataPrivacyScreenState extends State<DataPrivacyScreen> {
               'Data Privacy',
               textAlign: TextAlign.center,
               style: TextStyle(
+                color: mindfulBrown['Brown80'],
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -102,6 +104,14 @@ class _DataPrivacyScreenState extends State<DataPrivacyScreen> {
               ],
             ),
             SizedBox(height: 30),
+
+            // CustomButton(
+            //     text: 'Continue',
+            //     onPressed: () {
+            //       if (isChecked) {
+            //         context.push('/assessment');
+            //       }
+            //     })
             SizedBox(
               width: 330, // Set the desired width
               height: 50, // Set the desired height

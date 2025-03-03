@@ -11,8 +11,10 @@ import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
 import 'package:lingap/modules/home/home_logic.dart';
+import 'package:lingap/modules/home/home_tutorial.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -42,23 +44,90 @@ class _HomePageState extends ConsumerState<HomePage> {
     'Meditation': 0,
   };
 
+  final GlobalKey keyGreeting = GlobalKey();
+  final GlobalKey keyWearable = GlobalKey();
+  final GlobalKey keyMindfulness = GlobalKey();
+  final GlobalKey keyHeartRate = GlobalKey();
+  final GlobalKey keyBloodPressure = GlobalKey();
+  final GlobalKey keySleep = GlobalKey();
+  final GlobalKey keyMood = GlobalKey();
+  final GlobalKey keyNotification = GlobalKey();
+  final GlobalKey keySetting = GlobalKey();
+
+  final ScrollController _scrollController = ScrollController();
+  int counter = 0;
+
   @override
   void initState() {
     super.initState();
-    setState(() {
-      
-    });
+
     _fetchProfile();
     _initializeConnectionStatus();
     _fetchSleepData();
     _fetchMoodData();
     _fetchMindfulData();
+
+    _startTutorial();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _initializeConnectionStatus();
+  }
+
+  void _startTutorial({int retryCount = 0}) {
+    Future.delayed(Duration(milliseconds: 500), () {
+      if (keyGreeting.currentContext != null &&
+          keyNotification.currentContext != null &&
+          keySetting.currentContext != null &&
+          keyWearable.currentContext != null &&
+          keyMindfulness.currentContext != null &&
+          keyHeartRate.currentContext != null &&
+          keyBloodPressure.currentContext != null &&
+          keySleep.currentContext != null &&
+          keyMood.currentContext != null) {
+        print("All tutorial targets are built. Starting tutorial...");
+
+        HomeTutorial tutorial = HomeTutorial(context);
+        tutorial.initTargets(
+          keyGreeting,
+          keyNotification,
+          keySetting,
+          keyWearable,
+          keyMindfulness,
+          keyHeartRate,
+          keyBloodPressure,
+          keySleep,
+          keyMood,
+        );
+
+        tutorial.showTutorial(context, _scrollToBottom);
+      } else {
+        if (retryCount < 10) {
+          // Avoid infinite retries (max 5 attempts)
+          print(
+              "Some tutorial targets are not built yet. Retrying... Attempt: ${retryCount + 1}");
+          _startTutorial(); // Retry after a delay
+        } else {
+          print("Failed to start tutorial after 5 attempts.");
+        }
+      }
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        print("ScrollController has no clients");
+      }
+    });
   }
 
   Future<void> _initializeConnectionStatus() async {
@@ -138,6 +207,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -159,8 +229,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     )
                   : GreetingCard(
+                      keyGreeting: keyGreeting,
                       name: name!,
                       imageUrl: imageUrl!,
+                      keyNotification: keyNotification,
+                      keySetting: keySetting,
                     ),
             ),
             const SizedBox(height: 15),
@@ -183,6 +256,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                       const SizedBox(height: 5),
                       SizedBox(
+                        key: keyWearable,
                         height: 220, // Set a fixed height
                         child: Card(
                           color: serenityGreen['Green50'],
@@ -244,6 +318,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                       const SizedBox(height: 5),
                       SizedBox(
+                        key: keyMindfulness,
                         height: 220,
                         child: GestureDetector(
                           onTap: () {
@@ -362,6 +437,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 3.0),
               children: [
                 VitalCard(
+                  key: keyHeartRate,
                   title: "Heart Rate",
                   imageUrl: "assets/vitals/heart.png",
                   metric: healthDataMap['HEART_RATE']?['latest'] ?? 'N/A',
@@ -369,6 +445,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   graphColor: presentRed['Red50']!,
                 ),
                 VitalCard(
+                  key: keyBloodPressure,
                   title: "Blood Pressure",
                   imageUrl: "assets/vitals/blood.png",
                   metric: healthDataMap['BLOOD_PRESSURE']?['latest'] ?? 'N/A',
@@ -377,6 +454,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   graphColor: empathyOrange['Orange50']!,
                 ),
                 VitalCard(
+                  key: keySleep,
                   title: "Sleep",
                   imageUrl: "assets/vitals/sleep.png",
                   metric: sleepData['average'].toString(),
@@ -388,6 +466,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   graphColor: mindfulBrown['Brown50']!,
                 ),
                 VitalCard(
+                  key: keyMood,
                   title: "Mood",
                   imageUrl: "assets/vitals/mood.png",
                   metric: moodData['average'].toString(),

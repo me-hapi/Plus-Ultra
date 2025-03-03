@@ -59,51 +59,74 @@ class HomeLogic {
     final result = await mood_db.getPastWeekMoods();
 
     if (result.isEmpty) {
-      return {'spots': [], 'averageMood': null};
+      return {'spots': [], 'average': null};
     }
 
-    // Mood mapping
-    final Map<String, int> moodValues = {
-      'cheerful': 5,
-      'happy': 4,
-      'neutral': 3,
-      'sad': 2,
-      'awful': 1,
+    print('MOOD: $result');
+
+    final Map<String, int> moodIndexes = {
+      "cheerful": 0,
+      "happy": 1,
+      "neutral": 2,
+      "sad": 3,
+      "awful": 4,
     };
 
     List<FlSpot> spots = [];
-    Map<String, int> moodCount = {};
-    String mostFrequentMood = '';
-    DateTime latestDate = DateTime.fromMillisecondsSinceEpoch(0);
+    Map<int, int> moodCount = {}; // Store mood frequencies
+    String latestMood = 'neutral'; // Default if no valid moods are found
 
     for (int i = 0; i < result.length; i++) {
       final moodData = result[i];
       final String mood = moodData['mood'].toLowerCase();
       final DateTime date = DateTime.parse(moodData['created_at']);
 
-      if (!moodValues.containsKey(mood)) continue;
+      if (!moodIndexes.containsKey(mood)) continue;
 
-      final int moodValue = moodValues[mood]!;
-      spots.add(FlSpot(i.toDouble(), moodValue.toDouble()));
+      final int moodIndex = moodIndexes[mood]!;
+      spots.add(FlSpot(i.toDouble(), moodIndex.toDouble()));
 
-      // Count occurrences of each mood
-      moodCount[mood] = (moodCount[mood] ?? 0) + 1;
+      // Count occurrences of each mood index
+      moodCount[moodIndex] = (moodCount[moodIndex] ?? 0) + 1;
 
-      // Determine the most recent mood if counts are equal
-      if (moodCount[mood]! > (moodCount[mostFrequentMood] ?? 0) ||
-          (moodCount[mood] == (moodCount[mostFrequentMood] ?? 0) &&
-              date.isAfter(latestDate))) {
-        mostFrequentMood = mood;
-        latestDate = date;
-      }
+      // Store the latest mood (the last entry in the dataset)
+      latestMood = mood;
     }
 
-    if (spots.isEmpty) {
-      return {};
+    print('Mood Frequency Map: $moodCount');
+
+    int mostFrequentMood = moodIndexes['neutral']!; // Default to 'neutral'
+
+    if (moodCount.isNotEmpty) {
+      // Get the highest frequency
+      int maxFrequency = moodCount.values.reduce((a, b) => a > b ? a : b);
+
+      // Get all moods with this max frequency
+      List<int> candidates = moodCount.entries
+          .where((entry) => entry.value == maxFrequency)
+          .map((entry) => entry.key)
+          .toList();
+
+      print('Candidates with max frequency: $candidates');
+
+      // Select the highest index in case of a tie
+      mostFrequentMood = candidates.reduce((a, b) => a > b ? a : b);
     }
+
+    // If no mood is dominant, use the latest mood
+    String averageMood = moodCount.isNotEmpty
+        ? moodIndexes.entries
+            .firstWhere((entry) => entry.value == mostFrequentMood,
+                orElse: () =>
+                    MapEntry(latestMood, moodIndexes[latestMood] ?? 2))
+            .key
+        : latestMood;
+
+    print('Final Selected Mood: $averageMood');
+
     return {
       'spots': spots,
-      'average': mostFrequentMood,
+      'average': averageMood,
     };
   }
 

@@ -54,6 +54,7 @@ class OverviewLogic {
 
   Future<void> fetchMoodData() async {
     List<Map<String, dynamic>> moods = await supabase.getPastWeekMoods();
+    print('MOODpage: $moods');
 
     Map<String, int> moodIndexes = {
       "cheerful": 0,
@@ -75,8 +76,19 @@ class OverviewLogic {
       }
     }
 
-    weekMood = moodCount.entries.isNotEmpty
-        ? moodCount.entries.reduce((a, b) => a.value > b.value ? a : b).key
-        : 0;
+    print('moodCOunt $moodCount');
+    if (moodCount.isNotEmpty) {
+      // Get the max frequency
+      int maxValue = moodCount.values.reduce((a, b) => a > b ? a : b);
+
+      // Get all moods with the max frequency
+      List<int> candidates = moodCount.entries
+          .where((entry) => entry.value == maxValue)
+          .map((entry) => entry.key)
+          .toList();
+
+      // Pick the highest index if there are multiple candidates
+      weekMood = candidates.reduce((a, b) => a > b ? a : b);
+    }
   }
 }
