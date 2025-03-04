@@ -50,7 +50,7 @@ Future<void> main() async {
   bool isRunning = await FlutterForegroundTask.isRunningService;
   print("Foreground service running: $isRunning");
 
-  // startForegroundService();
+  ForegroundHealthService.startForegroundService();
   runApp(const ProviderScope(child: LingapApp()));
 }
 
