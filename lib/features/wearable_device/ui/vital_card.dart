@@ -23,8 +23,8 @@ class VitalCard extends StatelessWidget {
     switch (metric) {
       case 'heart rate':
         return 'bpm';
-      case 'blood pressure':
-        return 'mmHg';
+      case 'blood oxygen':
+        return '%';
       case 'sleep':
         return 'hrs/day';
       case 'mood':
@@ -39,10 +39,19 @@ class VitalCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (title == 'Mood') {
-          context.push('/mood-overview');
+          context.push('/mood-overview', extra: lineGraphData);
         }
         if (title == 'Sleep') {
           context.push('/sleep-overview');
+        }
+        if (title == 'Heart Rate') {
+          print('heart');
+          context.push('/heart-overview',
+              extra: {'heart': lineGraphData, 'average': metric});
+        }
+        if (title == 'Blood Oxygen') {
+          context.push('/oxygen-overview',
+              extra: {'oxygen': lineGraphData, 'average': metric});
         }
       },
       child: Card(

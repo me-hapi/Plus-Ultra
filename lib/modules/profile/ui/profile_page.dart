@@ -170,10 +170,74 @@ class _ProfilePageState extends State<ProfilePage> {
                   left: 0,
                   right: 0,
                   child: Center(
-                      child: SizedBox(
-                    height: 100,
-                    child: Image.asset(widget.profile['imageUrl']),
-                  )),
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            context.push('/change-avatar', extra: {
+                              'avatar': widget.profile['imageUrl'],
+                              'name': widget.profile['name'],
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: mindfulBrown['Brown80']!, // Brown border
+                                width: 4,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: SizedBox(
+                                height: 100,
+                                width: 100,
+                                child: Image.asset(
+                                  widget.profile['imageUrl'],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        // Positioned(
+                        //     right: 5,
+                        //     bottom: 5,
+                        //     child: GestureDetector(
+                        //         behavior: HitTestBehavior.translucent,
+                        //         onTap: () {
+                        //           print('helloAS');
+                        //           context.push('/change-avatar', extra: {
+                        //             'avatar': widget.profile['imageUrl'],
+                        //             'name': widget.profile['name'],
+                        //           });
+                        //         },
+                        //         child: AbsorbPointer(
+                        //           child: Container(
+                        //             padding: EdgeInsets.all(4),
+                        //             decoration: BoxDecoration(
+                        //               color: Colors
+                        //                   .white, // White background for contrast
+                        //               shape: BoxShape.circle,
+                        //               boxShadow: [
+                        //                 BoxShadow(
+                        //                   color: Colors.black26,
+                        //                   blurRadius: 4,
+                        //                   spreadRadius: 2,
+                        //                 ),
+                        //               ],
+                        //             ),
+                        //             child: Icon(
+                        //               Icons.add,
+                        //               color: mindfulBrown[
+                        //                   'Brown80'], // Brown plus icon
+                        //               size: 24,
+                        //             ),
+                        //           ),
+                        //         )))
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

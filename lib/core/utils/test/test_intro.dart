@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/custom_button.dart';
 
 class TestIntro extends StatefulWidget {
   @override
@@ -145,6 +146,7 @@ DASS-12를 Lingap과 통합함으로써 우리는 사용자가 정신 건강에 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: mindfulBrown['Brown10'],
       body: Column(
         children: [
           Stack(
@@ -236,29 +238,35 @@ DASS-12를 Lingap과 통합함으로써 우리는 사용자가 정신 건강에 
             ),
           ),
 
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: 
-            SizedBox(
-              height: 55,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.push('/dastest', extra: selectedLanguage);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: mindfulBrown['Brown80'],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  'Continue',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
+          CustomButton(
+            text: 'Continue',
+            onPressed: () {
+              context.push('/dastest', extra: selectedLanguage);
+            },
           ),
+          // Padding(
+          //   padding: EdgeInsets.symmetric(horizontal: 16),
+          //   child:
+          //   SizedBox(
+          //     height: 55,
+          //     width: double.infinity,
+          //     child: ElevatedButton(
+          //       onPressed: () {
+          //         context.push('/dastest', extra: selectedLanguage);
+          //       },
+          //       style: ElevatedButton.styleFrom(
+          //         backgroundColor: mindfulBrown['Brown80'],
+          //         shape: RoundedRectangleBorder(
+          //           borderRadius: BorderRadius.circular(30),
+          //         ),
+          //       ),
+          //       child: Text(
+          //         'Continue',
+          //         style: TextStyle(fontSize: 18, color: Colors.white),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           SizedBox(height: 30),
         ],
       ),

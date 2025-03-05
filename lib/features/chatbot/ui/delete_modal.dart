@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 
-class CloseSessionDialog extends StatelessWidget {
-  final Future<void> Function() close;
+class DeleteSessionDialog extends StatelessWidget {
+  final Future<void> Function() delete;
 
-  const CloseSessionDialog({super.key, required this.close});
+  const DeleteSessionDialog({super.key, required this.delete});
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +20,12 @@ class CloseSessionDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/chatbot/close.png', // Replace with your asset image path
+              'assets/chatbot/trash.png', // Replace with your asset image path
               height: 220.0,
             ),
             SizedBox(height: 16.0),
             Text(
-              'End Session?',
+              'Delete Conversation?',
               style: TextStyle(
                 color: mindfulBrown['Brown80'],
                 fontSize: 24.0,
@@ -34,7 +34,7 @@ class CloseSessionDialog extends StatelessWidget {
             ),
             SizedBox(height: 8.0),
             Text(
-              "Are you sure to end your session?\nThis operation can't be undone",
+              "Are you sure to delete your conversation?\nThis operation can't be undone",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.0,
@@ -58,7 +58,7 @@ class CloseSessionDialog extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "No, Don't end the session",
+                          "No, Don't delete",
                           style: TextStyle(
                               fontSize: 14, color: presentRed['Red40']),
                         ),
@@ -82,14 +82,14 @@ class CloseSessionDialog extends StatelessWidget {
                       ),
                     ),
                     onPressed: () async {
-                      await close();
+                      await delete();
                       Navigator.pop(context);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Yes, End the session",
+                          "Yes, Delete",
                           style: TextStyle(fontSize: 14, color: Colors.white),
                         ),
                         SizedBox(
@@ -107,12 +107,12 @@ class CloseSessionDialog extends StatelessWidget {
   }
 }
 
-void showCloseSessionDialog(
-    BuildContext context, Future<void> Function() close) {
+void showDeleteSessionDialog(
+    BuildContext context, Future<void> Function() delete) {
   showDialog(
     context: context,
-    builder: (BuildContext context) => CloseSessionDialog(
-      close: close,
+    builder: (BuildContext context) => DeleteSessionDialog(
+      delete: delete,
     ),
   );
 }

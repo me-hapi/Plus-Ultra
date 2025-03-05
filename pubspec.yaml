@@ -93,6 +93,12 @@ flutter:
     - assets/utils/streak.png
     - assets/utils/whiteCheck.png
     - assets/utils/gearSettings.png
+    - assets/utils/greenCall.png
+    - assets/utils/greenVideo.png
+    - assets/utils/heart.png
+    - assets/utils/spo2.png
+    - assets/utils/oxygen.png
+    - assets/utils/oxygen2.png
 
     - assets/mood/cheerful.png
     - assets/mood/happy.png
@@ -197,6 +203,7 @@ flutter:
     - assets/chatbot/limit.png
     - assets/chatbot/chat.png
     - assets/chatbot/close.png
+    - assets/chatbot/trash.png
 
     - assets/chatbot/icon/abstract.png
     - assets/chatbot/icon/arrowdown.png

@@ -18,6 +18,7 @@ class _LandingPageState extends State<LandingPage> {
   Map<String, dynamic>? appointment;
   Map<String, dynamic>? professional;
   SupabaseDB supabaseDB = SupabaseDB(client);
+  bool isPending = false;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _LandingPageState extends State<LandingPage> {
         if (result != null) {
           print('APPOINTMENT ${appointment!['status']}');
           getProfessional(result['professional_id']);
+          isPending = appointment!['status'] == 'pending';
         }
       });
     }
@@ -88,8 +90,10 @@ class _LandingPageState extends State<LandingPage> {
           Text(
             appointment == null
                 ? 'You have no therapist appointment'
-                : formatAppointment(appointment!['appointment_date'],
-                    appointment!['time_slot']),
+                : appointment!['status'] == 'pending'
+                    ? 'Your appointment is waiting for approval.'
+                    : formatAppointment(appointment!['appointment_date'],
+                        appointment!['time_slot']),
             style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 30.0,
@@ -101,43 +105,42 @@ class _LandingPageState extends State<LandingPage> {
           if (professional != null)
             ProfessionalCard(professionalData: professional!),
           const SizedBox(height: 40.0),
-          SizedBox(
-            height: 55,
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                if (appointment == null) {
-                  context.push('/findpage');
-                } else {
-                  if (appointment!['status'] != 'pending') {
-                    context.push('/instruction', extra: {
-                      'roomId': appointment!['consultation_room'][0]['room_id'],
-                      'name': professional!['name'],
-                      'appointmentId': appointment!['id']
-                    });
+
+          if (isPending)
+            SizedBox(
+              height: 55,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (appointment == null) {
+                    context.push('/findpage');
+                  } else {
+                    if (appointment!['status'] != 'pending') {
+                      context.push('/instruction', extra: {
+                        'roomId': appointment!['consultation_room'][0]
+                            ['room_id'],
+                        'name': professional!['name'],
+                        'appointmentId': appointment!['id']
+                      });
+                    }
                   }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: mindfulBrown['Brown80'],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: mindfulBrown['Brown80'],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  appointment == null ? 'Schedule Appointment' : 'Join call',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              child: Text(
-                appointment == null
-                    ? 'Schedule Appointment'
-                    : appointment!['status'] == 'pending'
-                        ? 'Waiting for approval'
-                        : 'Join call',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          )
+            )
         ]),
       ),
     );

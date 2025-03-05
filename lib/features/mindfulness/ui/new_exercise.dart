@@ -131,7 +131,8 @@ class _NewExercisePageState extends State<NewExercisePage> {
                               uid);
 
                           LoadingScreen.hide(context);
-                          context.go('/bottom-nav');
+                          context.pushReplacement('/bottom-nav', extra: 0);
+
                           Future.microtask(() {
                             context.push('/mindful-home');
                             context.push('/mindful-player', extra: {
@@ -223,8 +224,8 @@ class _NewExercisePageState extends State<NewExercisePage> {
             });
           },
           children: [
-            Text(description, style: TextStyle(color: Colors.white,
-              fontSize: 16)),
+            Text(description,
+                style: TextStyle(color: Colors.white, fontSize: 16)),
           ],
         ),
       ),

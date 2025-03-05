@@ -49,7 +49,27 @@ class _LoadingDialogState extends State<LoadingDialog>
       ),
       isScrollControlled: true,
       builder: (context) {
-        return MatchModal(matches: matches);
+        return MatchModal(
+          matches: matches,
+          enterRoom: (Map<String, dynamic> result) async {
+            await _supabaseDB.updateRoom(result['roomId'], 'unavailable', uid);
+            String name = result['anonymous'] ? "Anonymous" : result['name'];
+            if (mounted) {
+              Navigator.pop(context); // Close modal
+
+              context.go('/bottom-nav', extra: 4);
+
+              Future.microtask(() {
+                context.push('/peer-chatscreen', extra: {
+                  'roomId': result['roomId'],
+                  'id': result['id'],
+                  'name': name,
+                  'avatar': result['imageUrl']
+                });
+              });
+            }
+          },
+        );
       },
     );
   }

@@ -6,18 +6,96 @@ import 'package:lingap/features/sleep_tracker/data/supabase.dart' as sleep;
 import 'package:lingap/features/wearable_device/data/supabase_db.dart'
     as wearable;
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 
 class HomeLogic {
   final wearable.SupabaseDB wearable_db = wearable.SupabaseDB();
   final mood.SupabaseDB mood_db = mood.SupabaseDB(client);
   final sleep.SupabaseDB sleep_db = sleep.SupabaseDB(client);
   final mindful.SupabaseDB mindful_db = mindful.SupabaseDB(client);
+  final GlobalSupabase _globalSupabase = GlobalSupabase(client);
   bool isConnected = false;
   final HealthLogic healthLogic = HealthLogic();
   String? name;
   String? imageUrl;
 
   Map<String, dynamic> healthDataMap = {};
+
+  Future<Map<String, dynamic>> fetchMhScore() async {
+    final result = await _globalSupabase.fetchAllMhScore();
+    print('MHSCORE: $result');
+    if (result.isEmpty) {
+      return {
+        'depression': [],
+        'anxiety': [],
+        'stress': [],
+        'depressionTrend': 0,
+        'anxietyTrend': 0,
+        'stressTrend': 0,
+      };
+    }
+
+    // Sort data by `created_at` for chronological order
+    result.sort((a, b) => DateTime.parse(a['created_at'])
+        .compareTo(DateTime.parse(b['created_at'])));
+
+    List<FlSpot> depressionSpots = [];
+    List<FlSpot> anxietySpots = [];
+    List<FlSpot> stressSpots = [];
+
+    // First and last values for trend calculation
+    double? firstDepression, lastDepression;
+    double? firstAnxiety, lastAnxiety;
+    double? firstStress, lastStress;
+
+    for (var i = 0; i < result.length; i++) {
+      final row = result[i];
+      DateTime createdAt =
+          DateTime.tryParse(row['created_at'] ?? '') ?? DateTime.now();
+      double x = createdAt.millisecondsSinceEpoch.toDouble();
+
+      // Convert to double safely
+      double depression =
+          double.tryParse(row['depression']?.toString() ?? '') ?? 0.0;
+      double anxiety = double.tryParse(row['anxiety']?.toString() ?? '') ?? 0.0;
+      double stress = double.tryParse(row['stress']?.toString() ?? '') ?? 0.0;
+
+      depressionSpots.add(FlSpot(x, depression));
+      anxietySpots.add(FlSpot(x, anxiety));
+      stressSpots.add(FlSpot(x, stress));
+
+      // Assign first and last values for percentage change calculation
+      if (i == 0) {
+        firstDepression = depression;
+        firstAnxiety = anxiety;
+        firstStress = stress;
+      }
+      if (i == result.length - 1) {
+        lastDepression = depression;
+        lastAnxiety = anxiety;
+        lastStress = stress;
+      }
+    }
+
+    // Compute percentage change safely and round to int
+    int calculateTrend(double? first, double? last) {
+      if (first == null || last == null || first == 0) return 0;
+      return ((last - first) / first * 100).round(); // Convert to int
+    }
+
+    int depressionTrend = calculateTrend(firstDepression, lastDepression);
+    int anxietyTrend = calculateTrend(firstAnxiety, lastAnxiety);
+    int stressTrend = calculateTrend(firstStress, lastStress);
+
+    return {
+      'depression': depressionSpots,
+      'anxiety': anxietySpots,
+      'stress': stressSpots,
+      'depressionTrend': depressionTrend,
+      'anxietyTrend': anxietyTrend,
+      'stressTrend': stressTrend,
+    };
+  }
 
   Future<Map<String, double>> fetchMindfulness() async {
     final result = await mindful_db.fetchMindfulness();

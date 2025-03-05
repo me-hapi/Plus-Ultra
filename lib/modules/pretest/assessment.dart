@@ -200,23 +200,25 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                           });
                         })),
             ),
-            SizedBox(
-              height: 55,
-              width: double.infinity,
-              child: TextButton(
-                onPressed: nextQuestion,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: mindfulBrown['Brown80'],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  'Continue',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
+
+            CustomButton(text: 'Continue', onPressed: nextQuestion, isPadding: false,),
+            // SizedBox(
+            //   height: 55,
+            //   width: double.infinity,
+            //   child: TextButton(
+            //     onPressed: nextQuestion,
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: mindfulBrown['Brown80'],
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(30),
+            //       ),
+            //     ),
+            //     child: Text(
+            //       'Continue',
+            //       style: TextStyle(fontSize: 18, color: Colors.white),
+            //     ),
+            //   ),
+            // ),
             SizedBox(height: 25),
           ],
         ),

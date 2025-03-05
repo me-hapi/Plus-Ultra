@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
+import 'package:lingap/core/const/custom_button.dart';
 import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/modules/profile/data/supabase_db.dart';
 
@@ -224,40 +225,57 @@ class _ChangeWeightState extends State<ChangeWeight> {
                     ),
                   ),
                   Spacer(),
-                  SizedBox(
-                    height: 55,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        LoadingScreen.show(context);
-                        await _supabaseDb.updateWeight(selectedWeight, unit);
-                        final profile = await _supabaseDb.fetchProfile();
+                  CustomButton(
+                    text: 'Chang',
+                    onPressed: () async {
+                      LoadingScreen.show(context);
+                      await _supabaseDb.updateWeight(selectedWeight, unit);
+                      final profile = await _supabaseDb.fetchProfile();
 
-                        LoadingScreen.hide(context);
-                        context.go('/bottom-nav');
-                        Future.microtask(() {
-                          context.push('/profile', extra: {
-                            'bg': bgCons,
-                            'profile': profile
-                          }); // Adds Profile on top of Home
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: mindfulBrown['Brown80'],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Text(
-                        'Change weight',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                      LoadingScreen.hide(context);
+                      context.go('/bottom-nav');
+                      Future.microtask(() {
+                        context.push('/profile', extra: {
+                          'bg': bgCons,
+                          'profile': profile
+                        }); // Adds Profile on top of Home
+                      });
+                    },
                   ),
+                  // SizedBox(
+                  //   height: 55,
+                  //   width: double.infinity,
+                  //   child: ElevatedButton(
+                  //     onPressed: () async {
+                  //       LoadingScreen.show(context);
+                  //       await _supabaseDb.updateWeight(selectedWeight, unit);
+                  //       final profile = await _supabaseDb.fetchProfile();
+
+                  //       LoadingScreen.hide(context);
+                  //       context.go('/bottom-nav');
+                  //       Future.microtask(() {
+                  //         context.push('/profile', extra: {
+                  //           'bg': bgCons,
+                  //           'profile': profile
+                  //         }); // Adds Profile on top of Home
+                  //       });
+                  //     },
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: mindfulBrown['Brown80'],
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(30),
+                  //       ),
+                  //     ),
+                  //     child: const Text(
+                  //       'Change weight',
+                  //       style: TextStyle(
+                  //         fontSize: 18,
+                  //         color: Colors.white,
+                  //         fontWeight: FontWeight.bold,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(height: 15),
                 ],
               ),

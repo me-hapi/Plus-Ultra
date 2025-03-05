@@ -100,15 +100,34 @@ class _JournalDetailPageState extends State<JournalDetailPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mindfulBrown['Brown10'],
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: Image.asset(
+                'assets/utils/brownBack.png',
+                width: 25,
+                height: 25,
+              ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Journal Detail',
+                  style: TextStyle(
+                    color: mindfulBrown['Brown80'],
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        title: Text('Journal Detail',
-            style: TextStyle(
-                color: mindfulBrown['Brown80'],
-                fontSize: 24,
-                fontWeight: FontWeight.w700)),
         centerTitle: true,
       ),
       backgroundColor: mindfulBrown['Brown10'],
@@ -142,7 +161,7 @@ class _JournalDetailPageState extends State<JournalDetailPage> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: Text(
-                              widget.emotion,
+                              '''You're feeling ${widget.emotion}''',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

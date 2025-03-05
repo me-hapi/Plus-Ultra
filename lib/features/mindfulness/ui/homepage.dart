@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                 // Left-aligned GestureDetector (Back Button)
                 GestureDetector(
                   onTap: () {
-                    context.pop();
+                    context.push('/bottom-nav', extra: 0);
                   },
                   child: Image.asset(
                     'assets/utils/whiteBack.png',

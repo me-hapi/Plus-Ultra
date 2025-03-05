@@ -15,11 +15,19 @@ class ChatHome extends StatefulWidget {
 class _ChatHomeState extends State<ChatHome> {
   final SupabaseDB supabase = SupabaseDB(client);
   late Stream<List<Map<String, dynamic>>> chatStream;
+  List<Map<String, dynamic>> chatList = [];
 
   @override
   void initState() {
     super.initState();
     chatStream = supabase.streamChats(uid);
+    chatStream.listen((data) {
+      if (mounted) {
+        setState(() {
+          chatList = data;
+        });
+      }
+    });
   }
 
   @override
@@ -43,45 +51,35 @@ class _ChatHomeState extends State<ChatHome> {
       backgroundColor: mindfulBrown['Brown10'],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: StreamBuilder<List<Map<String, dynamic>>>(
-          stream: chatStream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error loading chats'));
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No chats available'));
-            }
-
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final chat = snapshot.data![index];
-                String icon = chat['icon'] ?? 'abstract';
-                return ConversationCard(
-                  sessionID: chat['id'],
-                  animate: false,
-                  imagePath: 'assets/chatbot/icon/$icon.png',
-                  title: chat['title'] ?? 'Unknown Chat',
-                  total: '${chat['count'] ?? 0} messages',
-                  emotion: chat['emotion'] ?? 'Neutral',
-                  isSessionOpen: chat['open'],
-                  onDelete: () async {
-                    print('CHATID: ${chat['id']}');
-                    await supabase.deleteSession(chat['id']);
-
-                    setState(() {
-                      snapshot.data!
-                          .removeAt(index); // Remove the item from the list
-                    });
-                  },
-                  onClose: () async {
-                    await supabase.closeSession(chat['id']);
-                  },
-                );
+        child: ListView.builder(
+          itemCount: chatList.length,
+          itemBuilder: (context, index) {
+            final chat = chatList[index];
+            String icon = chat['icon'] ?? 'abstract';
+            return ConversationCard(
+              sessionID: chat['id'],
+              animate: false,
+              imagePath: 'assets/chatbot/icon/$icon.png',
+              title: chat['title'] ?? 'Unknown Chat',
+              total: '${chat['count'] ?? 0} messages',
+              emotion: chat['emotion'] ?? 'Neutral',
+              isSessionOpen: chat['open'],
+              onDelete: () async {
+                print('CHATID: ${chat['id']}');
+                await supabase.deleteSession(chat['id']);
+                setState(() {
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (mounted) {
+                      setState(() {
+                        chatList.removeWhere(
+                            (element) => element['id'] == chat['id']);
+                      });
+                    }
+                  });
+                });
+              },
+              onClose: () async {
+                await supabase.closeSession(chat['id']);
               },
             );
           },

@@ -11,8 +11,9 @@ class SupabaseDB {
   Future<void> deleteSession(int sessionID) async {
     try {
       print('Deleting...');
-      final response = await _client.from('session').delete().eq('id', sessionID);
-      print('Success deleting: $response');
+      final response =
+          await _client.from('session').delete().eq('id', sessionID);
+      print('Success deleting');
     } catch (e) {
       print('Error deleting: $e');
     }

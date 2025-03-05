@@ -48,15 +48,18 @@ class _BottomNavState extends State<BottomNav> {
         professional = _isProfessionalOn;
         print('PROFESSIONAL: $professional');
       });
-    } else{
-       professional = false;
+    } else {
+      professional = false;
     }
   }
 
   void hasConversation() async {
     bool result = await supabase.hasSession(uid);
     if (result) {
-      hasSession = result;
+      setState(() {
+        // Ensure UI updates when `hasSession` changes
+        hasSession = result;
+      });
     }
   }
 
@@ -72,6 +75,7 @@ class _BottomNavState extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
+    // hasConversation();
     return Scaffold(
       body: _screens()[_currentIndex],
       bottomNavigationBar: CurvedNavigationBar(

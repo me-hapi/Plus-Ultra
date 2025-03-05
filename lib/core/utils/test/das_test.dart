@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/custom_button.dart';
 import 'package:lingap/modules/home/bottom_nav.dart';
 import 'package:lingap/services/database/global_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -226,6 +227,7 @@ class _DASTestState extends ConsumerState<DASTest> {
   };
 
   void _nextQuestion(int response) {
+    print('SCORE: $response');
     final currentQuestionIndex = ref.read(currentQuestionIndexProvider);
     final responses = ref.read(responsesProvider.notifier);
 
@@ -282,10 +284,19 @@ class _DASTestState extends ConsumerState<DASTest> {
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: _previousQuestion,
+            // IconButton(
+            //   icon: Icon(Icons.arrow_back),
+            //   onPressed: _previousQuestion,
+            // ),
+            GestureDetector(
+              onTap: _previousQuestion,
+              child: Image.asset(
+                'assets/utils/brownBack.png',
+                width: 25,
+                height: 25,
+              ),
             ),
             Container(
               width: 280,
@@ -318,7 +329,10 @@ class _DASTestState extends ConsumerState<DASTest> {
             Center(
               child: Text(
                 "Question ${currentQuestionIndex + 1} of ${questions[widget.language].length}",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: mindfulBrown['Brown80']),
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: mindfulBrown['Brown80']),
               ),
             ),
             SizedBox(height: 20),
@@ -330,27 +344,34 @@ class _DASTestState extends ConsumerState<DASTest> {
             Spacer(),
             Column(
               children: List.generate(4, (index) {
+                int reversedIndex = 3 - index;
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SizedBox(
-                    height: 60,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _nextQuestion(index),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: mindfulBrown['Brown80'],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        option[widget.language][index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                );
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: CustomButton(
+                      text: option[widget.language][reversedIndex],
+                      onPressed: () => _nextQuestion(reversedIndex),
+                      fontSize: 16,
+                    )
+                    // SizedBox(
+                    //   height: 60,
+                    //   width: double.infinity,
+                    //   child: ElevatedButton(
+                    //     onPressed: () => _nextQuestion(index),
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: mindfulBrown['Brown80'],
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(30),
+                    //       ),
+                    //     ),
+                    //     child: Text(
+                    //       option[widget.language][index],
+                    //       textAlign: TextAlign.center,
+                    //       style: TextStyle(fontSize: 16, color: Colors.white),
+                    //     ),
+                    //   ),
+                    // ),
+
+                    );
               }),
             ),
             SizedBox(height: 20),

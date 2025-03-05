@@ -65,6 +65,9 @@ class SleepModal extends StatelessWidget {
                   child: TextButton(
                     onPressed: () {
                       context.go('/bottom-nav');
+                      Future.microtask(() {
+                        context.push('/sleep-overview');
+                      });
                     },
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.white,

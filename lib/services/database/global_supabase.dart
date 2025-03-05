@@ -1,9 +1,16 @@
+import 'package:lingap/core/const/const.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GlobalSupabase {
   final SupabaseClient _client;
 
   GlobalSupabase(this._client);
+
+  Future<List<Map<String, dynamic>>> fetchAllMhScore() async {
+    final response = await _client.from('mh_score').select().eq('uid', uid);
+
+    return response;
+  }
 
   Future<bool?> fetchMhScore(String uid) async {
     final response = await _client
@@ -76,7 +83,14 @@ class GlobalSupabase {
   Future<bool> insertResponses(Map<String, dynamic> responses) async {
     try {
       // Validate that all required keys are present in the responses
-      final requiredKeys = ['name', 'age', 'weight', 'mood', 'sleepQuality', 'profilePicture'];
+      final requiredKeys = [
+        'name',
+        'age',
+        'weight',
+        'mood',
+        'sleepQuality',
+        'profilePicture'
+      ];
       for (String key in requiredKeys) {
         if (!responses.containsKey(key)) {
           throw Exception('Missing required key: $key');

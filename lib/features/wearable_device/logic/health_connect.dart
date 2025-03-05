@@ -21,11 +21,7 @@ class HealthLogic {
         return false;
       }
 
-      final types = [
-        HealthDataType.HEART_RATE,
-        HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
-        HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
-      ];
+      final types = [HealthDataType.HEART_RATE, HealthDataType.BLOOD_OXYGEN];
 
       final permissions = types.map((type) => HealthDataAccess.READ).toList();
 
@@ -71,30 +67,23 @@ class HealthLogic {
     try {
       final now = DateTime.now();
       final weekAgo = now.subtract(const Duration(days: 7));
-      final types = [
-        HealthDataType.HEART_RATE,
-        HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
-        HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
-      ];
+      final types = [HealthDataType.HEART_RATE, HealthDataType.BLOOD_OXYGEN];
 
       List<HealthDataPoint> healthData = await health.getHealthDataFromTypes(
         startTime: weekAgo,
         endTime: now,
         types: types,
       );
-      print("HEALTHDATA: $health");
+      print("HEALTHDATA: $healthData");
 
       if (healthData.isNotEmpty) {
         Map<String, List<HealthDataPoint>> categorizedData = {};
         List<Map<String, dynamic>> mergedHistory = []; // Merged history list
-        Map<String, Map<String, dynamic>> bpPairs =
-            {}; // Pair systolic/diastolic
 
         for (var data in healthData) {
           String type = data.typeString;
           String uid = data.uuid;
           double value = _extractNumericValue(data.value);
-          int intValue = value.round(); // Convert to whole number
           String date = data.dateFrom.toIso8601String();
 
           if (!categorizedData.containsKey(type)) {
@@ -102,46 +91,14 @@ class HealthLogic {
           }
           categorizedData[type]!.add(data);
 
-          // Handle Blood Pressure Pairing
-          if (type == "BLOOD_PRESSURE_SYSTOLIC" ||
-              type == "BLOOD_PRESSURE_DIASTOLIC") {
-            if (!bpPairs.containsKey(uid)) {
-              bpPairs[uid] = {
-                "type": "BLOOD_PRESSURE",
-                "date": date,
-                "uid": uid,
-                "systolic": null,
-                "diastolic": null,
-              };
-            }
-            if (type == "BLOOD_PRESSURE_SYSTOLIC") {
-              bpPairs[uid]!["systolic"] = intValue; // Store as integer
-            } else {
-              bpPairs[uid]!["diastolic"] = intValue; // Store as integer
-            }
-          } else {
-            // Add other health data (like Heart Rate) directly
-            mergedHistory.add({
-              "type": type,
-              "date": date,
-              "value": value,
-              "uid": uid,
-            });
-          }
+          // Add Heart Rate and Blood Oxygen directly to merged history
+          mergedHistory.add({
+            "type": type,
+            "date": date,
+            "value": value,
+            "uid": uid,
+          });
         }
-
-        // Process the merged blood pressure entries
-        bpPairs.forEach((uid, entry) {
-          if (entry["systolic"] != null && entry["diastolic"] != null) {
-            mergedHistory.add({
-              "type": "BLOOD_PRESSURE",
-              "date": entry["date"],
-              "value":
-                  "${entry["systolic"]}/${entry["diastolic"]}", // Ensure no decimals
-              "uid": uid,
-            });
-          }
-        });
 
         Map<String, dynamic> result = {};
         categorizedData.forEach((key, value) {

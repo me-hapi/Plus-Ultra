@@ -14,7 +14,7 @@ class MoodModal extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        context.go('/bottom-nav'); 
+        context.go('/bottom-nav');
       },
       child: Container(
         child: Center(
@@ -47,14 +47,16 @@ class MoodModal extends StatelessWidget {
                 // Mood-based title
                 Text(
                   moodData['title'],
-                  style: TextStyle(fontSize: 24, color: mindfulBrown['Brown80']),
+                  style:
+                      TextStyle(fontSize: 24, color: mindfulBrown['Brown80']),
                 ),
                 SizedBox(height: 8),
                 // Mood-based message
                 Text(
                   moodData['message'],
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, color: optimisticGray['Gray50']),
+                  style:
+                      TextStyle(fontSize: 18, color: optimisticGray['Gray50']),
                 ),
                 SizedBox(height: 20),
                 // "Go to Profile" button
@@ -67,6 +69,9 @@ class MoodModal extends StatelessWidget {
                   child: TextButton(
                     onPressed: () {
                       context.go('/bottom-nav');
+                      Future.microtask(() {
+                        context.push('/mood-overview');
+                      });
                     },
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.white,
@@ -92,7 +97,8 @@ class MoodModal extends StatelessWidget {
       case 'cheerful':
         return {
           'title': 'You’re Radiating Joy!',
-          'message': 'Your cheerful mood is contagious! Keep spreading positivity.',
+          'message':
+              'Your cheerful mood is contagious! Keep spreading positivity.',
           'image': 'assets/mood/cheerful.png',
         };
       case 'happy':
@@ -104,19 +110,22 @@ class MoodModal extends StatelessWidget {
       case 'neutral':
         return {
           'title': 'A Balanced Mood',
-          'message': 'You’re feeling neutral today. Hope something brightens your day!',
+          'message':
+              'You’re feeling neutral today. Hope something brightens your day!',
           'image': 'assets/mood/neutral.png',
         };
       case 'sad':
         return {
           'title': 'It’s Okay to Feel Sad',
-          'message': 'Take your time to process your emotions. You’re not alone.',
+          'message':
+              'Take your time to process your emotions. You’re not alone.',
           'image': 'assets/mood/sad.png',
         };
       case 'awful':
         return {
           'title': 'Rough Day?',
-          'message': 'Hang in there. Remember, tough times don’t last forever. We’re here for you.',
+          'message':
+              'Hang in there. Remember, tough times don’t last forever. We’re here for you.',
           'image': 'assets/mood/awful.png',
         };
       default:

@@ -19,7 +19,7 @@ class ForegroundHealthService {
         playSound: false,
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
-        interval: 5000,
+        interval: 300000,
         autoRunOnBoot: true,
         allowWakeLock: true,
         allowWifiLock: true,

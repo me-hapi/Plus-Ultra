@@ -8,15 +8,15 @@ import 'package:lingap/features/chatbot/ui/chat_bubble.dart';
 class ChatScreen extends ConsumerStatefulWidget {
   final int sessionID;
   final bool animateText;
-  final bool? intro;
   bool isSessionOpen;
+  bool intro;
 
   ChatScreen(
       {super.key,
       required this.sessionID,
       required this.animateText,
       required this.isSessionOpen,
-      this.intro});
+      this.intro = false});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -98,7 +98,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           children: [
             GestureDetector(
               onTap: () {
-                context.pop();
+                context.push('/bottom-nav', extra: 1);
               },
               child: Image.asset(
                 'assets/utils/whiteBack.png',
@@ -122,7 +122,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               context.push('/call-chatbot', extra: widget.sessionID);
             },
             child: Image.asset(
-              'assets/peer/call.png',
+              'assets/utils/greenCall.png',
               width: 20,
               height: 20,
             ),

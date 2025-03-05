@@ -19,6 +19,16 @@ class SupabaseDb {
     }
   }
 
+  Future<void> updateNameAvatar(String name, String avatar) async {
+    try {
+      await client
+          .from('profile')
+          .update({'name': name, 'imageUrl': avatar}).eq('id', uid);
+    } catch (e) {
+      print('ERROR updating avfatar: $e');
+    }
+  }
+
   Future<Map<String, dynamic>?> fetchProfile() async {
     try {
       final response = await client

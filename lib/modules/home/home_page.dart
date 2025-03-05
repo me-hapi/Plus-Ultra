@@ -8,6 +8,7 @@ import 'package:lingap/core/utils/shared/shared_pref.dart';
 import 'package:lingap/features/wearable_device/data/supabase_db.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
+import 'package:lingap/features/wearable_device/ui/mh_card.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
 import 'package:lingap/modules/home/greeting_card.dart';
 import 'package:lingap/modules/home/home_logic.dart';
@@ -33,6 +34,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final HomeLogic homeLogic = HomeLogic();
   Map<String, dynamic> healthDataMap = {};
   Map<String, dynamic> sleepData = {};
+  Map<String, dynamic> mhData = {};
   List<FlSpot> sleepBack = [];
   Map<String, dynamic> moodData = {};
   List<FlSpot> moodBack = [];
@@ -66,7 +68,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _fetchSleepData();
     _fetchMoodData();
     _fetchMindfulData();
-
+    _fetchMhData();
     // _startTutorial();
   }
 
@@ -74,6 +76,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _initializeConnectionStatus();
+    _fetchMindfulData();
   }
 
   void _startTutorial({int retryCount = 0}) {
@@ -145,6 +148,16 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
+  Future<void> _fetchMhData() async {
+    final result = await homeLogic.fetchMhScore();
+    if (mounted) {
+      setState(() {
+        mhData = result;
+        print('MHDATA: $result');
+      });
+    }
+  }
+
   Future<void> _fetchHealthData() async {
     final data = await supabaseV.fetchVitalData();
     if (data.isEmpty) {
@@ -153,6 +166,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
 
     final result = homeLogic.convertData(data);
+    print('HEALTH: $result');
     setState(() {
       healthDataMap = result;
     });
@@ -176,6 +190,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _fetchSleepData() async {
     final result = await homeLogic.fetchSleep();
+    print('SLEEP: $result');
     if (mounted) {
       setState(() {
         sleepData = result;
@@ -442,7 +457,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
               child: Text(
-                'Vitals Overview',
+                'Mental Health Data',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -455,6 +470,16 @@ class _HomePageState extends ConsumerState<HomePage> {
               physics: NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 3.0),
               children: [
+                MhCard(
+                  title: 'DASS-12 Scores',
+                  imageUrl: "assets/vitals/heart.png",
+                  depression: mhData['depressionTrend'] ?? 0,
+                  anxiety: mhData['anxietyTrend'] ?? 0,
+                  stress: mhData['stressTrend'] ?? 0,
+                  depressionGraph: mhData['depression'] ?? [],
+                  anxietyGraph: mhData['anxiety'] ?? [],
+                  stressGraph: mhData['stress'] ?? [],
+                ),
                 VitalCard(
                   key: keyHeartRate,
                   title: "Heart Rate",
@@ -465,12 +490,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 VitalCard(
                   key: keyBloodPressure,
-                  title: "Blood Pressure",
-                  imageUrl: "assets/vitals/blood.png",
-                  metric: healthDataMap['BLOOD_PRESSURE']?['latest'] ?? 'N/A',
-                  lineGraphData:
-                      healthDataMap['BLOOD_PRESSURE']?['spots'] ?? [],
-                  graphColor: empathyOrange['Orange50']!,
+                  title: "Blood Oxygen",
+                  imageUrl: "assets/utils/oxygen2.png",
+                  metric: healthDataMap['BLOOD_OXYGEN']?['latest'] ?? 'N/A',
+                  lineGraphData: healthDataMap['BLOOD_OXYGEN']?['spots'] ?? [],
+                  graphColor: reflectiveBlue['Blue50']!,
                 ),
                 VitalCard(
                   key: keySleep,

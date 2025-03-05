@@ -12,19 +12,19 @@ class SupabaseDB {
         // Check if the uid already exists
         final response = await client
             .from('vital')
-            .select('id')
-            .eq('id', healthUID)
+            .select()
+            .eq('health_id', healthUID)
+            .eq('uid', uid)
             .maybeSingle();
 
         if (response == null) {
           // If UID does not exist, insert new record
           await client.from('vital').insert({
-            'id': healthUID,
+            'health_id': healthUID,
             'uid': uid,
             'type': entry['type'],
             'date': entry['date'],
-            'value':
-                entry['value'].toString(), // Ensure value is stored as a string
+            'value': entry['value'].toString(),
           });
           print('Inserted new health record: $entry');
         } else {

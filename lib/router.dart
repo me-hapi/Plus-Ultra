@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/features/chatbot/services/realtime_chatbot.dart';
@@ -38,6 +39,7 @@ import 'package:lingap/features/virtual_consultation/user/ui/landing_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/profile_page.dart'
     as professional_profile;
 import 'package:lingap/features/virtual_consultation/user/ui/session_end.dart';
+import 'package:lingap/features/wearable_device/ui/blood_oxygen.dart';
 
 //WEARABLE
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
@@ -45,8 +47,11 @@ import 'package:lingap/features/wearable_device/ui/health_page.dart';
 //PEER TO PEER
 import 'package:lingap/features/peer_connect/ui/chat_screen.dart'
     as peer_screen;
+import 'package:lingap/features/wearable_device/ui/heart_rate.dart';
+import 'package:lingap/features/wearable_device/ui/mh_score.dart';
 import 'package:lingap/modules/notification/ui/notification_home.dart';
 import 'package:lingap/modules/profile/ui/change_age.dart';
+import 'package:lingap/modules/profile/ui/change_avatar.dart';
 import 'package:lingap/modules/profile/ui/change_weight.dart';
 
 //GENERAL MODULE
@@ -137,6 +142,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               profile: extra['profile'],
             );
           }),
+      GoRoute(
+        path: '/change-avatar',
+        builder: (context, state) {
+          final extra = state.extra as Map;
+          final avatar = extra['avatar'];
+          final name = extra['name'];
+          return ChangeAvatar(avatar: avatar, name: name);
+        },
+      ),
 
       GoRoute(
         path: '/change-age',
@@ -411,6 +425,51 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+//BLOOD OXYGEN
+      GoRoute(
+          path: '/mh-overview',
+          builder: (context, state) {
+            final extra = state.extra as Map;
+            final depression = extra['depression'];
+            final anxiety = extra['anxiety'];
+            final stress = extra['stress'];
+            final depressionGraph = extra['depressionGraph'];
+            final anxietyGraph = extra['anxietyGraph'];
+            final stressGraph = extra['stressGraph'];
+            return MhScorePage(
+                depression: depression,
+                anxiety: anxiety,
+                stress: stress,
+                depressionGraph: depressionGraph,
+                anxietyGraph: anxietyGraph,
+                stressGraph: stressGraph);
+          }),
+
+      //HEART-TRACKER
+      GoRoute(
+          path: '/heart-overview',
+          builder: (context, state) {
+            final extra = state.extra as Map;
+            final heart = extra['heart'];
+            final average = extra['average'];
+            return HeartRatePage(
+              heartData: heart,
+              average: average,
+            );
+          }),
+
+      //BLOOD oXYGEN
+      GoRoute(
+          path: '/oxygen-overview',
+          builder: (context, state) {
+            final extra = state.extra as Map;
+            final heart = extra['oxygen'];
+            final average = extra['average'];
+            return BloodOxygenPage(
+              oxygenData: heart,
+              average: average,
+            );
+          }),
 
       //SLEEP TRACKER
       GoRoute(

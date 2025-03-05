@@ -28,6 +28,7 @@ class _HealthPageState extends State<HealthPage> {
     super.initState();
     healthLogic = HealthLogic();
     _initializeConnectionStatus();
+    
   }
 
   Future<void> _initializeConnectionStatus() async {
@@ -192,11 +193,11 @@ class _HealthPageState extends State<HealthPage> {
                   graphColor: presentRed['Red50']!,
                 ),
                 VitalCard(
-                  title: "Blood Pressure",
-                  imageUrl: "assets/vitals/blood.png",
-                  metric: healthDataMap['BLOOD_PRESSURE']?['latest'] ?? 'N/A',
+                  title: "Blood Oxygen",
+                  imageUrl: "assets/utils/oxygen2.png",
+                  metric: healthDataMap['BLOOD_OXYGEN']?['latest'] ?? 'N/A',
                   lineGraphData:
-                      healthDataMap['BLOOD_PRESSURE']?['spots'] ?? [],
+                      healthDataMap['BLOOD_OXYGEN']?['spots'] ?? [],
                   graphColor: empathyOrange['Orange50']!,
                 ),
               ]),
