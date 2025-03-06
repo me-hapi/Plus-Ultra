@@ -62,11 +62,16 @@ class _JournalInsightPageState extends State<JournalInsightPage> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
+        automaticallyImplyLeading: false,
+        title: GestureDetector(
+          onTap: () {
             Navigator.of(context).pop();
           },
+          child: Image.asset(
+            'assets/utils/brownBack.png',
+            width: 25,
+            height: 25,
+          ),
         ),
       ),
       backgroundColor: mindfulBrown['Brown10'],

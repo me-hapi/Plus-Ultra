@@ -18,10 +18,12 @@ class _InformationPageState extends State<InformationPage> {
   late InformationLogic _logic;
   String? selectedTitle;
   String? selectedJob;
+  bool isOthersSelected = false;
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController otherController = TextEditingController();
   final List<String> specialtyList = [];
   final List<Map<String, TextEditingController>> _controllersList = [
     {
@@ -56,6 +58,7 @@ class _InformationPageState extends State<InformationPage> {
     "Psychosis": "assets/consultation/psychosis.png",
     "Sleep": "assets/consultation/sleep.png",
     "Relationship": "assets/consultation/relationship.png",
+    "Others": "assets/consultation/schedule.png"
   };
 
   void _addNewFields() {
@@ -377,7 +380,7 @@ class _InformationPageState extends State<InformationPage> {
                 height: 32,
               ),
               Text(
-                'Specialty',
+                'Specializations',
                 style: TextStyle(
                     color: mindfulBrown['Brown80'],
                     fontWeight: FontWeight.bold),
@@ -398,10 +401,22 @@ class _InformationPageState extends State<InformationPage> {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        if (isSelected) {
-                          specialtyList.remove(category);
+                        if (category == 'Others') {
+                          // Toggle the selection for Others.
+                          isOthersSelected = !isOthersSelected;
+                          if (!isOthersSelected) {
+                            // If unselected, clear the text field and remove any custom entry.
+                            specialtyList.removeWhere(
+                                (element) => element == otherController.text);
+                            otherController.clear();
+                          }
                         } else {
-                          specialtyList.add(category);
+                          // For other categories, simply toggle their presence in the list.
+                          if (isSelected) {
+                            specialtyList.remove(category);
+                          } else {
+                            specialtyList.add(category);
+                          }
                         }
                         _triggerDataChanged();
                       });
@@ -437,6 +452,47 @@ class _InformationPageState extends State<InformationPage> {
                   );
                 }).toList(),
               ),
+
+              
+              if (isOthersSelected)
+              SizedBox(height: 10,),
+              if (isOthersSelected)
+                TextFormField(
+                  controller: otherController,
+                  onChanged: (value) {
+                    setState(() {
+                      // Remove any previous custom "Others" entry.
+                      specialtyList.removeWhere(
+                          (element) => element == value || element == 'Others');
+                      // If the field is not empty, add the current value.
+                      if (value.isNotEmpty) {
+                        specialtyList.add(value);
+                      }
+                      _triggerDataChanged();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: Image.asset('assets/consultation/schedule.png', width: 20, height: 20,),
+                    hintText: 'Enter your specialization',
+                    fillColor: Colors.white,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide(
+                        color: serenityGreen['Green50']!,
+                        width: 2.0,
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 20,
+                    ),
+                  ),
+                ),
 
               SizedBox(
                 height: 32,

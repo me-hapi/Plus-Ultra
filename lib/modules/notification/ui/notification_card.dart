@@ -44,7 +44,7 @@ class NotificationCard extends StatelessWidget {
         'color': mindfulBrown['Brown60'],
         'image': 'assets/notification/exercise.png'
       },
-      'messages': {
+      'Messaging': {
         'title': 'Message Sent',
         'content':
             'Someone sent you a message. Connecting with others is important!',

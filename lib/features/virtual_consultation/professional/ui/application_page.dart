@@ -1,5 +1,6 @@
 // application_page.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/professional/data/supabase_db.dart';
@@ -55,28 +56,52 @@ class _ApplicationPageState extends State<ApplicationPage> {
       appBar: AppBar(
         backgroundColor: mindfulBrown['Brown10'],
         elevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: mindfulBrown['Brown80'],
+        automaticallyImplyLeading: false,
+        // leading: GestureDetector(
+        //   onTap: () => Navigator.pop(context),
+        //   child: Container(
+        //     padding: const EdgeInsets.all(8),
+        //     decoration: BoxDecoration(
+        //       shape: BoxShape.circle,
+        //       color: mindfulBrown['Brown80'],
+        //     ),
+        //     child: Icon(
+        //       Icons.arrow_back,
+        //       color: Colors.white,
+        //     ),
+        //   ),
+        // ),
+        title: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                if (appLogic.currentIndex > 0) {
+                  appLogic.previousPage();
+                  setState(() {});
+                } else {
+                  context.pop();
+                }
+              },
+              child: Image.asset(
+                'assets/utils/brownBack.png',
+                width: 25,
+                height: 25,
+              ),
             ),
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
+            SizedBox(
+              width: 10,
             ),
-          ),
+            Text(
+              "Application Process",
+              style: TextStyle(
+                fontSize: 24,
+                color: mindfulBrown['Brown80'],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
-        title: Text(
-          "Application Process",
-          style: TextStyle(
-            fontSize: 24,
-            color: mindfulBrown['Brown80'],
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -112,7 +137,9 @@ class _ApplicationPageState extends State<ApplicationPage> {
             const SizedBox(height: 10),
             Row(
               children: [
-                SizedBox(width: 10,),
+                SizedBox(
+                  width: 10,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: steps.map((step) {
@@ -182,6 +209,9 @@ class _ApplicationPageState extends State<ApplicationPage> {
                     ),
                   ),
                 )),
+            SizedBox(
+              height: 15,
+            )
           ],
         ),
       ),
@@ -238,16 +268,16 @@ class _ApplicationPageState extends State<ApplicationPage> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: isCurrentActive
-            ? serenityGreen['Green50']
+            ? empathyOrange['Orange50']
             : isPreviousActive
-                ? serenityGreen['Green50']
+                ? empathyOrange['Orange50']
                 : Colors.white,
         border: Border.all(
           width: isCurrentActive ? 4 : 2,
           color: isPreviousActive
               ? Colors.transparent
               : isCurrentActive
-                  ? serenityGreen['Green30']!
+                  ? empathyOrange['Orange30']!
                   : mindfulBrown['Brown30']!,
         ),
       ),
@@ -294,14 +324,14 @@ class _ApplicationPageState extends State<ApplicationPage> {
           width: stepWidth / 2,
           height: 2,
           color: isPreviousActive
-              ? serenityGreen['Green50']
+              ? empathyOrange['Orange50']
               : mindfulBrown['Brown30'],
         ),
         Container(
           width: stepWidth / 2,
           height: 2,
           color: isCurrentActive
-              ? serenityGreen['Green50']
+              ? empathyOrange['Orange50']
               : mindfulBrown['Brown30'],
         ),
       ],

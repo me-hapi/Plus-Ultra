@@ -164,7 +164,7 @@ class SupabaseDB {
 
       // Insert messages from peer chat with "Messaging" category
       for (var message in notifications['messages']) {
-        final content = 'New message in Room ${message['room_id']}';
+        final content = 'Someone sent you a message';
         if (!existingContents.contains(content)) {
           newNotifications.add({
             'uid': uid,

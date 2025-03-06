@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:dart_openai/dart_openai.dart';
+import 'package:dio/dio.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/chatbot/data/supabase_db.dart';
 import 'package:lingap/features/chatbot/services/pinecone_retriever.dart';
@@ -12,7 +13,7 @@ class RAGModel {
       "pcsk_6T6RBw_SPJQunRCtoiSMHZbAUKRSRbsAyAigBg8nJdzpHfqbnSb7feX7WdkTo5uGTDLMkH";
   final String openaiApiKey =
       "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";
-  final String model = "o1-mini";
+  final String model = "o3-mini";
   final SupabaseDB supabase = SupabaseDB(client);
 
   late final PineconeRetriever pinecone;
@@ -159,6 +160,7 @@ Response Format (JSON):
       String userQuery, List<String> formattedHistory) async {
     try {
       print('USER QUERY: $userQuery');
+
       // Retrieve the context from Pinecone
       String? result = await pinecone.convertToEmbeddingAndQuery(userQuery);
       String retrievedContext = result ?? 'No relevant context found';
@@ -167,33 +169,54 @@ Response Format (JSON):
       String prompt =
           getPrompt(userQuery, formattedHistory, retrievedContext, hotlines);
       print('PROMPT: $prompt');
-      // Call OpenAI API
-      final chatCompletion = await OpenAI.instance.chat.create(
-        model: model,
-        messages: [
-          OpenAIChatCompletionChoiceMessageModel(
-            content: [
-              OpenAIChatCompletionChoiceMessageContentItemModel.text(
-                  'You are a compassionate mental health chatbot designed to provide support for Filipino users.'),
-            ],
-            role: OpenAIChatMessageRole.assistant,
-          ),
-          OpenAIChatCompletionChoiceMessageModel(
-            content: [
-              OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt),
-            ],
-            role: OpenAIChatMessageRole.user,
-          ),
-        ],
+
+      // Create a Dio instance and set headers including your API key
+      Dio dio = Dio();
+      dio.options.headers['Authorization'] = "Bearer $openaiApiKey";
+      dio.options.headers['Content-Type'] = 'application/json';
+
+      // Build the messages array following OpenAI's expected structure.
+      // Note: While the original code used the "assistant" role for the first message,
+      // you may want to consider using the "system" role for instructions.
+      var messages = [
+        {
+          "role": "assistant",
+          "content":
+              "You are a compassionate mental health chatbot designed to provide support for Filipino users."
+        },
+        {"role": "user", "content": prompt}
+      ];
+
+      // Build the request body
+      var requestBody = {
+        "model": model, // Ensure 'model' is defined in your code
+        "messages": messages,
+      };
+
+      // Make the POST request to the OpenAI Chat Completion endpoint
+      final response = await dio.post(
+        "https://api.openai.com/v1/chat/completions",
+        data: jsonEncode(requestBody),
       );
 
-      // Extract and return the response text
-      final contentList = chatCompletion.choices.first.message.content;
-      if (contentList != null && contentList.isNotEmpty) {
-        final result = contentList.map((item) => item.text).join(" ").trim();
-        return result;
+// Log raw response data for debugging
+      print("Raw response data: ${response.data}");
+
+      // Check for a successful response
+      if (response.statusCode == 200) {
+        var data = response.data;
+        if (data['choices'] != null &&
+            data['choices'].isNotEmpty &&
+            data['choices'][0]['message'] != null) {
+          // Extract and return the response text
+          String result = data['choices'][0]['message']['content'];
+          return result.trim();
+        }
+        return "";
+      } else {
+        print("Error: ${response.statusCode} ${response.statusMessage}");
+        return "Error processing query.";
       }
-      return "";
     } catch (e) {
       print("Error in queryResponse: $e");
       return "Error processing query.";

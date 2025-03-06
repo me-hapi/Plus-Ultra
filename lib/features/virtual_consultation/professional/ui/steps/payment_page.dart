@@ -132,7 +132,8 @@ class _PaymentPageState extends State<PaymentPage> {
                 : Center(
                     child: Text(
                       _decodedQR ?? 'Upload',
-                      style: TextStyle(fontSize: 16, color: mindfulBrown['Brown80']),
+                      style: TextStyle(
+                          fontSize: 16, color: mindfulBrown['Brown80']),
                     ),
                   ),
           ),
@@ -224,39 +225,57 @@ class _PaymentPageState extends State<PaymentPage> {
         ),
         if (isFreeConsultation == false)
           Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Consultation Fee',
+              style: TextStyle(
+                  color: mindfulBrown['Brown80'],
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        if (isFreeConsultation == false)
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: 
-            TextFormField(
+            child: TextFormField(
               controller: consultationFeeController,
-                decoration: InputDecoration(
-                  hintText: 'Consultation Fee',
-                  fillColor: Colors.white, // Background fill color
-                  filled: true, // Enable the fill color
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30), // Rounded corners
-                    borderSide: BorderSide.none, // No default border
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30), // Rounded corners
-                    borderSide: BorderSide(
-                      color: serenityGreen[
-                          'Green50']!, // Green border when focused
-                      width: 2.0, // Width of the border
-                    ),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 20,
-                  ), // Adjust padding for better appearance
+              decoration: InputDecoration(
+                hintText: 'Consultation Fee',
+                prefix: Text(
+                  '₱ ',
+                  style: TextStyle(fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat', color: mindfulBrown['Brown80']),
                 ),
+                fillColor: Colors.white, // Background fill color
+                filled: true, // Enable the fill color
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                  borderSide: BorderSide.none, // No default border
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                  borderSide: BorderSide(
+                    color:
+                        serenityGreen['Green50']!, // Green border when focused
+                    width: 2.0, // Width of the border
+                  ),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 20,
+                ), // Adjust padding for better appearance
               ),
+            ),
           ),
         if (isFreeConsultation == false)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
               'Gcash QR',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: mindfulBrown['Brown80'],
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
             ),
           ),
         if (isFreeConsultation == false)

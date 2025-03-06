@@ -106,7 +106,7 @@ class _LandingPageState extends State<LandingPage> {
             ProfessionalCard(professionalData: professional!),
           const SizedBox(height: 40.0),
 
-          if (isPending)
+          if (!isPending)
             SizedBox(
               height: 55,
               width: double.infinity,

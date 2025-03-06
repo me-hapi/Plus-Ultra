@@ -19,6 +19,10 @@ class ApplicationLogic {
     this.currentIndex = 0,
   });
 
+  void previousPage() {
+    currentIndex--;
+  }
+
   Future<void> nextPage() async {
     if (!validateCurrentStep()) return;
     print(stepData['verification']);

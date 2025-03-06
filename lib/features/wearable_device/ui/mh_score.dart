@@ -75,13 +75,13 @@ class MhScorePageState extends State<MhScorePage> {
     return data.where((spot) => spot.x >= startTimestamp).toList();
   }
 
-  List<FlSpot> normalizeTimestamps(List<FlSpot> data) {
-    if (data.isEmpty) return [];
+  // List<FlSpot> normalizeTimestamps(List<FlSpot> data) {
+  //   if (data.isEmpty) return [];
 
-    double minX = data.first.x; // Get the earliest timestamp
+  //   double minX = data.first.x; // Get the earliest timestamp
 
-    return data.map((spot) => FlSpot(spot.x - minX, spot.y)).toList();
-  }
+  //   return data.map((spot) => FlSpot(spot.x - minX, spot.y)).toList();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +116,131 @@ class MhScorePageState extends State<MhScorePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                //Title
+                CircleAvatar(
+                  radius: 8,
+                  backgroundColor: kindPurple['Purple50'],
+                ),
+                Text(
+                  '${widget.depression.toString()}%',
+                  style: TextStyle(
+                    color: mindfulBrown['Brown80'],
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  width: 3,
+                ),
+                //Label
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      widget.depression == 0
+                          ? '- '
+                          : widget.depression > 0
+                              ? '↑  '
+                              : '↓  ',
+                      style: TextStyle(
+                        color: widget.depression == 0
+                            ? optimisticGray['Gray50']
+                            : widget.depression > 0
+                                ? presentRed['Red50']
+                                : serenityGreen['Green50'],
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                //Title
+                CircleAvatar(
+                  radius: 8,
+                  backgroundColor: empathyOrange['Orange50'],
+                ),
+                Text(
+                  '${widget.anxiety.toString()}%',
+                  style: TextStyle(
+                    color: mindfulBrown['Brown80'],
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  width: 3,
+                ),
+                //Label
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      widget.anxiety == 0
+                          ? '- '
+                          : widget.anxiety > 0
+                              ? '↑  '
+                              : '↓  ',
+                      style: TextStyle(
+                        color: widget.anxiety == 0
+                            ? optimisticGray['Gray50']
+                            : widget.anxiety > 0
+                                ? presentRed['Red50']
+                                : serenityGreen['Green50'],
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                //Title
+                CircleAvatar(
+                  radius: 8,
+                  backgroundColor: serenityGreen['Green50'],
+                ),
+                Text(
+                  '${widget.stress.toString()}%',
+                  style: TextStyle(
+                    color: mindfulBrown['Brown80'],
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  width: 3,
+                ),
+                //Label
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      widget.stress == 0
+                          ? '- '
+                          : widget.stress > 0
+                              ? '↑ '
+                              : '↓ ',
+                      style: TextStyle(
+                        color: widget.stress == 0
+                            ? optimisticGray['Gray50']
+                            : widget.stress > 0
+                                ? presentRed['Red50']
+                                : serenityGreen['Green50'],
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
             Spacer(),
             Stack(
               alignment: Alignment.bottomCenter,
@@ -211,8 +336,8 @@ class MhScorePageState extends State<MhScorePage> {
         show: true,
         border: Border.all(color: Colors.transparent),
       ),
-      minX: filteredDepression.first.x,
-      maxX: DateTime.now().millisecondsSinceEpoch / 1e3,
+      minX: filteredDepression.isNotEmpty ? filteredDepression.first.x : 0,
+      maxX: filteredDepression.isNotEmpty ? filteredDepression.last.x : 1,
       minY: 0,
       maxY: 12,
       lineBarsData: [
