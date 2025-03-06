@@ -33,6 +33,7 @@ class _GreetingCardState extends State<GreetingCard> {
   ui.Image? _backgroundImage;
   Map<String, dynamic>? profile;
   late Map<String, dynamic> selectedSuggestion;
+  int notificationValue = 0;
   final List<Map<String, dynamic>> featureSuggestions = [
     {
       'message':
@@ -84,6 +85,14 @@ class _GreetingCardState extends State<GreetingCard> {
     _fetchProfile();
     selectedSuggestion =
         featureSuggestions[Random().nextInt(featureSuggestions.length)];
+    fetchNotification();
+  }
+
+  Future<void> fetchNotification() async {
+    final result = await supabase.fetchNotificationValue();
+    setState(() {
+      notificationValue = result;
+    });
   }
 
   Future<void> _fetchProfile() async {
@@ -173,15 +182,40 @@ class _GreetingCardState extends State<GreetingCard> {
                 //     color: Colors.white,
                 //   ),
                 // ),
-                IconButton(
-                  key: widget.keyNotification,
-                  icon: Icon(Icons.notifications),
-                  color: Colors.white,
-                  onPressed: () {
-                    // NOTIFICATION FUNCTION
-                    context.push('/notification');
-                  },
-                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      key: widget.keyNotification,
+                      icon: Icon(Icons.notifications),
+                      color: Colors.white,
+                      onPressed: () {
+                        // NOTIFICATION FUNCTION
+                        context.push('/notification');
+                      },
+                    ),
+                    if (notificationValue != 0)
+                      Positioned(
+                        right: 10,
+                        top: 10,
+                        child: CircleAvatar(
+                          radius: 8, // Slightly increased for better visibility
+                          backgroundColor: empathyOrange['Orange50'],
+                          child: Center(
+                            // Ensure text is centered both vertically and horizontally
+                            child: Text(
+                              notificationValue.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                )
               ],
             ),
             SizedBox(height: 16),

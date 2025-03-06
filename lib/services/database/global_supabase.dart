@@ -6,6 +6,20 @@ class GlobalSupabase {
 
   GlobalSupabase(this._client);
 
+  Future<int> fetchNotificationValue() async {
+    try {
+      final response = await _client
+          .from('notification')
+          .select()
+          .eq('uid', uid)
+          .eq('read', false);
+
+      return response.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchAllMhScore() async {
     final response = await _client.from('mh_score').select().eq('uid', uid);
 

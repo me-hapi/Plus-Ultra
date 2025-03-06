@@ -3,13 +3,20 @@ import 'package:lingap/core/const/colors.dart';
 
 class NotificationCard extends StatelessWidget {
   final String category;
+  final String content;
+  final String time_ago;
 
-  const NotificationCard({Key? key, required this.category}) : super(key: key);
+  const NotificationCard(
+      {Key? key,
+      required this.category,
+      required this.content,
+      required this.time_ago})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> categories = {
-      'appointment': {
+      'Appointments': {
         'title': 'Appointment Set',
         'content':
             'You have set an appointment. Check your schedule for details.',
@@ -23,7 +30,7 @@ class NotificationCard extends StatelessWidget {
         'color': reflectiveBlue['Blue50'],
         'image': 'assets/notification/session.png'
       },
-      'journal': {
+      'Journaling': {
         'title': 'New Journal Entry',
         'content':
             'You have written a new journal entry. Keep expressing yourself!',
@@ -44,13 +51,13 @@ class NotificationCard extends StatelessWidget {
         'color': zenYellow['Yellow50'],
         'image': 'assets/notification/peer.png'
       },
-      'mood': {
+      'Mood Tracking': {
         'title': 'Mood Logged',
         'content': 'Tracking your emotions helps with self-awareness.',
         'color': empathyOrange['Orange50'],
         'image': 'assets/notification/data.png'
       },
-      'sleep': {
+      'Sleep Monitoring': {
         'title': 'Sleep Data Recorded',
         'content': 'Understanding your sleep patterns is key to well-being.',
         'color': kindPurple['Purple50'],
@@ -93,7 +100,7 @@ class NotificationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    categories[category]['title'],
+                    category,
                     style: TextStyle(
                       color: mindfulBrown['Brown80'],
                       fontWeight: FontWeight.bold,
@@ -102,7 +109,7 @@ class NotificationCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    categories[category]['content'],
+                    content,
                     style: TextStyle(
                       fontSize: 14,
                       color: optimisticGray['Gray50'],
@@ -111,6 +118,11 @@ class NotificationCard extends StatelessWidget {
                 ],
               ),
             ),
+
+            Text(
+              time_ago,
+              style: TextStyle(fontSize: 12, color: mindfulBrown['Brown50']),
+            )
           ],
         ),
       ),

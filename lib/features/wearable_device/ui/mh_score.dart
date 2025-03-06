@@ -29,6 +29,22 @@ class MhScorePageState extends State<MhScorePage> {
   int _selectedIndex = 1;
   final List<String> _options = ["1 day", "1 week", "1 month", "1 year", "All"];
 
+  List<FlSpot> filteredDepression = [];
+  List<FlSpot> filteredAnxiety = [];
+  List<FlSpot> filteredStress = [];
+  @override
+  void initState() {
+    super.initState();
+    filterData();
+  }
+
+  void filterData() {
+    filteredDepression =
+        getFilteredData(convertTimestamps(widget.depressionGraph));
+    filteredAnxiety = getFilteredData(convertTimestamps(widget.anxietyGraph));
+    filteredStress = getFilteredData(convertTimestamps(widget.stressGraph));
+  }
+
   List<FlSpot> convertTimestamps(List<FlSpot> data) {
     return data.map((spot) => FlSpot(spot.x / 1e3, spot.y)).toList();
   }
@@ -55,14 +71,21 @@ class MhScorePageState extends State<MhScorePage> {
     }
 
     double startTimestamp = startDate.millisecondsSinceEpoch / 1e3;
+
     return data.where((spot) => spot.x >= startTimestamp).toList();
+  }
+
+  List<FlSpot> normalizeTimestamps(List<FlSpot> data) {
+    if (data.isEmpty) return [];
+
+    double minX = data.first.x; // Get the earliest timestamp
+
+    return data.map((spot) => FlSpot(spot.x - minX, spot.y)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<FlSpot> filteredDepression = getFilteredData(convertTimestamps(widget.depressionGraph));
-    List<FlSpot> filteredAnxiety = getFilteredData(convertTimestamps(widget.anxietyGraph));
-    List<FlSpot> filteredStress = getFilteredData(convertTimestamps(widget.stressGraph));
+    print("Filtered Depression Data: $filteredDepression");
 
     return Scaffold(
       appBar: AppBar(
@@ -99,7 +122,8 @@ class MhScorePageState extends State<MhScorePage> {
               children: [
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.70,
-                  child: LineChart(mainData(filteredDepression, filteredAnxiety, filteredStress)),
+                  child: LineChart(mainData(
+                      filteredDepression, filteredAnxiety, filteredStress)),
                 ),
                 Positioned(bottom: 20, child: dateSelector())
               ],
@@ -132,6 +156,7 @@ class MhScorePageState extends State<MhScorePage> {
       onTap: () {
         setState(() {
           _selectedIndex = index;
+          filterData();
         });
       },
       child: Container(
@@ -151,7 +176,8 @@ class MhScorePageState extends State<MhScorePage> {
     );
   }
 
-  LineChartData mainData(List<FlSpot> depression, List<FlSpot> anxiety, List<FlSpot> stress) {
+  LineChartData mainData(
+      List<FlSpot> depression, List<FlSpot> anxiety, List<FlSpot> stress) {
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -167,8 +193,10 @@ class MhScorePageState extends State<MhScorePage> {
       ),
       titlesData: FlTitlesData(
         show: true,
-        bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        bottomTitles:
+            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles:
+            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
@@ -183,7 +211,7 @@ class MhScorePageState extends State<MhScorePage> {
         show: true,
         border: Border.all(color: Colors.transparent),
       ),
-      minX: 0,
+      minX: filteredDepression.first.x,
       maxX: DateTime.now().millisecondsSinceEpoch / 1e3,
       minY: 0,
       maxY: 12,
@@ -191,19 +219,19 @@ class MhScorePageState extends State<MhScorePage> {
         LineChartBarData(
           spots: depression,
           isCurved: true,
-          color: Colors.purple,
+          color: kindPurple['Purple50'],
           barWidth: 4,
         ),
         LineChartBarData(
           spots: anxiety,
           isCurved: true,
-          color: Colors.orange,
+          color: empathyOrange['Orange50'],
           barWidth: 4,
         ),
         LineChartBarData(
           spots: stress,
           isCurved: true,
-          color: Colors.green,
+          color: serenityGreen['Green50'],
           barWidth: 4,
         ),
       ],

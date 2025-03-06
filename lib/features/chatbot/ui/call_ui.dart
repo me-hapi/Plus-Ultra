@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
@@ -17,14 +19,39 @@ class _CallChatbotState extends State<CallChatbot> {
   late CallLogic _callLogic;
   bool _isMuted = false;
   bool _isMicActive = false;
+  late Timer _timer;
+  int _secondsElapsed = 0;
 
   @override
   void initState() {
     super.initState();
     _callLogic = CallLogic(widget.sessionID);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _callLogic.startListening(() => setState(() {}));
+      _callLogic.playIntro(() => setState(() {}));
     });
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Stop the timer when widget is disposed
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          _secondsElapsed++;
+        });
+      }
+    });
+  }
+
+  String _formatTime(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final remainingSeconds = (seconds % 60).toString().padLeft(2, '0');
+    return "$minutes:$remainingSeconds";
   }
 
   @override
@@ -33,7 +60,7 @@ class _CallChatbotState extends State<CallChatbot> {
       backgroundColor: serenityGreen['Green50'],
       appBar: AppBar(
         title: Text(
-          "AI Chatbot",
+          "Ligaya",
           style: TextStyle(color: Colors.white, fontSize: 25),
         ),
         backgroundColor: serenityGreen['Green50'],
@@ -86,24 +113,35 @@ class _CallChatbotState extends State<CallChatbot> {
                   ),
                 ),
                 SizedBox(width: 20),
-                GestureDetector(
-                  onTap: () {
-                    context.pop();
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: empathyOrange['Orange50']),
-                    child: Center(
-                      child: Image.asset(
-                        'assets/peer/call.png',
-                        width: 50,
-                        height: 50,
+                Column(
+                  children: [
+                    Text(
+                      _formatTime(_secondsElapsed), // Updated to display timer
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        context.pop();
+                      },
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: empathyOrange['Orange50']),
+                        child: Center(
+                          child: Image.asset(
+                            'assets/peer/call.png',
+                            width: 50,
+                            height: 50,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
                 SizedBox(width: 20),
                 GestureDetector(

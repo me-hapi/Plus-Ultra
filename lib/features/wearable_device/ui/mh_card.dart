@@ -72,14 +72,10 @@ class MhCard extends StatelessWidget {
                     children: [
                       //Title
                       Text(
-                        depression.toString(),
+                        '${depression.toString()}%',
                         style: TextStyle(
-                          color: depression == 0
-                              ? optimisticGray['Gray50']
-                              : depression > 0
-                                  ? presentRed['Red50']
-                                  : serenityGreen['Green50'],
-                          fontSize: 28,
+                          color: mindfulBrown['Brown80'],
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -93,9 +89,17 @@ class MhCard extends StatelessWidget {
                             height: 5,
                           ),
                           Text(
-                            '-',
+                            depression == 0
+                                ? '- '
+                                : depression > 0
+                                    ? '↑ '
+                                    : '↓ ',
                             style: TextStyle(
-                              color: optimisticGray['Gray60'],
+                              color: depression == 0
+                                  ? optimisticGray['Gray50']
+                                  : depression > 0
+                                      ? presentRed['Red50']
+                                      : serenityGreen['Green50'],
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -104,14 +108,10 @@ class MhCard extends StatelessWidget {
                       ),
                       //Title
                       Text(
-                        anxiety.toString(),
+                        '${anxiety.toString()}%',
                         style: TextStyle(
-                          color: anxiety == 0
-                              ? optimisticGray['Gray50']
-                              : anxiety > 0
-                                  ? presentRed['Red50']
-                                  : serenityGreen['Green50'],
-                          fontSize: 28,
+                          color: mindfulBrown['Brown80'],
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -125,9 +125,17 @@ class MhCard extends StatelessWidget {
                             height: 5,
                           ),
                           Text(
-                            '-',
+                            anxiety == 0
+                                ? '- '
+                                : anxiety > 0
+                                    ? '↑ '
+                                    : '↓ ',
                             style: TextStyle(
-                              color: optimisticGray['Gray60'],
+                              color: anxiety == 0
+                                  ? optimisticGray['Gray50']
+                                  : anxiety > 0
+                                      ? presentRed['Red50']
+                                      : serenityGreen['Green50'],
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -136,14 +144,10 @@ class MhCard extends StatelessWidget {
                       ),
                       //Title
                       Text(
-                        stress.toString(),
+                        '${stress.toString()}%',
                         style: TextStyle(
-                          color: stress == 0
-                              ? optimisticGray['Gray50']
-                              : stress > 0
-                                  ? presentRed['Red50']
-                                  : serenityGreen['Green50'],
-                          fontSize: 28,
+                          color: mindfulBrown['Brown80'],
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -157,9 +161,17 @@ class MhCard extends StatelessWidget {
                             height: 5,
                           ),
                           Text(
-                            '-',
+                            stress == 0
+                                ? '- '
+                                : stress > 0
+                                    ? '↑ '
+                                    : '↓ ',
                             style: TextStyle(
-                              color: optimisticGray['Gray60'],
+                              color: stress == 0
+                                  ? optimisticGray['Gray50']
+                                  : stress > 0
+                                      ? presentRed['Red50']
+                                      : serenityGreen['Green50'],
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),

@@ -35,13 +35,22 @@ class CallLogic {
     _isMuted = mute;
   }
 
+  Future<void> playIntro(Function() onUpdate) async {
+    try {
+      await _audioPlayer.setAsset('assets/intro.mp3');
+      await _audioPlayer.play();
+      startListening(onUpdate);
+    } catch (e) {
+      print('Error playing notification sound: $e');
+    }
+  }
+
   Future<void> startListening(Function() onUpdate) async {
     if (_isListening) return;
 
     bool available = await _speech.initialize(
       onStatus: (status) {
         if (status == "notListening" || status == "done") {
-          _text = "Didn't hear any speech";
           _isListening = false;
           onUpdate();
           Future.delayed(Duration(seconds: 1), () => startListening(onUpdate));
@@ -117,6 +126,7 @@ class CallLogic {
       final response = await dio.post(
         url,
         options: Options(
+          responseType: ResponseType.bytes, // Set to bytes
           headers: {
             "xi-api-key": elevenLabsApiKey,
             "Content-Type": "application/json",
@@ -132,31 +142,21 @@ class CallLogic {
       if (response.statusCode == 200) {
         print("Received audio response from Eleven Labs.");
 
-        // Ensure response data is a string
-        if (response.data is String) {
-          String base64String = response.data;
+        // Save the MP3 file in the app's temporary directory
+        Directory tempDir = await getTemporaryDirectory();
+        String filePath = "${tempDir.path}/output.mp3";
+        File tempAudioFile = File(filePath);
+        await tempAudioFile.writeAsBytes(response.data);
 
-          // Decode Base64 to bytes
-          List<int> audioBytes = base64Decode(base64String);
+        if (await tempAudioFile.exists()) {
+          print("Audio file saved at: $filePath");
 
-          // Save the MP3 file in the app's temporary directory
-          Directory tempDir = await getTemporaryDirectory();
-          String filePath = "${tempDir.path}/output.mp3";
-          File tempAudioFile = File(filePath);
-          await tempAudioFile.writeAsBytes(response.data);
-
-          if (await tempAudioFile.exists()) {
-            print("Audio file saved at: $filePath");
-
-            // Play the audio using just_audio
-            AudioPlayer _audioPlayer = AudioPlayer();
-            await _audioPlayer.setFilePath(filePath);
-            await _audioPlayer.play();
-          } else {
-            print("Failed to save audio file.");
-          }
+          // Play the audio using just_audio
+          AudioPlayer _audioPlayer = AudioPlayer();
+          await _audioPlayer.setFilePath(filePath);
+          await _audioPlayer.play();
         } else {
-          print("Unexpected response format: ${response.data.runtimeType}");
+          print("Failed to save audio file.");
         }
       } else {
         print("Failed to fetch TTS: ${response.statusCode} - ${response.data}");

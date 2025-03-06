@@ -3,6 +3,7 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
+import 'package:lingap/modules/notification/data/supabase_db.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ForegroundHealthService {
@@ -73,7 +74,9 @@ class HealthTaskHandler extends TaskHandler {
     try {
       debugPrint('🔄 Fetching health data at: $timestamp');
       await HealthLogic().fetchHealthData();
+      await SupabaseDB().insertNotifications();
       await _insertLogRecord('called fetch health');
+      await _insertLogRecord('calledNotifcation');
       debugPrint('✅ Health data fetched successfully.');
     } catch (e) {
       debugPrint('❌ Error fetching health data: $e');

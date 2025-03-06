@@ -85,7 +85,9 @@ flutter:
   assets:
     - assets/logo.png
     - assets/test.jpg
-
+    - assets/notification.mp3
+    - assets/intro.mp3
+    
     - assets/utils/seemore.png
     - assets/utils/whiteBack.png
     - assets/utils/containerBack.png
@@ -110,6 +112,7 @@ flutter:
     - assets/vitals/blood.png
     - assets/vitals/sleep.png
     - assets/vitals/mood.png
+    - assets/vitals/mhdata.png
 
     - assets/logo/google.png
     - assets/logo/facebook.png

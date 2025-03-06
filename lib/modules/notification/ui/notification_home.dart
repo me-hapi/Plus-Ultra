@@ -15,11 +15,17 @@ class _NotificationHomeState extends State<NotificationHome> {
   @override
   void initState() {
     super.initState();
-    fetchNotification();
+    fetchAllNotification();
+    updateNotification();
   }
 
-  Future<void> fetchNotification() async {
-    final result = await notif_logic.fetchNotification();
+  Future<void> updateNotification() async {
+    await notif_logic.updateNotification();
+    print('CALLED');
+  }
+
+  Future<void> fetchAllNotification() async {
+    final result = await notif_logic.fetchAllNotification();
     setState(() {
       notification = result;
     });
@@ -34,9 +40,7 @@ class _NotificationHomeState extends State<NotificationHome> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 50,
-            ),
+            SizedBox(height: 50),
             Text(
               "Notifications",
               style: TextStyle(
@@ -70,8 +74,11 @@ class _NotificationHomeState extends State<NotificationHome> {
                                   NeverScrollableScrollPhysics(), // Prevents inner ListView scrolling
                               itemCount: entry.value.length,
                               itemBuilder: (context, index) {
+                                final item = entry.value[index];
                                 return NotificationCard(
-                                    category: entry.value[index]['category']);
+                                    category: item['category'],
+                                    content: item['content'],
+                                    time_ago: item['time_ago']);
                               },
                             ),
                           ],

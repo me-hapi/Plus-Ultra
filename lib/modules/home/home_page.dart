@@ -472,7 +472,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               children: [
                 MhCard(
                   title: 'DASS-12 Scores',
-                  imageUrl: "assets/vitals/heart.png",
+                  imageUrl: "assets/vitals/mhdata.png",
                   depression: mhData['depressionTrend'] ?? 0,
                   anxiety: mhData['anxietyTrend'] ?? 0,
                   stress: mhData['stressTrend'] ?? 0,
@@ -491,7 +491,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 VitalCard(
                   key: keyBloodPressure,
                   title: "Blood Oxygen",
-                  imageUrl: "assets/utils/oxygen2.png",
+                  imageUrl: "assets/vitals/blood.png",
                   metric: healthDataMap['BLOOD_OXYGEN']?['latest'] ?? 'N/A',
                   lineGraphData: healthDataMap['BLOOD_OXYGEN']?['spots'] ?? [],
                   graphColor: reflectiveBlue['Blue50']!,
