@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 
-class VitalCard extends StatelessWidget {
+class VitalCard extends StatefulWidget {
   final String title;
   final String imageUrl;
   final String metric;
@@ -11,13 +13,46 @@ class VitalCard extends StatelessWidget {
   final Color graphColor;
 
   const VitalCard({
+    Key? key,
     required this.title,
     required this.imageUrl,
     required this.metric,
     required this.lineGraphData,
     required this.graphColor,
-    Key? key,
   }) : super(key: key);
+
+  @override
+  _VitalCardState createState() => _VitalCardState();
+}
+
+class _VitalCardState extends State<VitalCard> {
+  final GlobalSupabase _globalSupabase = GlobalSupabase(client);
+  bool isEmpty = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkMoodSleep();
+  }
+
+  Future<void> checkMoodSleep() async {
+    switch (widget.title.toLowerCase()) {
+      case 'mood':
+        final result = await _globalSupabase.isMoodEmpty();
+        // print('MOOD ENTRY: $result');
+        setState(() {
+          isEmpty = result;
+        });
+        break;
+
+      case 'sleep':
+        final result = await _globalSupabase.isSleepEmpty();
+        setState(() {
+          isEmpty = result;
+        });
+        break;
+    }
+  }
 
   String _getTitleText(String metric) {
     switch (metric) {
@@ -36,28 +71,31 @@ class VitalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    checkMoodSleep();
     return GestureDetector(
       onTap: () {
-        if (title == 'Mood') {
-          context.push('/mood-overview', extra: lineGraphData);
+        if (widget.title == 'Mood') {
+          context.push('/mood-overview', extra: widget.lineGraphData);
         }
-        if (title == 'Sleep') {
+        if (widget.title == 'Sleep') {
           context.push('/sleep-overview');
         }
-        if (title == 'Heart Rate') {
+        if (widget.title == 'Heart Rate') {
           print('heart');
           context.push('/heart-overview',
-              extra: {'heart': lineGraphData, 'average': metric});
+              extra: {'heart': widget.lineGraphData, 'average': widget.metric});
         }
-        if (title == 'Blood Oxygen') {
-          context.push('/oxygen-overview',
-              extra: {'oxygen': lineGraphData, 'average': metric});
+        if (widget.title == 'Blood Oxygen') {
+          context.push('/oxygen-overview', extra: {
+            'oxygen': widget.lineGraphData,
+            'average': widget.metric
+          });
         }
       },
       child: Card(
         margin: EdgeInsets.only(left: 12, right: 12, bottom: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        color: Colors.white,
+        color: isEmpty ? empathyOrange['Orange50'] : Colors.white,
         elevation: 0,
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -67,7 +105,7 @@ class VitalCard extends StatelessWidget {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.transparent,
-                backgroundImage: AssetImage(imageUrl),
+                backgroundImage: AssetImage(widget.imageUrl),
               ),
               SizedBox(width: 16),
               // Center: Title and Metric
@@ -76,14 +114,14 @@ class VitalCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    title,
+                    widget.title,
                     style: TextStyle(
                       color: mindfulBrown['Brown80'],
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  lineGraphData.isEmpty
+                  widget.lineGraphData.isEmpty
                       ? Text(
                           'No data available yet',
                           style: TextStyle(
@@ -97,7 +135,7 @@ class VitalCard extends StatelessWidget {
                           children: [
                             //Title
                             Text(
-                              metric,
+                              widget.metric,
                               style: TextStyle(
                                 color: mindfulBrown['Brown80'],
                                 fontSize: 28,
@@ -114,7 +152,7 @@ class VitalCard extends StatelessWidget {
                                   height: 5,
                                 ),
                                 Text(
-                                  _getTitleText(title.toLowerCase()),
+                                  _getTitleText(widget.title.toLowerCase()),
                                   style: TextStyle(
                                     color: optimisticGray['Gray60'],
                                     fontSize: 14,
@@ -136,12 +174,12 @@ class VitalCard extends StatelessWidget {
                   LineChartData(
                     lineBarsData: [
                       LineChartBarData(
-                        spots: lineGraphData,
+                        spots: widget.lineGraphData,
                         isCurved: true,
                         gradient: LinearGradient(
                           colors: [
-                            graphColor,
-                            graphColor,
+                            widget.graphColor,
+                            widget.graphColor,
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -153,7 +191,7 @@ class VitalCard extends StatelessWidget {
                           show: true,
                           gradient: LinearGradient(
                             colors: [
-                              graphColor.withOpacity(0.3),
+                              widget.graphColor.withOpacity(0.3),
                               Colors.transparent,
                             ],
                             begin: Alignment.topCenter,

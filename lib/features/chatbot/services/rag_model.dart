@@ -13,7 +13,7 @@ class RAGModel {
       "pcsk_6T6RBw_SPJQunRCtoiSMHZbAUKRSRbsAyAigBg8nJdzpHfqbnSb7feX7WdkTo5uGTDLMkH";
   final String openaiApiKey =
       "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";
-  final String model = "o3-mini";
+  String model = "o3-mini";
   final SupabaseDB supabase = SupabaseDB(client);
 
   late final PineconeRetriever pinecone;
@@ -26,15 +26,14 @@ class RAGModel {
         pineconeApiKey: pineconeApiKey, indexEndpoint: indexEndpoint);
     fetchHotlines();
     fetchJournal(sessionID);
+    fetchModel();
     // test();
   }
 
-  Future<void> test() async {
-    List<OpenAIModelModel> models = await OpenAI.instance.model.list();
-
-    for (var model in models) {
-      print(model.id);
-    }
+  Future<void> fetchModel() async {
+    final result = await supabase.fetchModel();
+    print('MODEL: $result');
+    model = result;
   }
 
   Future<void> fetchJournal(int sessionID) async {

@@ -6,6 +6,43 @@ class GlobalSupabase {
 
   GlobalSupabase(this._client);
 
+  Future<bool> isSleepEmpty() async {
+    // Get today's date and define the start and end of the day.
+    final nowUtc = DateTime.now().toUtc();
+    final startOfDay = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    // Query the "sleep" table filtering rows based on the created_at field.
+    final response = await client
+        .from('sleep')
+        .select()
+        .eq('uid', uid)
+        .gte('created_at', startOfDay.toIso8601String())
+        .lt('created_at', endOfDay.toIso8601String());
+
+    // If the returned data list is not empty, a row exists for today.
+    final data = response as List;
+    return data.isEmpty;
+  }
+
+  Future<bool> isMoodEmpty() async {
+    final nowUtc = DateTime.now().toUtc();
+    final startOfDay = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    // Query the "sleep" table filtering rows based on the created_at field.
+    final response = await client
+        .from('mood')
+        .select()
+        .eq('uid', uid)
+        .gte('created_at', startOfDay.toIso8601String())
+        .lt('created_at', endOfDay.toIso8601String());
+
+    // If the returned data list is not empty, a row exists for today.
+    final data = response as List;
+    return data.isEmpty;
+  }
+
   Future<int> fetchNotificationValue() async {
     try {
       final response = await _client

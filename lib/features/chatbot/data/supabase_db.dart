@@ -8,6 +8,15 @@ class SupabaseDB {
 
   SupabaseDB(this._client);
 
+  Future<String> fetchModel() async {
+    try {
+      final result = await _client.from('model').select().maybeSingle();
+      return result?['model'] ?? 'o3-mini';
+    } catch (e) {
+      return 'o3-mini';
+    }
+  }
+
   Future<void> deleteSession(int sessionID) async {
     try {
       print('Deleting...');

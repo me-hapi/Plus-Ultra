@@ -8,7 +8,11 @@ class SupabaseDB {
   SupabaseDB(this._client);
 
   Future<List<Map<String, dynamic>>> getPastWeekMoods() async {
-    final DateTime weekAgo = DateTime.now().subtract(Duration(days: 7));
+    final int daysToSubtract = DateTime.now().weekday;
+    final DateTime weekAgo =
+        DateTime.now().subtract(Duration(days: daysToSubtract-1));
+
+    print('DAY MINUS: $daysToSubtract');
 
     // Fetch moods from the mood table
     final List<Map<String, dynamic>> moods = await _client

@@ -8,7 +8,9 @@ class SupabaseDB {
   SupabaseDB(this._client);
 
   Future<List<Map<String, dynamic>>> getPastWeeksleeps() async {
-    final DateTime weekAgo = DateTime.now().subtract(Duration(days: 7));
+    final int daysToSubtract = DateTime.now().weekday;
+    final DateTime weekAgo =
+        DateTime.now().subtract(Duration(days: daysToSubtract - 1));
 
     final response = await _client
         .from('sleep')
@@ -41,7 +43,9 @@ class SupabaseDB {
             .update({'sleep_hour': sleepHours}).eq('id', existingsleep['id']);
       } else {
         // Insert a new sleep entry
-        await _client.from('sleep').insert({'uid': uid, 'sleep_hour': sleepHours});
+        await _client
+            .from('sleep')
+            .insert({'uid': uid, 'sleep_hour': sleepHours});
       }
     } catch (e) {
       print('Error inserting/updating sleep: $e');
