@@ -253,10 +253,10 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
             const SizedBox(height: 15),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              padding: const EdgeInsets.symmetric(horizontal: 0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Column for Wearable and its Card
                   Column(
@@ -280,7 +280,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.only(
-                                top: 10, bottom: 0, left: 15, right: 15),
+                                top: 10, bottom: 0, left: 12, right: 12),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -346,7 +346,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(20.0),
+                              padding: const EdgeInsets.all(18.0),
                               child: SizedBox(
                                 width:
                                     140, // Ensures Stack has defined constraints

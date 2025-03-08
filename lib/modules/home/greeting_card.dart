@@ -250,7 +250,7 @@ class _GreetingCardState extends State<GreetingCard> {
                       ),
                     ),
                     SizedBox(
-                      width: 250, // Adjust this width as needed
+                      width: 250,
                       child: Text(
                         selectedSuggestion['message']!,
                         style: TextStyle(
@@ -259,8 +259,8 @@ class _GreetingCardState extends State<GreetingCard> {
                           fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
+                        softWrap: true, // Ensures text can wrap
+                        // overflow property removed
                       ),
                     ),
                   ],

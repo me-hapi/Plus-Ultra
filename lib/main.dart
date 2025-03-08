@@ -16,8 +16,7 @@ Future<bool> requestPermissions() async {
 
     final types = [
       HealthDataType.HEART_RATE,
-      HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
-      HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+      HealthDataType.BLOOD_OXYGEN
     ];
 
     final permissions = types.map((type) => HealthDataAccess.READ).toList();
