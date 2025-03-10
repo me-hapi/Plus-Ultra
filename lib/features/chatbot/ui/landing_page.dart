@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/chatbot/data/supabase_db.dart';
+import 'package:lingap/features/chatbot/ui/landing_tutorial.dart';
 
 class ChatbotLanding extends StatefulWidget {
   const ChatbotLanding({Key? key}) : super(key: key);
@@ -13,6 +14,17 @@ class ChatbotLanding extends StatefulWidget {
 
 class _ChatbotLandingState extends State<ChatbotLanding> {
   final SupabaseDB supabase = SupabaseDB(client);
+  final GlobalKey _buttonKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // Show the tutorial coach mark after the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LandingTutorial.show(context, _buttonKey);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +63,7 @@ class _ChatbotLandingState extends State<ChatbotLanding> {
                   height: 60,
                   width: double.infinity,
                   child: ElevatedButton(
+                    key: _buttonKey,
                     onPressed: () async {
                       int result = await supabase.createSession(uid);
                       if (result != 0) {

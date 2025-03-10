@@ -9,6 +9,7 @@ import 'package:lingap/features/virtual_consultation/user/logic/recommendation.d
 import 'package:lingap/features/virtual_consultation/user/ui/appointment_history.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/issue_row.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
+import 'package:lingap/features/virtual_consultation/user/ui/teleconsult_tutorial.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 final searchProvider = StateProvider<String>((ref) => '');
@@ -27,6 +28,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   SupabaseDB supabaseDB = SupabaseDB(client);
   List<Map<String, dynamic>> professionals = [];
   Map<String, dynamic> recommendation = {};
+  final GlobalKey _keyAppBar = GlobalKey();
+  final GlobalKey _keySearch = GlobalKey();
+  final GlobalKey _keyIssues = GlobalKey();
+  final GlobalKey _keyRecommendation = GlobalKey();
+  final GlobalKey _keyAllProfessionals = GlobalKey();
 
   @override
   void initState() {
@@ -35,6 +41,18 @@ class _HomePageState extends ConsumerState<HomePage> {
     searchController = TextEditingController();
     getRecommendation();
     getProfessionals();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final teleconsultTutorial = TeleconsultTutorial(context);
+      teleconsultTutorial.initTargets(
+        _keyAppBar,
+        _keySearch,
+        _keyIssues,
+        _keyRecommendation,
+        _keyAllProfessionals,
+      );
+      teleconsultTutorial.showTutorial();
+    });
   }
 
   @override
@@ -130,6 +148,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        key: _keyAppBar,
         backgroundColor: mindfulBrown['Brown10'],
         leading: GestureDetector(
           onTap: () {
@@ -191,6 +210,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: SizedBox(
+                  key: _keySearch,
                   height: 65,
                   child: TextField(
                     key: const Key('search_bar'),
@@ -246,6 +266,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
                 child: IssuesRow(
+                  key: _keyIssues,
                   issues: issues,
                   selectedIssue: selectedIssue,
                   onIssueSelected: (issue) {
@@ -271,6 +292,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
 
               Padding(
+                  key: _keyRecommendation,
                   padding: const EdgeInsets.symmetric(
                       vertical: 2.0,
                       horizontal: 0), // Reduce horizontal padding
@@ -300,6 +322,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               professionals.isNotEmpty
                   ? Column(
+                      key: _keyAllProfessionals,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: filteredProfessionals.map((professional) {
                         return Padding(

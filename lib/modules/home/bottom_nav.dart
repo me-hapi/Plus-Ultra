@@ -75,7 +75,7 @@ class _BottomNavState extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
-    // hasConversation();
+    hasConversation();
     return Scaffold(
       body: _screens()[_currentIndex],
       bottomNavigationBar: CurvedNavigationBar(

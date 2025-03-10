@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lingap/core/const/const.dart';
+import 'package:lingap/services/database/global_supabase.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class HomeTutorial {
@@ -13,6 +15,7 @@ class HomeTutorial {
       GlobalKey keyNotification,
       GlobalKey keySetting,
       GlobalKey keyWearable,
+      GlobalKey keyMhScore,
       GlobalKey keyMindfulness,
       GlobalKey keyHeartRate,
       GlobalKey keyBloodPressure,
@@ -69,6 +72,18 @@ class HomeTutorial {
                   "Track your mindfulness activities, such as breathing exercises and meditation."))
         ],
       ),
+      // Modified mh_score target for Mental Health Score
+      TargetFocus(
+        identify: "mh_score",
+        keyTarget:
+            keyMhScore, // Consider using a dedicated GlobalKey if available
+        contents: [
+          TargetContent(
+              align: ContentAlign.top,
+              child: _buildContent("Mental Health Score",
+                  "Monitor your overall mental health status and track progress over time."))
+        ],
+      ),
       TargetFocus(
         identify: "heart_rate",
         keyTarget: keyHeartRate,
@@ -112,14 +127,20 @@ class HomeTutorial {
     ]);
   }
 
+  Future<void> updateHome() async {
+    await GlobalSupabase(client).updateHome();
+  }
+
   int counter = 0;
-  void showTutorial(BuildContext context, VoidCallback scrollToBottom) {
+  Future<void> showTutorial(
+      BuildContext context, VoidCallback scrollToBottom) async {
     print("Attempting to show tutorial...");
 
     if (targets.isEmpty) {
       print("Tutorial targets are empty!");
       return;
     }
+    final isHomeFinish = await GlobalSupabase(client).homeFinish();
 
     tutorialCoachMark = TutorialCoachMark(
         targets: targets,
@@ -128,7 +149,9 @@ class HomeTutorial {
         textStyleSkip:
             TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         paddingFocus: 10,
-        onFinish: () => print("Tutorial finished"),
+        onFinish: () {
+          updateHome();
+        },
         onClickTarget: (target) {
           print("Clicked target: ${target.identify}");
           counter++;
@@ -140,11 +163,14 @@ class HomeTutorial {
         onClickOverlay: (target) => print("Clicked overlay"),
         onSkip: () {
           print("skip");
+          updateHome();
           return true;
         });
 
     Future.delayed(Duration(milliseconds: 500), () {
-      tutorialCoachMark.show(context: context);
+      if (!isHomeFinish) {
+        tutorialCoachMark.show(context: context);
+      }
     });
   }
 

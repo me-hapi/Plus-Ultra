@@ -10,9 +10,11 @@ class SupabaseDB {
 
   Future<String> fetchModel() async {
     try {
-      final result = await _client.from('model').select().maybeSingle();
-      return result?['model'] ?? 'o3-mini';
+      final result = await _client.from('model').select().eq('id', 1);
+      print('model response: $result');
+      return result[0]['model'];
     } catch (e) {
+      print('ERROR model: $e');
       return 'o3-mini';
     }
   }

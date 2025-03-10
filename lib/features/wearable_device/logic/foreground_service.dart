@@ -75,8 +75,7 @@ class HealthTaskHandler extends TaskHandler {
       debugPrint('🔄 Fetching health data at: $timestamp');
       await HealthLogic().fetchHealthData();
       await SupabaseDB().insertNotifications();
-      await _insertLogRecord('called fetch health');
-      await _insertLogRecord('calledNotifcation');
+
       debugPrint('✅ Health data fetched successfully.');
     } catch (e) {
       debugPrint('❌ Error fetching health data: $e');

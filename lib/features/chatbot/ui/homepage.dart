@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/chatbot/data/supabase_db.dart';
+import 'package:lingap/features/chatbot/ui/chatbot_tutorial.dart';
 import 'package:lingap/features/chatbot/ui/conversation_card.dart';
 
 class ChatHome extends StatefulWidget {
@@ -16,6 +17,10 @@ class _ChatHomeState extends State<ChatHome> {
   final SupabaseDB supabase = SupabaseDB(client);
   late Stream<List<Map<String, dynamic>>> chatStream;
   List<Map<String, dynamic>> chatList = [];
+  final GlobalKey _keyAppBar = GlobalKey();
+  final GlobalKey _keyChatList = GlobalKey();
+  final GlobalKey _keyFAB = GlobalKey();
+  ChatTutorial? _chatTutorial;
 
   @override
   void initState() {
@@ -28,12 +33,18 @@ class _ChatHomeState extends State<ChatHome> {
         });
       }
     });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _chatTutorial = ChatTutorial(context);
+    //   _chatTutorial!.initTargets(_keyAppBar, _keyChatList, _keyFAB);
+    //   _chatTutorial!.showTutorial();
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        key: _keyAppBar,
         automaticallyImplyLeading: false,
         title: Text(
           'My AI Chats',
@@ -50,6 +61,7 @@ class _ChatHomeState extends State<ChatHome> {
       ),
       backgroundColor: mindfulBrown['Brown10'],
       body: Padding(
+        key: _keyChatList,
         padding: const EdgeInsets.all(16.0),
         child: ListView.builder(
           itemCount: chatList.length,
@@ -89,6 +101,7 @@ class _ChatHomeState extends State<ChatHome> {
         width: 72,
         height: 72,
         child: FloatingActionButton(
+          key: _keyFAB,
           onPressed: () async {
             int result = await supabase.createSession(uid);
             if (result != 0) {

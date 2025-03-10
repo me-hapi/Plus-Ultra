@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/const/das_interpretation.dart';
+import 'package:lingap/core/utils/security/encryption.dart';
 import 'package:lingap/features/chatbot/data/supabase_db.dart';
 import 'package:lingap/features/chatbot/logic/utils.dart';
 import 'package:lingap/features/chatbot/services/chatbot.dart';
@@ -94,7 +95,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     state = cached
         .map((row) => Message(
             isUser: row['user'],
-            message: row['content'],
+            message: Encryption()
+                .decryptMessage(row['content'], sessionID.toString()),
             time: DateTime.parse(row['created_at'])))
         .toList();
   }
@@ -104,7 +106,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
       final newMessages = data
           .map((row) => Message(
               isUser: row['user'],
-              message: row['content'],
+              message: Encryption()
+                  .decryptMessage(row['content'], sessionID.toString()),
               time: DateTime.parse(row['created_at'])))
           .toList();
 
@@ -148,8 +151,10 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
 
     print('ISSUE: $issue');
 
-    await supabaseDB.insertMessages(sessionID, userInput, true);
-    await supabaseDB.insertMessages(sessionID, responseText, false);
+    await supabaseDB.insertMessages(sessionID,
+        Encryption().encryptMessage(userInput, sessionID.toString()), true);
+    await supabaseDB.insertMessages(sessionID,
+        Encryption().encryptMessage(responseText, sessionID.toString()), false);
     await supabaseDB.updateCount(sessionID, history.length, emotion);
     await supabaseDB.updateIssue(sessionID, issue);
 
@@ -191,7 +196,10 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
     ];
 
     await supabaseDB.insertMessages(
-        sessionID, botIntroductions[randomIndex], false);
+        sessionID,
+        Encryption().encryptMessage(
+            botIntroductions[randomIndex], sessionID.toString()),
+        false);
     await supabaseDB.updateCount(sessionID, 1, emotion);
 
     supabaseDB.updateIntro(sessionID);
@@ -216,7 +224,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
         .toList();
     int count = history.length;
 
-    await supabaseDB.insertMessages(sessionID, script, false);
+    await supabaseDB.insertMessages(sessionID,
+        Encryption().encryptMessage(script, sessionID.toString()), false);
     await supabaseDB.updateCount(sessionID, count, emotion);
   }
 
@@ -231,7 +240,10 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
             time: DateTime.now())
       ];
 
-      await supabaseDB.insertMessages(sessionID, questions[index], false);
+      await supabaseDB.insertMessages(
+          sessionID,
+          Encryption().encryptMessage(questions[index], sessionID.toString()),
+          false);
     }
   }
 
@@ -278,7 +290,8 @@ class ChatbotNotifier extends StateNotifier<List<Message>> {
         .toList();
     int count = history.length;
 
-    await supabaseDB.insertMessages(sessionID, option, true);
+    await supabaseDB.insertMessages(sessionID,
+        Encryption().encryptMessage(option, sessionID.toString()), true);
     await supabaseDB.updateCount(sessionID, count, emotion);
     index++;
     if (index <= 11) {
@@ -345,7 +358,8 @@ Ensure the response is a close ended question.
             msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
         .toList();
 
-    await supabaseDB.insertMessages(sessionID, responseText, false);
+    await supabaseDB.insertMessages(sessionID,
+        Encryption().encryptMessage(responseText, sessionID.toString()), false);
     await supabaseDB.updateCount(sessionID, history.length, emotion);
   }
 
@@ -375,7 +389,8 @@ Ensure the response is a close ended question.
               msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
           .toList();
 
-      await supabaseDB.insertMessages(sessionID, 'Oo', true);
+      await supabaseDB.insertMessages(sessionID,
+          Encryption().encryptMessage('Oo', sessionID.toString()), true);
       await supabaseDB.updateCount(sessionID, history.length, emotion);
 
       closeSession();
@@ -389,7 +404,8 @@ Ensure the response is a close ended question.
               msg.isUser ? "User: ${msg.message}" : "System: ${msg.message}")
           .toList();
 
-      await supabaseDB.insertMessages(sessionID, 'Hindi', true);
+      await supabaseDB.insertMessages(sessionID,
+          Encryption().encryptMessage('Hindi', sessionID.toString()), true);
       await supabaseDB.updateCount(sessionID, history.length, emotion);
       staySession();
     }

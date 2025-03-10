@@ -6,6 +6,111 @@ class GlobalSupabase {
 
   GlobalSupabase(this._client);
 
+  Future<bool> homeFinish() async {
+    try {
+      final result =
+          await _client.from('profile').select().eq('id', uid).maybeSingle();
+
+      return result!['home_tutorial'];
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> chatbotFinish() async {
+    try {
+      final result =
+          await _client.from('profile').select().eq('id', uid).maybeSingle();
+
+      return result!['chatbot_tutorial'];
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> journalFinish() async {
+    try {
+      final result =
+          await _client.from('profile').select().eq('id', uid).maybeSingle();
+
+      return result!['journal_tutorial'];
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> teleconsultFinish() async {
+    try {
+      final result =
+          await _client.from('profile').select().eq('id', uid).maybeSingle();
+
+      return result!['teleconsult_tutorial'];
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> peerFinish() async {
+    try {
+      final result =
+          await _client.from('profile').select().eq('id', uid).maybeSingle();
+
+      return result!['peer_tutorial'];
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> updatePeer() async {
+    try {
+      final result = await _client
+          .from('profile')
+          .update({'peer_tutorial': true}).eq('id', uid);
+    } catch (e) {
+      print('Erroe $e');
+    }
+  }
+
+  Future<void> updateTeleconsult() async {
+    try {
+      final result = await _client
+          .from('profile')
+          .update({'teleconsult_tutorial': true}).eq('id', uid);
+    } catch (e) {
+      print('Erroe $e');
+    }
+  }
+
+  Future<void> updateJournal() async {
+    try {
+      final result = await _client
+          .from('profile')
+          .update({'journal_tutorial': true}).eq('id', uid);
+    } catch (e) {
+      print('Erroe $e');
+    }
+  }
+
+  Future<void> updateHome() async {
+    try {
+      final result = await _client
+          .from('profile')
+          .update({'home_tutorial': true}).eq('id', uid);
+    } catch (e) {
+      print('Erroe $e');
+    }
+  }
+
+  Future<void> updateChatbot() async {
+    try {
+      final result = await _client
+          .from('profile')
+          .update({'chatbot_tutorial': true}).eq('id', uid);
+    } catch (e) {
+      print('Erroe $e');
+    }
+  }
+
   Future<bool> isSleepEmpty() async {
     // Get today's date and define the start and end of the day.
     final nowUtc = DateTime.now().toUtc();

@@ -55,6 +55,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GlobalKey keyMood = GlobalKey();
   final GlobalKey keyNotification = GlobalKey();
   final GlobalKey keySetting = GlobalKey();
+  final GlobalKey keyMhScore = GlobalKey();
 
   final ScrollController _scrollController = ScrollController();
   int counter = 0;
@@ -69,7 +70,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _fetchMoodData();
     _fetchMindfulData();
     _fetchMhData();
-    // _startTutorial();
+    _startTutorial();
   }
 
   @override
@@ -81,7 +82,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   void _startTutorial({int retryCount = 0}) {
     Future.delayed(Duration(milliseconds: 500), () {
-      if (keyGreeting.currentContext != null &&
+      if (keyMhScore.currentContext != null &&
+          keyGreeting.currentContext != null &&
           keyNotification.currentContext != null &&
           keySetting.currentContext != null &&
           keyWearable.currentContext != null &&
@@ -98,6 +100,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           keyNotification,
           keySetting,
           keyWearable,
+          keyMhScore,
           keyMindfulness,
           keyHeartRate,
           keyBloodPressure,
@@ -471,6 +474,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 3.0),
               children: [
                 MhCard(
+                  key: keyMhScore,
                   title: 'DASS-12 Scores',
                   imageUrl: "assets/vitals/mhdata.png",
                   depression: mhData['depressionTrend'] ?? 0,

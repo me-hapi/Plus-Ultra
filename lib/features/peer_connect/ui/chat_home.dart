@@ -14,6 +14,8 @@ import 'package:lingap/features/peer_connect/ui/connection_row.dart';
 import 'package:lingap/features/peer_connect/ui/loading_page.dart';
 import 'dart:math' as math;
 
+import 'package:lingap/features/peer_connect/ui/peer_tutorial.dart';
+
 class ChatHome extends StatefulWidget {
   @override
   _ChatHomeState createState() => _ChatHomeState();
@@ -27,6 +29,10 @@ class _ChatHomeState extends State<ChatHome> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
   late MessageModel message;
+  final GlobalKey _keyAppBar = GlobalKey();
+  final GlobalKey _keySearch = GlobalKey();
+  final GlobalKey _keyFAB = GlobalKey();
+  final GlobalKey _keyBottomTabs = GlobalKey();
 
   @override
   void initState() {
@@ -37,6 +43,17 @@ class _ChatHomeState extends State<ChatHome> {
         _searchQuery = _searchController.text.toLowerCase();
       });
     });
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final peerTutorial = PeerTutorial(context);
+    //   peerTutorial.initTargets(
+    //     _keyAppBar,
+    //     _keySearch,
+    //     _keyFAB,
+    //     _keyBottomTabs,
+    //   );
+    //   peerTutorial.showTutorial();
+    // });
   }
 
   Stream<List<Map<String, dynamic>>> fetchConnectedUsers(String myUid) {
@@ -52,6 +69,7 @@ class _ChatHomeState extends State<ChatHome> {
     return Scaffold(
         backgroundColor: mindfulBrown['Brown10'],
         appBar: AppBar(
+          key: _keyAppBar,
           automaticallyImplyLeading: false,
           backgroundColor: mindfulBrown['Brown10'],
           title: Text(
@@ -76,6 +94,7 @@ class _ChatHomeState extends State<ChatHome> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: SizedBox(
+                    key: _keySearch,
                     height: 55, // Set desired height here
                     child: TextField(
                       controller: _searchController,
@@ -265,6 +284,7 @@ class _ChatHomeState extends State<ChatHome> {
               right: 16,
               bottom: 90,
               child: FloatingActionButton(
+                key: _keyFAB,
                 onPressed: () {
                   showDialog(
                     context: context,
@@ -298,6 +318,7 @@ class _ChatHomeState extends State<ChatHome> {
               left: 16, // Distance from the left
               right: 16, // Distance from the right
               child: Container(
+                key: _keyBottomTabs,
                 decoration: BoxDecoration(
                   color: Colors.white, // Main container background color
                   borderRadius: BorderRadius.circular(30.0),

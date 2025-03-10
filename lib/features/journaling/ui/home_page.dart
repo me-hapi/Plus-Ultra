@@ -6,6 +6,7 @@ import 'package:lingap/features/journaling/ui/create_journal.dart';
 import 'package:lingap/features/journaling/ui/journal_stat.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/journaling/data/supabse_db.dart';
+import 'package:lingap/features/journaling/ui/journal_tutorial.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -18,6 +19,10 @@ class _HomePageState extends State<HomePage> {
   late Map<String, int> counts;
   int journalCount = 0;
   int streak = 0;
+  final GlobalKey _keyAppBar = GlobalKey();
+  final GlobalKey _keyJournalCount = GlobalKey();
+  final GlobalKey _keyStats = GlobalKey();
+  final GlobalKey _keyFAB = GlobalKey();
 
   @override
   void initState() {
@@ -27,6 +32,16 @@ class _HomePageState extends State<HomePage> {
     // counts = homeLogic.counts;
     fetchCounts();
     fetchjournalCount();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final journalTutorial = JournalTutorial(context);
+      journalTutorial.initTargets(
+        _keyAppBar,
+        _keyJournalCount,
+        _keyStats,
+        _keyFAB,
+      );
+      journalTutorial.showTutorial();
+    });
   }
 
   Future<void> fetchjournalCount() async {
@@ -75,6 +90,7 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppBar(
+            key: _keyAppBar,
             backgroundColor: Colors.transparent,
             automaticallyImplyLeading: false,
             title: Text(
@@ -89,6 +105,7 @@ class _HomePageState extends State<HomePage> {
           ),
           // Upper Section: Open Book Icon and Journal Count
           Row(
+            key: _keyJournalCount,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
@@ -169,6 +186,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           TextButton(
+                            key: _keyStats,
                             onPressed: () {
                               // Navigator.push(
                               //   context,
@@ -350,6 +368,7 @@ class _HomePageState extends State<HomePage> {
                 left: MediaQuery.of(context).size.width / 2 -
                     40, // Center horizontally
                 child: ElevatedButton(
+                  key: _keyFAB,
                   onPressed: () {
                     Navigator.push(
                       context,

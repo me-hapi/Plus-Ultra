@@ -266,7 +266,7 @@ class SupabaseDB {
                 bool isSender = room['sender'] == myUid;
                 String otherUserId =
                     isSender ? room['receiver'] : room['sender'];
-
+                print("OBJECT");
                 Map<String, dynamic> otherUserProfile = isSender
                     ? room['receiver_profile']
                     : room['sender_profile'];
