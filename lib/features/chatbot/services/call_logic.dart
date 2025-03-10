@@ -35,6 +35,10 @@ class CallLogic {
     _isMuted = mute;
   }
 
+  void dispose() {
+    _audioPlayer.dispose();
+  }
+
   Future<void> playIntro(Function() onUpdate) async {
     try {
       await _audioPlayer.setAsset('assets/intro.mp3');

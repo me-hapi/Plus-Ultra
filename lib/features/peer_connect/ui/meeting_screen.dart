@@ -13,13 +13,15 @@ class MeetingScreen extends StatefulWidget {
   final String roomId;
   final String name;
   final bool camEnabled;
+  final String avatarUrl;
 
   const MeetingScreen(
       {super.key,
       required this.roomId,
       required this.id,
       required this.name,
-      required this.camEnabled});
+      required this.camEnabled,
+      required this.avatarUrl});
 
   @override
   State<MeetingScreen> createState() => _MeetingScreenState();
@@ -91,7 +93,8 @@ class _MeetingScreenState extends State<MeetingScreen> {
         context.push('/peer-chatscreen', extra: {
           'roomId': widget.roomId,
           'id': widget.id,
-          'name': widget.name
+          'name': widget.name,
+          'avatar': widget.avatarUrl
         });
       });
     });

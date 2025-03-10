@@ -35,6 +35,7 @@ class _CallChatbotState extends State<CallChatbot> {
   @override
   void dispose() {
     _timer.cancel(); // Stop the timer when widget is disposed
+     _callLogic.dispose();
     super.dispose();
   }
 

@@ -24,10 +24,10 @@ class _HeartRatePageState extends State<HeartRatePage> {
   @override
   void initState() {
     super.initState();
-    print('HEARTDATA ${widget.heartData}');
-    convertedHeartData = widget.heartData.map((spot) {
-      return FlSpot(spot.x / 1e9, spot.y);
-    }).toList();
+    convertedHeartData =
+        widget.heartData.map((spot) => FlSpot(spot.x / 1e9, spot.y)).toList();
+    // Ensure the spots are sorted in ascending order by x value
+    convertedHeartData.sort((a, b) => a.x.compareTo(b.x));
   }
 
   List<FlSpot> getFilteredData() {

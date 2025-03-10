@@ -146,7 +146,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 'roomId': widget.roomId,
                 'id': widget.id,
                 'name': widget.name,
-                'cam': true
+                'cam': true,
+                'avatar': widget.avatarUrl
               });
             },
             child:
@@ -159,7 +160,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 'roomId': widget.roomId,
                 'id': widget.id,
                 'name': widget.name,
-                'cam': false
+                'cam': false,
+                'avatar': widget.avatarUrl
               });
             },
             child: Image.asset('assets/peer/call.png', width: 20, height: 20),

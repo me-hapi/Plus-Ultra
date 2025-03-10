@@ -10,7 +10,7 @@ class SupabaseDB {
   Future<List<Map<String, dynamic>>> getPastWeekMoods() async {
     final int daysToSubtract = DateTime.now().weekday;
     final DateTime weekAgo =
-        DateTime.now().subtract(Duration(days: daysToSubtract-1));
+        DateTime.now().subtract(Duration(days: daysToSubtract));
 
     print('DAY MINUS: $daysToSubtract');
 

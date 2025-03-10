@@ -223,47 +223,36 @@ class _GreetingCardState extends State<GreetingCard> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 GestureDetector(
-                    onTap: () {
-                      // context.push('/profile',
-                      //     extra: {'bg': _backgroundImage, 'profile': profile});
-                    },
-                    child: SizedBox(
-                      height: 80,
-                      child: Image.asset(widget.imageUrl),
-                    )
-                    // CircleAvatar(
-                    //   child: Icon(Icons.person, size: 24, color: Colors.white),
-                    //   backgroundColor: Colors.grey,
-                    //   radius: 40,
-                    // ),
-                    ),
+                  child: SizedBox(
+                    height: 80,
+                    child: Image.asset(widget.imageUrl),
+                  ),
+                ),
                 SizedBox(width: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hello, $username!',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hello, $username!',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: Text(
+                      Text(
                         selectedSuggestion['message']!,
                         style: TextStyle(
                           fontStyle: FontStyle.italic,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
                           color: Colors.white,
                         ),
-                        softWrap: true, // Ensures text can wrap
-                        // overflow property removed
+                        softWrap: true,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

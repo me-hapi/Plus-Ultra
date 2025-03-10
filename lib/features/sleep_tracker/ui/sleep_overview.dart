@@ -27,19 +27,19 @@ class _sleepOverviewState extends State<SleepOverview> {
 
   @override
   Widget build(BuildContext context) {
-    String sleepQuality = sleepLogic.sleepSelection[sleepLogic.sleepIndex]['sleep'];
+    String sleepQuality =
+        sleepLogic.sleepSelection[sleepLogic.sleepIndex]['sleep'];
 
     return Scaffold(
       body: Stack(
         children: [
           Container(
-            color: sleepLogic.sleepSelection[sleepLogic.sleepIndex]['color']
-          ),
+              color: sleepLogic.sleepSelection[sleepLogic.sleepIndex]['color']),
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                   sleepLogic.sleepSelection[sleepLogic.sleepIndex]['image']),
+                    sleepLogic.sleepSelection[sleepLogic.sleepIndex]['image']),
                 fit: BoxFit.cover,
               ),
             ),
@@ -63,7 +63,7 @@ class _sleepOverviewState extends State<SleepOverview> {
               SizedBox(height: 30),
               Center(
                 child: Image.asset(
-                 sleepLogic.sleepSelection[sleepLogic.sleepIndex]['icon'],
+                  sleepLogic.sleepSelection[sleepLogic.sleepIndex]['icon'],
                   height: 120,
                 ),
               ),
@@ -111,16 +111,22 @@ class _sleepOverviewState extends State<SleepOverview> {
                           ),
                           Expanded(
                               child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              _buildCard(
+                              Expanded(
+                                child: _buildCard(
                                   title: 'Average Sleep',
                                   value: sleepLogic.avgSleep,
-                                  color: serenityGreen['Green50']!),
-                              _buildCard(
+                                  color: serenityGreen['Green50']!,
+                                ),
+                              ),
+                              SizedBox(width: 5), // Adjust spacing as needed
+                              Expanded(
+                                child: _buildCard(
                                   title: 'Sleep Debt',
                                   value: sleepLogic.sleepDebt,
-                                  color: empathyOrange['Orange50']!)
+                                  color: empathyOrange['Orange50']!,
+                                ),
+                              ),
                             ],
                           )),
                           SizedBox(height: 15),
@@ -213,7 +219,7 @@ Widget _buildCard({
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height:30),
+            SizedBox(height: 30),
             Stack(
               alignment: Alignment.center,
               children: [

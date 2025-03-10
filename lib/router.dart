@@ -389,11 +389,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final roomId = extra['roomId'];
           final name = extra['name'];
           final cam = extra['cam'];
+          final avatar = extra['avatar'];
           return MeetingScreen(
             roomId: roomId,
             id: id,
             name: name,
             camEnabled: cam,
+            avatarUrl: avatar,
           );
         },
       ),
