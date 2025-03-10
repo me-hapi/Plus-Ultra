@@ -64,13 +64,15 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
 
-    _fetchProfile();
-    _initializeConnectionStatus();
-    _fetchSleepData();
-    _fetchMoodData();
-    _fetchMindfulData();
-    _fetchMhData();
-    _startTutorial();
+    if (mounted) {
+      _fetchProfile();
+      _initializeConnectionStatus();
+      _fetchSleepData();
+      _fetchMoodData();
+      _fetchMindfulData();
+      _fetchMhData();
+    }
+    // _startTutorial();
   }
 
   @override

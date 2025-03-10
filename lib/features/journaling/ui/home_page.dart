@@ -32,16 +32,16 @@ class _HomePageState extends State<HomePage> {
     // counts = homeLogic.counts;
     fetchCounts();
     fetchjournalCount();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final journalTutorial = JournalTutorial(context);
-      journalTutorial.initTargets(
-        _keyAppBar,
-        _keyJournalCount,
-        _keyStats,
-        _keyFAB,
-      );
-      journalTutorial.showTutorial();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final journalTutorial = JournalTutorial(context);
+    //   journalTutorial.initTargets(
+    //     _keyAppBar,
+    //     _keyJournalCount,
+    //     _keyStats,
+    //     _keyFAB,
+    //   );
+    //   journalTutorial.showTutorial();
+    // });
   }
 
   Future<void> fetchjournalCount() async {

@@ -39,6 +39,12 @@ class _BottomNavState extends State<BottomNav> {
     _loadProfessionalStatus();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    hasConversation();
+  }
+
   Future<void> _loadProfessionalStatus() async {
     final result = await globalSupabase.isProfessional(uid);
     if (result) {
@@ -75,7 +81,7 @@ class _BottomNavState extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
-    hasConversation();
+    // hasConversation();
     return Scaffold(
       body: _screens()[_currentIndex],
       bottomNavigationBar: CurvedNavigationBar(

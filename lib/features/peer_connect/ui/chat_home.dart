@@ -31,6 +31,7 @@ class _ChatHomeState extends State<ChatHome> {
   @override
   void initState() {
     super.initState();
+    print('WAIT');
     fetchConnectedUsers(uid);
     _searchController.addListener(() {
       setState(() {
