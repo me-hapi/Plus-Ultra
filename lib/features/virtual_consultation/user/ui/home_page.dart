@@ -42,17 +42,17 @@ class _HomePageState extends ConsumerState<HomePage> {
     getRecommendation();
     getProfessionals();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final teleconsultTutorial = TeleconsultTutorial(context);
-      teleconsultTutorial.initTargets(
-        _keyAppBar,
-        _keySearch,
-        _keyIssues,
-        _keyRecommendation,
-        _keyAllProfessionals,
-      );
-      teleconsultTutorial.showTutorial();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final teleconsultTutorial = TeleconsultTutorial(context);
+    //   teleconsultTutorial.initTargets(
+    //     _keyAppBar,
+    //     _keySearch,
+    //     _keyIssues,
+    //     _keyRecommendation,
+    //     _keyAllProfessionals,
+    //   );
+    //   teleconsultTutorial.showTutorial();
+    // });
   }
 
   @override
