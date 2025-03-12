@@ -7,6 +7,7 @@ class SupabaseDB {
   Future<void> insertHealthHistory(List<Map<String, dynamic>> history) async {
     for (var entry in history) {
       String healthUID = entry['uid'];
+      String entryDate = entry['date'];
 
       try {
         // Check if the uid already exists
@@ -14,6 +15,7 @@ class SupabaseDB {
             .from('vital')
             .select()
             .eq('health_id', healthUID)
+            .eq('date', entryDate)
             .eq('uid', uid)
             .maybeSingle();
 

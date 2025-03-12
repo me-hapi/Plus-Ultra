@@ -7,6 +7,7 @@ import 'package:lingap/core/const/const.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
 import 'package:lingap/features/wearable_device/data/supabase_db.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
+import 'package:lingap/features/wearable_device/model/stress_model.dart';
 import 'package:lingap/features/wearable_device/ui/health_page.dart';
 import 'package:lingap/features/wearable_device/ui/mh_card.dart';
 import 'package:lingap/features/wearable_device/ui/vital_card.dart';
@@ -26,6 +27,14 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final GlobalSupabase supabase = GlobalSupabase(client);
+  late StressModel model;
+  List<dynamic> sampleInput = [
+    8.347897874,
+    115.8624442,
+    2.209659139,
+    1.100714889
+  ];
+
   final SupabaseDB supabaseV = SupabaseDB();
   bool isConnected = false;
   final HealthLogic healthLogic = HealthLogic();
@@ -71,8 +80,10 @@ class _HomePageState extends ConsumerState<HomePage> {
       _fetchMoodData();
       _fetchMindfulData();
       _fetchMhData();
+      _fetchHealthData();
+      model = StressModel(onStressDetected, context);
+      // _startTutorial();
     }
-    // _startTutorial();
   }
 
   @override
@@ -80,6 +91,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.didChangeDependencies();
     _initializeConnectionStatus();
     _fetchMindfulData();
+    _fetchHealthData();
+  }
+
+  Future<void> onStressDetected() async {
+    if (mounted) {
+      int result = await supabase.createSession(uid);
+      if (result != 0) {
+        context.replace('/bottom-nav', extra: 1);
+        Future.microtask(() {
+          context.push('/chatscreen', extra: {
+            'sessionID': result,
+            'animate': true,
+            'intro': true,
+            'open': true
+          });
+        });
+      }
+    }
   }
 
   void _startTutorial({int retryCount = 0}) {
@@ -224,6 +253,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    String averageString = sleepData['average'].toString();
+    String displayMetric = averageString.length >= 4
+        ? averageString.substring(0, 4)
+        : averageString;
+
     return Scaffold(
       backgroundColor: mindfulBrown['Brown10'],
       body: SingleChildScrollView(
@@ -506,7 +540,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   key: keySleep,
                   title: "Sleep",
                   imageUrl: "assets/vitals/sleep.png",
-                  metric: sleepData['average'].toString(),
+                  metric: displayMetric,
                   lineGraphData: sleepData.isEmpty
                       ? sleepBack
                       : (sleepData['spots'] as List<dynamic>)

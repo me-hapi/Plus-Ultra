@@ -88,6 +88,12 @@ class _GreetingCardState extends State<GreetingCard> {
     fetchNotification();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchNotification();
+  }
+
   Future<void> fetchNotification() async {
     final result = await supabase.fetchNotificationValue();
     setState(() {

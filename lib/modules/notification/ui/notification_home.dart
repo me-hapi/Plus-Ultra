@@ -78,7 +78,9 @@ class _NotificationHomeState extends State<NotificationHome> {
                                 return NotificationCard(
                                     category: item['category'],
                                     content: item['content'],
-                                    time_ago: item['time_ago']);
+                                    time_ago: entry.key == 'Today'
+                                        ? item['time_ago']
+                                        : '');
                               },
                             ),
                           ],

@@ -66,7 +66,7 @@ class HealthLogic {
   Future<void> fetchHealthData() async {
     try {
       final now = DateTime.now();
-      final weekAgo = now.subtract(const Duration(days: 7));
+      final weekAgo = now.subtract(const Duration(days: 1));
       final types = [HealthDataType.HEART_RATE, HealthDataType.BLOOD_OXYGEN];
 
       List<HealthDataPoint> healthData = await health.getHealthDataFromTypes(

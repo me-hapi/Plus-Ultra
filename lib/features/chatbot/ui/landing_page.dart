@@ -20,9 +20,9 @@ class _ChatbotLandingState extends State<ChatbotLanding> {
   void initState() {
     super.initState();
     // Show the tutorial coach mark after the first frame is rendered
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   LandingTutorial.show(context, _buttonKey);
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LandingTutorial.show(context, _buttonKey);
+    });
   }
 
   @override

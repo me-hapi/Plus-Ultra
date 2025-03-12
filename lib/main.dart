@@ -5,6 +5,7 @@ import 'package:health/health.dart';
 import 'package:lingap/core/utils/shared/shared_pref.dart';
 import 'package:lingap/features/wearable_device/logic/foreground_service.dart';
 import 'package:lingap/features/wearable_device/logic/health_connect.dart';
+import 'package:lingap/features/wearable_device/model/stress_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'router.dart';
 
@@ -14,10 +15,7 @@ Future<bool> requestPermissions() async {
   try {
     health.configure();
 
-    final types = [
-      HealthDataType.HEART_RATE,
-      HealthDataType.BLOOD_OXYGEN
-    ];
+    final types = [HealthDataType.HEART_RATE, HealthDataType.BLOOD_OXYGEN];
 
     final permissions = types.map((type) => HealthDataAccess.READ).toList();
 
@@ -50,6 +48,8 @@ Future<void> main() async {
   print("Foreground service running: $isRunning");
 
   ForegroundHealthService.startForegroundService();
+
+
   runApp(const ProviderScope(child: LingapApp()));
 }
 

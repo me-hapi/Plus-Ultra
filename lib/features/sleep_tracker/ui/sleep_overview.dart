@@ -234,7 +234,7 @@ Widget _buildCard({
                   ),
                 ),
                 Text(
-                  '$value h',
+                  '${value.toStringAsFixed(2)} h',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

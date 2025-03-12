@@ -6,6 +6,21 @@ class GlobalSupabase {
 
   GlobalSupabase(this._client);
 
+  Future<int> createSession(String uid) async {
+    try {
+      final response = await _client
+          .from('session')
+          .insert({'uid': uid, 'open': true})
+          .select('id') // Fetch the inserted id
+          .single();
+
+      return response['id']; // Return the inserted id
+    } catch (e) {
+      print('Error inserting session: $e');
+      return 0; // Return null if insertion fails
+    }
+  }
+
   Future<bool> homeFinish() async {
     try {
       final result =

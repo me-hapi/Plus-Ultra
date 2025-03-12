@@ -4,181 +4,147 @@ import 'dart:math';
 class StressDetection {
   final SupabaseClient supabase = Supabase.instance.client;
 
-  /// Helper function to normalize a value within a given range.
-  double normalize(double value, double min, double max) {
-    return ((value - min) / (max - min)).clamp(0.0, 1.0);
-  }
-
-  /// Generalized method to fetch vital data (heart rate or blood oxygen) stats.
-  /// Returns a map with the average, standard deviation, and a weighted average (by recency).
-  Future<Map<String, double>?> fetchVitalStats(
-      String userId, String type) async {
+  /// Fetch heart rate data for the past 30 minutes.
+  Future<List<double>?> fetchHeartRateData(String userId) async {
+    final thirtyMinutesAgo = DateTime.now().subtract(Duration(hours: 3));
     final response = await supabase
         .from('vital')
-        .select('value, created_at')
+        .select('value, date')
         .eq('uid', userId)
-        .eq('type', type)
-        .gte(
-          'created_at',
-          DateTime.now().toUtc().subtract(Duration(days: 1)).toIso8601String(),
-        );
+        .eq('type', 'HEART_RATE')
+        .gte('date', thirtyMinutesAgo.toIso8601String());
 
-    if (response.isEmpty) return null;
-
-    List<double> values = [];
-    List<DateTime> times = [];
-
-    for (var row in response) {
-      double value = row['value'].toDouble();
-      DateTime timestamp = DateTime.parse(row['created_at']);
-      values.add(value);
-      times.add(timestamp);
+    print('MODEL: $response');
+    // Assuming the response is a List of maps.
+    List<dynamic> data = response as List<dynamic>;
+    List<double> heartRates = [];
+    for (var item in data) {
+      double? rate = double.tryParse(item['value'].toString());
+      if (rate != null) {
+        heartRates.add(rate);
+      }
     }
+    print('MODEL double: $heartRates');
+    return heartRates;
+  }
 
-    // Compute the average.
-    double average = values.reduce((a, b) => a + b) / values.length;
+  /// Compute the standard deviation of a list.
+  double computeStandardDeviation(List<double> data) {
+    if (data.isEmpty) return 0.0;
+    double mean = data.reduce((a, b) => a + b) / data.length;
+    num sumSq = data.map((x) => pow(x - mean, 2)).reduce((a, b) => a + b);
+    return sqrt(sumSq / data.length);
+  }
 
-    // Compute the standard deviation.
-    double sumSquaredDiff =
-        values.map((v) => (v - average) * (v - average)).reduce((a, b) => a + b);
-    double std = sqrt(sumSquaredDiff / values.length);
-
-    // Compute a weighted average where more recent data (based on time) counts more.
-    DateTime minTime = times.reduce((a, b) => a.isBefore(b) ? a : b);
-    DateTime maxTime = times.reduce((a, b) => a.isAfter(b) ? a : b);
-    double timeSpan = maxTime.difference(minTime).inSeconds.toDouble();
-    double weightedSum = 0;
-    double totalWeight = 0;
-
-    for (int i = 0; i < values.length; i++) {
-      // If all values have the same timestamp, use equal weight.
-      double weight = timeSpan > 0
-          ? times[i].difference(minTime).inSeconds.toDouble() / timeSpan
-          : 1;
-      weightedSum += values[i] * weight;
-      totalWeight += weight;
+  /// Compute SD1 and SD2 from heart rate data.
+  /// Here, SD1 is approximated as sqrt(0.5) * std(diff) and
+  /// SD2 is computed from the overall variance.
+  Map<String, double> computeSD1SD2(List<double> data) {
+    if (data.length < 2) return {'SD1': 0.0, 'SD2': 0.0};
+    List<double> diffs = [];
+    for (int i = 0; i < data.length - 1; i++) {
+      diffs.add(data[i + 1] - data[i]);
     }
-    double weightedAverage = weightedSum / totalWeight;
+    double sdDiff = computeStandardDeviation(diffs);
+    double sd1 = sqrt(0.5) * sdDiff;
+    double sdRR = computeStandardDeviation(data);
+    double sd2Squared = 2 * pow(sdRR, 2) - 0.5 * pow(sdDiff, 2);
+    double sd2 = sd2Squared > 0 ? sqrt(sd2Squared) : 0.0;
+    return {'SD1': sd1, 'SD2': sd2};
+  }
+
+  /// Compute Sample Entropy (SampEn) for the data.
+  /// m is the embedding dimension and r is the tolerance (defaulting to 0.2 * std).
+  double computeSampleEntropy(List<double> data, {int m = 2, double? r}) {
+    int N = data.length;
+    if (N <= m + 1) return double.nan;
+    r ??= 0.2 * computeStandardDeviation(data);
+    int count_m = 0;
+    int count_m1 = 0;
+    for (int i = 0; i < N - m; i++) {
+      for (int j = i + 1; j < N - m; j++) {
+        bool match_m = true;
+        for (int k = 0; k < m; k++) {
+          if ((data[i + k] - data[j + k]).abs() > r) {
+            match_m = false;
+            break;
+          }
+        }
+        if (match_m) {
+          count_m++;
+          bool match_m1 = true;
+          for (int k = 0; k < m + 1; k++) {
+            if ((data[i + k] - data[j + k]).abs() > r) {
+              match_m1 = false;
+              break;
+            }
+          }
+          if (match_m1) count_m1++;
+        }
+      }
+    }
+    if (count_m == 0 || count_m1 == 0) return double.infinity;
+    return -log(count_m1 / count_m);
+  }
+
+  /// Compute the Higuchi Fractal Dimension for the data.
+  double computeHiguchi(List<double> data, {int kmax = 10}) {
+    int N = data.length;
+    if (N < 2) return double.nan;
+    List<double> L = [];
+    for (int k = 1; k <= kmax; k++) {
+      double sumL = 0.0;
+      int count = 0;
+      for (int m = 0; m < k; m++) {
+        double Lmk = 0.0;
+        int num = ((N - m - 1) / k).floor();
+        if (num <= 0) continue;
+        for (int i = 1; i <= num; i++) {
+          Lmk += (data[m + i * k] - data[m + (i - 1) * k]).abs();
+        }
+        Lmk = (Lmk * (N - 1)) / (num * k);
+        sumL += Lmk;
+        count++;
+      }
+      if (count > 0) {
+        L.add(sumL / count);
+      }
+    }
+    // Prepare data for linear regression on log(1/k) vs. log(L(k)).
+    List<double> logKInv = [];
+    List<double> logL = [];
+    for (int i = 0; i < L.length; i++) {
+      int k = i + 1;
+      logKInv.add(log(1 / k));
+      logL.add(log(L[i]));
+    }
+    int n = logKInv.length;
+    double sumX = logKInv.reduce((a, b) => a + b);
+    double sumY = logL.reduce((a, b) => a + b);
+    double sumXY = 0.0;
+    double sumXX = 0.0;
+    for (int i = 0; i < n; i++) {
+      sumXY += logKInv[i] * logL[i];
+      sumXX += logKInv[i] * logKInv[i];
+    }
+    double slope = (n * sumXY - sumX * sumY) / (n * sumXX - pow(sumX, 2));
+    return slope;
+  }
+
+  /// Fetch heart rate data for the past 30 minutes and compute SD1, SD2, SampEn, and Higuchi.
+  Future<Map<String, double>?> fetchHeartRateMetrics(String userId) async {
+    List<double>? heartRates = await fetchHeartRateData(userId);
+    if (heartRates == null || heartRates.isEmpty) return null;
+
+    Map<String, double> sdValues = computeSD1SD2(heartRates);
+    double sampen = computeSampleEntropy(heartRates);
+    double higuchi = computeHiguchi(heartRates);
 
     return {
-      "average": average,
-      "std": std,
-      "weightedAverage": weightedAverage,
-    };
-  }
-
-  Future<Map<String, double>?> fetchHeartRateStats(String userId) async {
-    return fetchVitalStats(userId, 'HEART_RATE');
-  }
-
-  Future<Map<String, double>?> fetchSpO2Stats(String userId) async {
-    return fetchVitalStats(userId, 'BLOOD_OXYGEN');
-  }
-
-  // Fetch last 3 days of sleep hours from sleep table.
-  Future<List<double>> fetchSleepData(String userId) async {
-    final response = await supabase
-        .from('sleep')
-        .select('sleep_hour')
-        .eq('uid', userId)
-        .order('created_at', ascending: false)
-        .limit(3);
-    return response
-        .map<double>((row) => row['sleep_hour'].toDouble())
-        .toList();
-  }
-
-  // Fetch last 3 days of mood data from mood table.
-  Future<List<int>> fetchMoodData(String userId) async {
-    final response = await supabase
-        .from('mood')
-        .select('mood')
-        .eq('uid', userId)
-        .order('created_at', ascending: false)
-        .limit(3);
-
-    final Map<String, int> moodMapping = {
-      'awful': 1,
-      'sad': 2,
-      'neutral': 3,
-      'happy': 4,
-      'cheerful': 5,
-    };
-
-    return response.map<int>((row) {
-      final moodText = (row['mood'] as String).toLowerCase();
-      return moodMapping[moodText] ?? 0; // Returns 0 if mood text not found.
-    }).toList();
-  }
-
-  /// Calculate the overall stress level by incorporating the weighted average and variability.
-  /// Returns a map containing the computed metrics and the stress classification.
-  Future<Map<String, dynamic>> detectStress(String userId) async {
-    // Fetch vital stats for heart rate and blood oxygen.
-    final hrStats = await fetchHeartRateStats(userId);
-    final spo2Stats = await fetchSpO2Stats(userId);
-
-    // Fetch sleep and mood data.
-    List<double> sleepData = await fetchSleepData(userId);
-    List<int> moodData = await fetchMoodData(userId);
-
-    // Ensure all data is available.
-    if (hrStats == null ||
-        spo2Stats == null ||
-        sleepData.length < 3 ||
-        moodData.length < 3) {
-      return {"error": "Insufficient Data"};
-    }
-
-    // Use weighted averages for heart rate and SpO₂.
-    double hrWeightedAvg = hrStats["weightedAverage"]!;
-    double spo2WeightedAvg = spo2Stats["weightedAverage"]!;
-
-    // Incorporate variability:
-    double hrVariabilityFactor = normalize(hrStats["std"]!, 0, 15);
-    double spo2VariabilityFactor = normalize(spo2Stats["std"]!, 0, 3);
-
-    // Normalize the primary values (0-1 scale) and adjust by adding 10% of the variability factor.
-    double hrScore = normalize(hrWeightedAvg, 60, 100) + 0.1 * hrVariabilityFactor;
-    hrScore = hrScore.clamp(0.0, 1.0);
-    double spo2Score =
-        1 - normalize(spo2WeightedAvg, 90, 100) + 0.1 * spo2VariabilityFactor;
-    spo2Score = spo2Score.clamp(0.0, 1.0);
-
-    // Compute sleep and mood averages.
-    double avgSleep = sleepData.reduce((a, b) => a + b) / sleepData.length;
-    double avgMood = moodData.reduce((a, b) => a + b) / moodData.length;
-    double sleepScore = 1 - normalize(avgSleep, 4, 12);
-    double moodScore = 1 - normalize(avgMood, 1, 5);
-
-    // Define weights for the stress calculation.
-    const weights = {"hr": 0.30, "spo2": 0.20, "sleep": 0.25, "mood": 0.25};
-
-    // Compute a combined weighted stress score.
-    double stressScore = ((weights["hr"]! * hrScore) +
-            (weights["spo2"]! * spo2Score) +
-            (weights["sleep"]! * sleepScore) +
-            (weights["mood"]! * moodScore)) *
-        100;
-
-    String stressLevel;
-    if (stressScore < 40) {
-      stressLevel = "Low Stress";
-    } else if (stressScore < 70) {
-      stressLevel = "Moderate Stress";
-    } else {
-      stressLevel = "High Stress";
-    }
-
-    // Return all computed data along with the stress classification.
-    return {
-      "hrWeightedAvg": hrWeightedAvg,
-      "hrStd": hrStats["std"],
-      "spo2WeightedAvg": spo2WeightedAvg,
-      "spo2Std": spo2Stats["std"],
-      "avgSleep": avgSleep,
-      "avgMood": avgMood,
-      "stressLevel": stressLevel,
+      'SD1': sdValues['SD1']!,
+      'SD2': sdValues['SD2']!,
+      'SampEn': sampen,
+      'Higuchi': higuchi,
     };
   }
 }
