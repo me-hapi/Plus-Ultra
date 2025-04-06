@@ -528,14 +528,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                   lineGraphData: healthDataMap['HEART_RATE']?['spots'] ?? [],
                   graphColor: presentRed['Red50']!,
                 ),
-                VitalCard(
-                  key: keyBloodPressure,
-                  title: "Blood Oxygen",
-                  imageUrl: "assets/vitals/blood.png",
-                  metric: healthDataMap['BLOOD_OXYGEN']?['latest'] ?? 'N/A',
-                  lineGraphData: healthDataMap['BLOOD_OXYGEN']?['spots'] ?? [],
-                  graphColor: reflectiveBlue['Blue50']!,
-                ),
+                // VitalCard(
+                //   key: keyBloodPressure,
+                //   title: "Blood Oxygen",
+                //   imageUrl: "assets/vitals/blood.png",
+                //   metric: healthDataMap['BLOOD_OXYGEN']?['latest'] ?? 'N/A',
+                //   lineGraphData: healthDataMap['BLOOD_OXYGEN']?['spots'] ?? [],
+                //   graphColor: reflectiveBlue['Blue50']!,
+                // ),
                 VitalCard(
                   key: keySleep,
                   title: "Sleep",

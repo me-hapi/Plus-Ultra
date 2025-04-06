@@ -32,13 +32,13 @@ class StressModel {
       final higuchi = stress.computeHiguchi(heartData);
       final sampen = stress.computeSampleEntropy(heartData);
 
-      List<dynamic> testInput = [sd1, sd2, sampen, higuchi];
-      // List<dynamic> testInput = [
-      //   8.347897874,
-      //   115.8624442,
-      //   2.209659139,
-      //   1.100714889
-      // ];
+      // List<dynamic> testInput = [sd1, sd2, sampen, higuchi];
+      List<dynamic> testInput = [
+        8.347897874,
+        115.8624442,
+        2.209659139,
+        1.100714889
+      ];
 
       print('MODEL input: $testInput');
       final result = predict(testInput);

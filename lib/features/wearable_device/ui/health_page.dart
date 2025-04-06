@@ -192,14 +192,14 @@ class _HealthPageState extends State<HealthPage> {
                   lineGraphData: healthDataMap['HEART_RATE']?['spots'] ?? [],
                   graphColor: presentRed['Red50']!,
                 ),
-                VitalCard(
-                  title: "Blood Oxygen",
-                  imageUrl: "assets/utils/oxygen2.png",
-                  metric: healthDataMap['BLOOD_OXYGEN']?['latest'] ?? 'N/A',
-                  lineGraphData:
-                      healthDataMap['BLOOD_OXYGEN']?['spots'] ?? [],
-                  graphColor: empathyOrange['Orange50']!,
-                ),
+                // VitalCard(
+                //   title: "Blood Oxygen",
+                //   imageUrl: "assets/utils/oxygen2.png",
+                //   metric: healthDataMap['BLOOD_OXYGEN']?['latest'] ?? 'N/A',
+                //   lineGraphData:
+                //       healthDataMap['BLOOD_OXYGEN']?['spots'] ?? [],
+                //   graphColor: empathyOrange['Orange50']!,
+                // ),
               ]),
           Card(
             shape: RoundedRectangleBorder(

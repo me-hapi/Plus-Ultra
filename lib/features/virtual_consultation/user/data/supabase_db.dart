@@ -116,7 +116,6 @@ class SupabaseDB {
           .from('appointment')
           .select('*, consultation_room(*)')
           .eq('uid', uid)
-          .eq('status', 'pending')
           .maybeSingle();
 
       return response;

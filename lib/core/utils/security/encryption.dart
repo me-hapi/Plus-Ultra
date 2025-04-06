@@ -17,13 +17,6 @@ class Encryption {
     return base64Encode(resultBytes);
   }
 
-  String addBase64Padding(String input) {
-    while (input.length % 4 != 0) {
-      input += "=";
-    }
-    return input;
-  }
-
   String decryptMessage(String encryptedText, String key) {
     final fullEncryptedBytes = base64Decode(encryptedText);
 

@@ -49,7 +49,7 @@ class _DasResultPageState extends State<DasResultPage> {
                     Row(
                       children: [
                         Text(
-                          'DAS-21 Result',
+                          'DAS-12 Result',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w700,
