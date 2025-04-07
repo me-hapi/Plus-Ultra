@@ -134,7 +134,7 @@ class _ChatHomeState extends State<ChatHome> {
                                           final user = filteredUsers[index];
                                           final isUserSender =
                                               user['sender'] == uid;
-                                          final unsent = user['unsent'];
+                                          final unsent = user['unsent'] ?? false;
                                           final name = user['name'];
                                           final avatarUrl = user['imageUrl'];
                                           final roomId = user['roomId'];
@@ -147,7 +147,7 @@ class _ChatHomeState extends State<ChatHome> {
                                           final messageTime =
                                               DateFormat('h:mm a')
                                                   .format(dateTime);
-                                          final read = user['read'];
+                                          final read = user['read'] ?? false;
 
                                           return Padding(
                                             padding: EdgeInsets.symmetric(

@@ -15,6 +15,25 @@ class CreateJournalLogic {
   final List<JournalItem> journalItems = [];
   final Map<int, TextEditingController> textControllers = {};
 
+  void insertPromptText(String text) {
+    final controller = TextEditingController(text: text);
+
+    // Insert new journal item at the beginning
+    journalItems.insert(0, JournalItem(type: 'text', text: text));
+
+    // Rebuild the textControllers map with shifted indices
+    final updatedControllers = <int, TextEditingController>{};
+    updatedControllers[0] = controller;
+
+    for (int i = 0; i < textControllers.length; i++) {
+      updatedControllers[i + 1] = textControllers[i]!;
+    }
+
+    textControllers
+      ..clear()
+      ..addAll(updatedControllers);
+  }
+
   void addTextField({String initialText = ''}) {
     final index = journalItems.length;
     textControllers[index] = TextEditingController(text: initialText);

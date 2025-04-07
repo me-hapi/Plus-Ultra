@@ -118,6 +118,36 @@ class SupabaseDB {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchMood() async {
+    try {
+      final response = await _client
+          .from('mood')
+          .select('*')
+          .eq('uid', uid)
+          .order('created_at', ascending: false)
+          .limit(7);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print("Error fetching mood: $e");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchSleep() async {
+    try {
+      final response = await _client
+          .from('sleep')
+          .select('*')
+          .eq('uid', uid)
+          .order('created_at', ascending: false)
+          .limit(7);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print("Error fetching sleep: $e");
+      return [];
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getJournalsWithItems({
     required String uid,
     required DateTime startDate,

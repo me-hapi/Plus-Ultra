@@ -6,6 +6,7 @@ import 'package:lingap/core/const/loading_screen.dart';
 import 'package:lingap/features/journaling/logic/create_logic.dart';
 import 'package:lingap/features/journaling/logic/insert_audio.dart';
 import 'package:lingap/features/journaling/logic/insert_image.dart';
+import 'package:lingap/features/journaling/model/journal_prompt.dart';
 import 'package:lingap/features/journaling/ui/audio_card.dart';
 import 'package:lingap/features/journaling/ui/journal_detail.dart';
 
@@ -22,7 +23,28 @@ class _CreateJournalPageState extends State<CreateJournalPage> {
   void initState() {
     super.initState();
     _logic = CreateJournalLogic();
-    _logic.addTextField(); // Initialize with the first text field
+    _logic.addTextField(); // Default field in case prompt fails
+
+    // Generate journal prompt and insert it
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadJournalPrompt();
+    });
+  }
+
+  Future<void> loadJournalPrompt() async {
+    try {
+      LoadingScreen.show(context);
+      final promptService = JournalPromptService();
+      final prompt = await promptService.generatePersonalizedPrompt();
+      if (prompt.isNotEmpty) {
+        _logic.insertPromptText(prompt);
+
+        LoadingScreen.hide(context);
+        setState(() {});
+      }
+    } catch (e) {
+      print("Error loading journal prompt: $e");
+    }
   }
 
   @override
