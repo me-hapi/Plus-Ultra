@@ -85,7 +85,8 @@ class SupabaseDB {
         'bio': bio,
         'number': mobile,
         'email': email,
-        'profileUrl': profilePublicUrl
+        'profileUrl': profilePublicUrl,
+        'approved': false
       }).eq('uid', uid);
 
       await _client.from('specialty').insert({

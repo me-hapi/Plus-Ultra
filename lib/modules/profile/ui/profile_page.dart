@@ -200,41 +200,6 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                         )
-                        // Positioned(
-                        //     right: 5,
-                        //     bottom: 5,
-                        //     child: GestureDetector(
-                        //         behavior: HitTestBehavior.translucent,
-                        //         onTap: () {
-                        //           print('helloAS');
-                        //           context.push('/change-avatar', extra: {
-                        //             'avatar': widget.profile['imageUrl'],
-                        //             'name': widget.profile['name'],
-                        //           });
-                        //         },
-                        //         child: AbsorbPointer(
-                        //           child: Container(
-                        //             padding: EdgeInsets.all(4),
-                        //             decoration: BoxDecoration(
-                        //               color: Colors
-                        //                   .white, // White background for contrast
-                        //               shape: BoxShape.circle,
-                        //               boxShadow: [
-                        //                 BoxShadow(
-                        //                   color: Colors.black26,
-                        //                   blurRadius: 4,
-                        //                   spreadRadius: 2,
-                        //                 ),
-                        //               ],
-                        //             ),
-                        //             child: Icon(
-                        //               Icons.add,
-                        //               color: mindfulBrown[
-                        //                   'Brown80'], // Brown plus icon
-                        //               size: 24,
-                        //             ),
-                        //           ),
-                        //         )))
                       ],
                     ),
                   ),
@@ -419,28 +384,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            // Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 16),
-            //   child: Card(
-            //     color: Colors.white,
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(30),
-            //     ),
-            //     child: ListTile(
-            //       onTap: () {},
-            //       leading: Image.asset('assets/profileIcon/emergency.png'),
-            //       contentPadding:
-            //           EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            //       title: Text(
-            //         'Emergency Contact',
-            //         style: TextStyle(
-            //           fontWeight: FontWeight.bold,
-            //           color: mindfulBrown['Brown80'],
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Card(
@@ -493,16 +436,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: GestureDetector(
                   onTap: () {
-                    // showDialog(
-                    //   context: context,
-                    //   barrierDismissible:
-                    //       false, // Prevent closing by tapping outside
-                    //   builder: (context) => Dialog(
-                    //     backgroundColor: Colors
-                    //         .transparent, // Makes dialog background transparent
-                    //     child: SuccessfulModal(),
-                    //   ),
-                    // );
+                    showDialog(
+                      context: context,
+                      barrierDismissible:
+                          false, // Prevent closing by tapping outside
+                      builder: (context) => Dialog(
+                        backgroundColor: Colors
+                            .transparent, // Makes dialog background transparent
+                        child: SuccessfulModal(),
+                      ),
+                    );
                   },
                   child: Card(
                     color: presentRed['Red20'],

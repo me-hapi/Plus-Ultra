@@ -4,8 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:lingap/core/const/colors.dart';
 import 'package:lingap/core/const/const.dart';
 import 'package:lingap/features/virtual_consultation/user/data/supabase_db.dart';
-import 'package:lingap/features/virtual_consultation/user/ui/home_page.dart';
 import 'package:lingap/features/virtual_consultation/user/ui/professional_card.dart';
+
+enum AppointmentState { none, pending, approved }
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -17,54 +18,90 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   Map<String, dynamic>? appointment;
   Map<String, dynamic>? professional;
-  SupabaseDB supabaseDB = SupabaseDB(client);
-  bool isPending = false;
+  final SupabaseDB supabaseDB = SupabaseDB(client);
 
   @override
   void initState() {
     super.initState();
-    getAppointment();
+    _loadAppointment();
   }
 
-  Future<void> getAppointment() async {
-    Map<String, dynamic>? result =
-        await supabaseDB.fetchReservedAppointment(uid);
-    if (mounted) {
-      setState(() {
-        appointment = result;
-        if (result != null) {
-          print('APPOINTMENT ${appointment!['status']}');
-          getProfessional(result['professional_id']);
-          isPending = appointment!['status'] == 'pending';
-        }
+  Future<void> _loadAppointment() async {
+    final result = await supabaseDB.fetchReservedAppointment(uid);
+    if (!mounted) return;
+
+    setState(() {
+      appointment = result;
+      if (appointment != null) {
+        supabaseDB
+            .fetchReservedProfessional(appointment!['professional_id'])
+            .then((prof) {
+          if (mounted) setState(() => professional = prof);
+        });
+      }
+    });
+  }
+
+  AppointmentState get _state {
+    final status = appointment?['status'] as String?;
+    if (appointment == null || status == 'completed') {
+      return AppointmentState.none;
+    }
+    if (status == 'pending') {
+      return AppointmentState.pending;
+    }
+    if (status == 'approved') {
+      return AppointmentState.approved;
+    }
+    // fallback
+    return AppointmentState.none;
+  }
+
+  String get _message {
+    switch (_state) {
+      case AppointmentState.pending:
+        return 'Your appointment is awaiting approval.';
+      case AppointmentState.approved:
+        final date = appointment!['appointment_date'] as String;
+        final slot = appointment!['time_slot'] as String;
+        return formatAppointment(date, slot);
+      case AppointmentState.none:
+      default:
+        return 'You have no appointment';
+    }
+  }
+
+  bool get _showProfessionalCard =>
+      _state == AppointmentState.pending || _state == AppointmentState.approved;
+
+  bool get _showButton =>
+      _state == AppointmentState.none || _state == AppointmentState.approved;
+
+  String get _buttonText => _state == AppointmentState.approved
+      ? 'Join call'
+      : 'Schedule Appointment';
+
+  void _onButtonPressed() {
+    if (_state == AppointmentState.none) {
+      context.push('/findpage');
+    } else if (_state == AppointmentState.approved) {
+      final room = appointment!['consultation_room'][0]['room_id'];
+      final name = professional!['name'];
+      final id = appointment!['id'];
+      context.push('/instruction', extra: {
+        'roomId': room,
+        'name': name,
+        'appointmentId': id,
       });
     }
   }
 
   String formatAppointment(String appointmentDate, String timeSlot) {
-    // Parse the date string
-    DateTime date = DateTime.parse(appointmentDate);
-
-    // Format the date as "Month Day"
-    String formattedDate = DateFormat("MMMM d").format(date);
-
-    // Format the time slot (assumes timeSlot is in 24-hour format, e.g., "14:30")
-    DateTime time = DateFormat("HH:mm").parse(timeSlot);
-    String formattedTime =
-        DateFormat("h:mm a").format(time); // Converts to "2:30 PM"
-
+    final date = DateTime.parse(appointmentDate);
+    final formattedDate = DateFormat("MMMM d").format(date);
+    final time = DateFormat("HH:mm").parse(timeSlot);
+    final formattedTime = DateFormat("h:mm a").format(time);
     return "You have an upcoming appointment on $formattedDate at $formattedTime.";
-  }
-
-  Future<void> getProfessional(String uid) async {
-    Map<String, dynamic>? result =
-        await supabaseDB.fetchReservedProfessional(uid);
-
-    if (mounted) {
-      setState(() {
-        professional = result;
-      });
-    }
   }
 
   @override
@@ -73,75 +110,65 @@ class _LandingPageState extends State<LandingPage> {
       backgroundColor: mindfulBrown['Brown10'],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          // Displaying the image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16.0),
-            child: Image.asset(
-              appointment == null
-                  ? 'assets/consultation/no_appointment.png'
-                  : 'assets/consultation/upcoming.png',
-              width: double.infinity,
-              height: 280.0,
-              fit: BoxFit.cover,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // appointment image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                _state == AppointmentState.none
+                    ? 'assets/consultation/no_appointment.png'
+                    : 'assets/consultation/upcoming.png',
+                width: double.infinity,
+                height: 280,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          const SizedBox(height: 20.0),
-          Text(
-            appointment == null
-                ? 'You have no therapist appointment'
-                : appointment!['status'] == 'pending'
-                    ? 'Your appointment is waiting for approval.'
-                    : formatAppointment(appointment!['appointment_date'],
-                        appointment!['time_slot']),
-            style: TextStyle(
+
+            const SizedBox(height: 20),
+            // status message
+            Text(
+              _message,
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
-                fontSize: 30.0,
-                color: mindfulBrown['Brown80']),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 30.0),
+                fontSize: 30,
+                color: mindfulBrown['Brown80'],
+              ),
+              textAlign: TextAlign.center,
+            ),
 
-          if (professional != null)
-            ProfessionalCard(professionalData: professional!),
-          const SizedBox(height: 40.0),
+            const SizedBox(height: 30),
+            // professional card (only for pending or approved)
+            if (_showProfessionalCard && professional != null)
+              ProfessionalCard(professionalData: professional!),
 
-          if (!isPending)
-            SizedBox(
-              height: 55,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (appointment == null) {
-                    context.push('/findpage');
-                  } else {
-                    if (appointment!['status'] != 'pending') {
-                      context.push('/instruction', extra: {
-                        'roomId': appointment!['consultation_room'][0]
-                            ['room_id'],
-                        'name': professional!['name'],
-                        'appointmentId': appointment!['id']
-                      });
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: mindfulBrown['Brown80'],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+            const SizedBox(height: 40),
+            // action button (none & approved)
+            if (_showButton)
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: _onButtonPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: mindfulBrown['Brown80'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                ),
-                child: Text(
-                  appointment == null ? 'Schedule Appointment' : 'Join call',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                  child: Text(
+                    _buttonText,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            )
-        ]),
+          ],
+        ),
       ),
     );
   }

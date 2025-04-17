@@ -39,8 +39,11 @@ class SupabaseDB {
   Future<List<Map<String, dynamic>>> fetchProfessionals() async {
     try {
       // Perform the join query using Supabase
-      final response = await _client.from('professional').select(
-          '*, professional_payment(*), professional_clinic(*), professional_availability(*), specialty(*), experience(*)');
+      final response = await _client
+          .from('professional')
+          .select(
+              '*, professional_payment(*), professional_clinic(*), professional_availability(*), specialty(*), experience(*)')
+          .eq('approved', true);
 
       // Parse and return the data
       return List<Map<String, dynamic>>.from(response);
