@@ -6,8 +6,8 @@ import 'package:lingap/features/mindfulness/data/supabase.dart';
 
 class RecommenderApi {
   final String openaiApiKey =
-      "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";
-  final String model = "o1-mini";
+      "";
+  final String model = "o3-mini";
   final SupabaseDB supabase = SupabaseDB(client);
   List<Map<String, dynamic>> soundtracks = [];
   List<Map<String, dynamic>> vitalData = [];
