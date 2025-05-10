@@ -10,9 +10,9 @@ class RAGModel {
   final String indexEndpoint =
       "https://knowledge-base-fkj39f0.svc.aped-4627-b74a.pinecone.io";
   final String pineconeApiKey =
-      "pcsk_6T6RBw_SPJQunRCtoiSMHZbAUKRSRbsAyAigBg8nJdzpHfqbnSb7feX7WdkTo5uGTDLMkH";
+      "";
   final String openaiApiKey =
-      "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";
+      "";
   String model = "o3-mini";
   final SupabaseDB supabase = SupabaseDB(client);
 
